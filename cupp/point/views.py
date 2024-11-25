@@ -142,7 +142,6 @@ class AjaxInfo(GroupMixin, StorePlannerMixin, g.DetailView):
 
 class Detail(LoginRequiredMixin, g.DetailView):
     model = Point
-
     template_name = 'point/detail.html'
 
 
