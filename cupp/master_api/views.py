@@ -1,3 +1,4 @@
+import re
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -28,7 +29,12 @@ class StoreMasterAPI(APIView):
             branch_type = "Direct" if store_consultant.store_type == 0 else "Franchise"
 
             wday_hours = store_consultant.wday_hours or "00:00-23:59"
-            open_time, close_time = wday_hours.split('-')
+            time_format = r"^\d{2}:\d{2}:\d{2}$"
+
+            if re.match(time_format, wday_hours):
+                open_time, close_time = None, None
+            else:
+                open_time, close_time = wday_hours.split('-')
 
             is_24h_open = store_consultant.tt_type == "24H" if store_consultant else False
 
