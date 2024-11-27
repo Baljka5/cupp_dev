@@ -25,7 +25,30 @@ class StoreMasterAPI(APIView):
             if not store_plannings.exists() or not store_trainer:
                 continue
 
+            branch_type = "Direct" if store_consultant.store_type == 0 else "Franchise"
+
+            wday_hours = store_consultant.wday_hours or "00:00-23:59"
+            open_time, close_time = wday_hours.split('-')
+
             is_24h_open = store_consultant.tt_type == "24H" if store_consultant else False
+
+            sc_name = store_consultant.sc_name or ""
+            if "@cumongol.mn" in sc_name:
+                sc_name_part = sc_name.split("@")[0]
+                branch_employee_name = " ".join(word.capitalize() for word in sc_name_part.split("."))
+            else:
+                branch_employee_name = "N/A"
+
+            area_name = store_consultant.team_mgr or ""
+            if "@cumongol.mn" in area_name:
+                area_name_part = area_name.split("@")[0]
+                area_branch_employee_name = " ".join(word.capitalize() for word in area_name_part.split("."))
+            else:
+                area_branch_employee_name = "N/A"
+
+            store_id_stripped = store_consultant.store_id.lstrip('0')
+            store_email_prefix = "cu" if store_consultant.store_type == 0 else "cuf"
+            store_email = f"{store_email_prefix}{store_id_stripped}@cumongol.mn"
 
             employees_data = [{
                 'position': "Дэлгүүрийн менежер",
@@ -35,19 +58,24 @@ class StoreMasterAPI(APIView):
 
             for store_planning in store_plannings:
                 data.append({
-                    'branchType': 'Direct',
+                    'branchType': branch_type,
                     'branchNo': store_consultant.store_id,
                     'branchAddress': store_planning.address_simple if store_planning else None,
                     'branchName': store_consultant.store_name,
                     'branchOpeningDate': store_trainer.open_date if store_trainer else None,
                     'branchInChargeEmail': store_consultant.sc_name,
+                    'branchEmployeeName': branch_employee_name,
                     'branchInChargePhone': '',
+                    'areaManagerName': area_branch_employee_name,
                     'areaManagerEmail': store_consultant.team_mgr,
                     'areaManagerPhone': '',
                     'branchEmployees': employees_data,
-                    'openTime': store_consultant.wday_hours,
-                    'closeTime': store_consultant.wend_hours,
+                    'openTime': open_time,
+                    'closeTime': close_time,
+                    # 'openTime': store_consultant.wday_hours,
+                    # 'closeTime': store_consultant.wend_hours,
                     'roZone': store_planning.cluster if store_planning else '',
+                    'storeEmail': store_email,
                     'is24Open': is_24h_open,
                     'closeDate': store_consultant.close_date,
                     'closedDescription': store_consultant.close_reason,

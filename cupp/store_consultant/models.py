@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 class StoreConsultant(m.Model):
     store_id = m.CharField('Store ID', blank=True, null=True, max_length=5)
     store_name = m.CharField('Store Name', blank=True, null=True, max_length=50)
+    store_type = m.IntegerField('store type', default=0)
     team_mgr = m.CharField('Team manager name', blank=True, null=True, max_length=50)
     sc_name = m.CharField('Store consultant name', blank=True, null=True, max_length=50)
     sm_num = m.IntegerField('Дэлгүүрийн менежерийн тоо', blank=True, null=True)
