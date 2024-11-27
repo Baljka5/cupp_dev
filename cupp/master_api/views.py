@@ -88,10 +88,10 @@ class StoreMasterAPI(APIView):
                     'openTime': open_time,
                     'closeTime': close_time,
                     'roZone': store_planning.cluster if store_planning else '',
-                    'storeEmail': store_email,
+                    'storeEmail': '',
                     'is24Open': is_24h_open,
                     'closeDate': store_consultant.close_date,
-                    'closedDescription': store_consultant.close_reason,
+                    # 'closedDescription': store_consultant.close_reason,
                     'lat': lat,  # Adding the lan value
                     'long': lon,  # Adding the lon value
                 })
