@@ -51,6 +51,7 @@ class CompositeStoreSerializer(serializers.Serializer):
     closeTime = serializers.CharField()
     roZone = serializers.CharField()
     storeEmail = serializers.CharField()
+    lat = serializers.CharField()
+    long = serializers.CharField()
     is24Open = serializers.BooleanField()
     closeDate = serializers.DateField()
-    closedDescription = serializers.CharField()

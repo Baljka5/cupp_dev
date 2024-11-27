@@ -62,6 +62,15 @@ class StoreMasterAPI(APIView):
                 'phone': store_consultant.sm_phone if store_consultant else "",
             }]
 
+            # Retrieve the lan and lon values from StorePlanning if they exist
+            lat = None
+            lon = None
+            for store_planning in store_plannings:
+                if store_planning.lat and store_planning.lon:
+                    lat = store_planning.lat
+                    lon = store_planning.lon
+                    break  # Assuming there is only one matching store_planning per store_id
+
             for store_planning in store_plannings:
                 data.append({
                     'branchType': branch_type,
@@ -78,13 +87,13 @@ class StoreMasterAPI(APIView):
                     'branchEmployees': employees_data,
                     'openTime': open_time,
                     'closeTime': close_time,
-                    # 'openTime': store_consultant.wday_hours,
-                    # 'closeTime': store_consultant.wend_hours,
                     'roZone': store_planning.cluster if store_planning else '',
                     'storeEmail': store_email,
                     'is24Open': is_24h_open,
                     'closeDate': store_consultant.close_date,
                     'closedDescription': store_consultant.close_reason,
+                    'lat': lat,  # Adding the lan value
+                    'long': lon,  # Adding the lon value
                 })
 
         if not data:
