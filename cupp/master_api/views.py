@@ -72,6 +72,10 @@ class StoreMasterAPI(APIView):
                     break  # Assuming there is only one matching store_planning per store_id
 
             for store_planning in store_plannings:
+                close_date = store_consultant.close_date
+                is_close = bool(close_date)
+
+            for store_planning in store_plannings:
                 data.append({
                     'branchType': branch_type,
                     'branchNo': store_consultant.store_id,
@@ -89,7 +93,9 @@ class StoreMasterAPI(APIView):
                     'closeTime': close_time,
                     'roZone': store_planning.cluster if store_planning else '',
                     'storeEmail': '',
+                    # 'storeEmail': store_email,
                     'is24Open': is_24h_open,
+                    'isClose': is_close,
                     'closeDate': store_consultant.close_date,
                     # 'closedDescription': store_consultant.close_reason,
                     'lat': lat,  # Adding the lan value
