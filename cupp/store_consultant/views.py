@@ -273,14 +273,16 @@ def save_allocations(request):
                 # Fetch the area, set to None if 'not-allocated'
                 area = Area.objects.get(id=area_id) if area_id != 'not-allocated' else None
 
-                # Create or update the Allocation object
-                obj, created = Allocation.objects.update_or_create(
-                    consultant=consultant,
-                    defaults={'area': area, 'year': year, 'month': month}
-                )
+                # Delete existing allocations for the consultant to avoid duplicates
+                Allocation.objects.filter(consultant=consultant).delete()
 
-                # Save the Allocation object
-                obj.save()
+                # Create a new allocation
+                Allocation.objects.create(
+                    consultant=consultant,
+                    area=area,
+                    year=year,
+                    month=month
+                )
 
         return JsonResponse({'status': 'success'})
 
