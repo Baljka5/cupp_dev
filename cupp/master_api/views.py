@@ -79,11 +79,11 @@ class StoreMasterAPI(APIView):
                 data.append({
                     'branchType': branch_type,
                     'branchNo': store_consultant.store_id,
-                    'branchAddress': store_planning.address_simple if store_planning else None,
+                    'branchAddress': store_planning.address_det if store_planning else None,
                     'branchName': store_consultant.store_name,
                     'branchOpeningDate': store_trainer.open_date if store_trainer else None,
                     'branchInChargeEmail': store_consultant.sc_name,
-                    'branchEmployeeName': branch_employee_name,
+                    'branchInChargeName': branch_employee_name,
                     'branchInChargePhone': '',
                     'areaManagerName': area_branch_employee_name,
                     'areaManagerEmail': store_consultant.team_mgr,

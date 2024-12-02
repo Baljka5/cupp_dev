@@ -40,7 +40,7 @@ class CompositeStoreSerializer(serializers.Serializer):
     branchAddress = serializers.CharField()
     branchName = serializers.CharField()
     branchOpeningDate = serializers.DateField()
-    branchEmployeeName = serializers.CharField()
+    branchInChargeName = serializers.CharField()
     branchInChargeEmail = serializers.CharField()
     branchInChargePhone = serializers.CharField()
     areaManagerName = serializers.CharField()
