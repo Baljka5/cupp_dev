@@ -62,6 +62,8 @@ urlpatterns = [
     path('leg-update/<int:id>', leg_views.update, name='leg-update'),
     path('leg-delete/<int:id>', leg_views.destroy, name='leg-delete'),
 
+    path('get-unallocated-stores/', sc_views.get_unallocated_stores, name='get_unallocated_stores'),
+
     path('sc-index/', sc_views.scIndex, name='sc-index'),
     path('store-index/', sc_views.index, name='store-index'),
     path('sc-view/<int:id>', sc_views.sc_view, name='sc-views'),

@@ -145,6 +145,12 @@ class Detail(LoginRequiredMixin, g.DetailView):
     template_name = 'point/detail.html'
 
 
+def sp_data(request, point):
+    model = StorePlanning.objects.get(point=point)
+    print(model)
+    return render(request, 'point/detail.html', {'model': model})
+
+
 class AjaxList(LoginRequiredMixin, g.ListView):
     model = Point
     template_name = 'point/ajax_list.html'

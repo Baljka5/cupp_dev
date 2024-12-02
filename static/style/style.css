@@ -1,0 +1,240 @@
+.team-header-container {
+    position: relative;
+}
+
+.team-manager-name {
+    visibility: hidden; /* Hide the manager name by default */
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    white-space: nowrap;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.team-header-container:hover .team-manager-name {
+    visibility: visible; /* Show the manager's name on hover */
+}
+
+.team-body img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+
+.popup {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2;
+    cursor: pointer;
+}
+
+.popup-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    width: 300px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.close-btn {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: red;
+    cursor: pointer;
+}
+
+.teams-container {
+    display: flex;
+    flex-direction: column;
+    margin: 0 20px;
+}
+
+.team-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.team {
+    transition: margin-top 0.3s ease;
+    padding: 10px;
+    margin: 10px;
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.team-header-container {
+    width: 100%;
+    background-color: #666;
+    color: white;
+    margin-bottom: 10px;
+    border-radius: 20px;
+}
+
+.team-body-container {
+    background-color: #F4E2D0;
+    padding: 10px;
+    width: 100%;
+    border-radius: 6px;
+}
+
+.team-header {
+    padding: 10px;
+    background-color: #673ab7;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.image-container {
+    position: relative;
+    display: inline-block;
+}
+
+.team-number-image {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.team-number-image:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+}
+
+.image-hover-info {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+    width: 250px;
+}
+
+.image-container:hover .image-hover-info {
+    display: block;
+}
+
+.team-body {
+    background-color: #cddeef;
+    padding: 10px;
+}
+
+.sc {
+    background-color: #EBEDF3;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 4px;
+}
+
+.not-allocated-body {
+    background-color: #D1D0CF;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.save-close-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#saveCloseBtn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.dropdown-section {
+    display: flex;
+    justify-content: start;
+    margin-bottom: 20px;
+}
+
+.dropdown-container {
+    margin: 0 20px;
+}
+
+.dropdown-container select {
+    display: block;
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+}
+
+.dropdown-container label {
+    display: block;
+    text-align: center;
+    background-color: #673ab7;
+    color: white;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+.store-count {
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 4px;
+    padding: 5px;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+    min-width: 30px;
+}
+
+.select2-selection__choice {
+    background-color: #673ab7 !important;
+    color: white !important;
+    border-color: #673ab7 !important;
+}
+
+@media (max-width: 600px) {
+    .popup-content {
+        width: 90%;
+        padding: 20px;
+        max-height: 90%;
+    }
+}

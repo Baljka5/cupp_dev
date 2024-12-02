@@ -3,6 +3,8 @@ import uuid
 
 from django.db import models as m
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 # from django.db.models import JSONField
@@ -200,6 +202,24 @@ class SC_Store_Allocation(m.Model):
         return f"{self.consultant.sc_name} - {self.store.store_id} ({self.store_name})"
 
 
+# @receiver(post_save, sender=SC_Store_Allocation)
+# def sync_allocation(sender, instance, created, **kwargs):
+#     """
+#     Sync SC_Store_Allocation with Allocation table.
+#     """
+#     # Get or create an allocation record for the given store and consultant
+#     allocation, allocation_created = Allocation.objects.update_or_create(
+#         storeID=instance.store_no,  # Match the storeID field
+#         defaults={
+#             'store_name': instance.store_name,
+#             'store_cons': instance.sc_name,
+#             'consultant': instance.consultant,  # Link the consultant directly
+#         }
+#     )
+#     # Save the allocation record
+#     allocation.save()
+
+
 class Allocation(m.Model):
     consultant = m.ForeignKey(Consultants, on_delete=m.CASCADE, null=True, blank=True)
     area = m.ForeignKey(Area, on_delete=m.SET_NULL, null=True, blank=True)
@@ -229,3 +249,28 @@ class Allocation(m.Model):
     class Meta:
         db_table = 'allocation'
         verbose_name = 'Allocation'
+
+
+class HisAllocation(m.Model):
+    # Fields from SC_Store_Allocation
+    consultant = m.ForeignKey(Consultants, on_delete=m.CASCADE, related_name='his_store_allocations')
+    store = m.ForeignKey(StoreConsultant, on_delete=m.CASCADE, related_name='his_sc_allocations')
+    store_name = m.CharField(max_length=100, blank=True, null=True)  # From SC_Store_Allocation
+    sc_name = m.CharField(max_length=100, blank=True, null=True)  # From SC_Store_Allocation
+    store_no = m.CharField(max_length=5, blank=True, null=True)  # From SC_Store_Allocation
+    year = m.CharField('Year', max_length=4, blank=True, null=True)  # From Allocation
+    month = m.CharField('Month', max_length=12, blank=True, null=True)  # From Allocation
+    team_no = m.CharField('Team No', max_length=10, blank=True, null=True)  # From Allocation
+    area = m.ForeignKey(Area, on_delete=m.SET_NULL, null=True, blank=True)
+    store_cons = m.CharField('Store Consultant', max_length=50, blank=True, null=True)
+    tags = m.TextField('Tags and Store IDs', blank=True, null=True)
+    created_date = m.DateTimeField(auto_now_add=True)
+    modified_date = m.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.store_no} - {self.consultant.sc_name} (Historical Record)"
+
+    class Meta:
+        db_table = 'his_allocation'
+        verbose_name = 'Historical Allocation'
+        verbose_name_plural = 'Historical Allocations'

@@ -4,11 +4,12 @@ import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.db import transaction
 from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from cupp.store_consultant.models import Area, Consultants, Allocation, StoreConsultant, Tag, SC_Store_Allocation
+from cupp.store_consultant.models import Area, Consultants, Allocation, StoreConsultant, Tag, SC_Store_Allocation, \
+    HisAllocation
 from cupp.store_trainer.models import StoreTrainer
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
@@ -142,22 +143,31 @@ def update(request, id):
 
 
 def scIndex(request):
-    current_year = datetime.datetime.now().year
+    current_date = datetime.datetime.now()
+    current_year = current_date.year
+    current_month = current_date.month
+
+    # Only show current year and the next two years
     next_three_years = [current_year + i for i in range(3)]
+
+    # Define months
     months = [
-        {'value': 'jan', 'name': 'January'},
-        {'value': 'feb', 'name': 'February'},
-        {'value': 'mar', 'name': 'March'},
-        {'value': 'apr', 'name': 'April'},
-        {'value': 'may', 'name': 'May'},
-        {'value': 'jun', 'name': 'June'},
-        {'value': 'jul', 'name': 'July'},
-        {'value': 'aug', 'name': 'August'},
-        {'value': 'sep', 'name': 'September'},
-        {'value': 'oct', 'name': 'October'},
-        {'value': 'nov', 'name': 'November'},
-        {'value': 'dec', 'name': 'December'},
+        {'value': 'JAN', 'name': 'January'},
+        {'value': 'FEB', 'name': 'February'},
+        {'value': 'MAR', 'name': 'March'},
+        {'value': 'APR', 'name': 'April'},
+        {'value': 'MAY', 'name': 'May'},
+        {'value': 'JUN', 'name': 'June'},
+        {'value': 'JUL', 'name': 'July'},
+        {'value': 'AUG', 'name': 'August'},
+        {'value': 'SEP', 'name': 'September'},
+        {'value': 'OCT', 'name': 'October'},
+        {'value': 'NOV', 'name': 'November'},
+        {'value': 'DEC', 'name': 'December'},
     ]
+
+    # Filter months to only show current and future months of the year
+    remaining_months = [month for month in months if months.index(month) + 1 >= current_month]
 
     # Fetch the last saved allocation's year and month
     last_allocation = Allocation.objects.order_by('-created_date').first()
@@ -166,15 +176,17 @@ def scIndex(request):
 
     # Fetch areas, consultants, and store consultants
     areas = Area.objects.all()
-    consultants = Consultants.objects.all()
+    consultants = Consultants.objects.annotate(
+        store_count=Count('store_allocations')  # Corrected related name
+    )
     store_consultants = StoreConsultant.objects.all()
 
     context = {
         'areas': areas,
         'consultants': consultants,
         'store_consultants': store_consultants,
-        'next_three_years': next_three_years,
-        'months': months,
+        'next_three_years': next_three_years,  # Pass filtered years
+        'months': remaining_months,  # Pass filtered months
         'last_year': last_year,  # Pass the last saved year to the template
         'last_month': last_month,  # Pass the last saved month to the template
     }
@@ -230,6 +242,13 @@ def update_consultant_store(request):
         return JsonResponse({'status': 'failed', 'message': str(e)}, status=400)
 
 
+def get_unallocated_stores(request):
+    unallocated_stores = StoreConsultant.objects.filter(
+        ~Q(store_id__in=SC_Store_Allocation.objects.values_list('store__store_id', flat=True)))
+    store_data = [{'store_id': store.store_id, 'store_name': store.store_name} for store in unallocated_stores]
+    return JsonResponse({'stores': store_data})
+
+
 @csrf_protect
 @require_POST
 def save_allocations(request):
@@ -282,56 +301,58 @@ def save_allocations(request):
 def save_consultant_stores(request):
     try:
         data = json.loads(request.body)
-        print('Received store allocations:', data)  # For debugging
-
         store_allocations = data.get('storeAllocations', [])
         results = []
+        reassignment_warnings = []
 
         with transaction.atomic():
             for store_allocation in store_allocations:
-                consultant_id = store_allocation.get('consultantId')  # Fetch consultantId
-                store_nos = store_allocation.get('storeIds', [])  # Fetch store IDs (store_no)
+                consultant_id = store_allocation.get('consultantId')
+                store_nos = store_allocation.get('storeIds', [])
 
-                # Fetch the consultant object based on consultantId
+                # Fetch the consultant object
                 consultant = Consultants.objects.get(id=consultant_id)
-                sc_name = consultant.sc_name  # Get the sc_name for storing in the allocation
+                sc_name = consultant.sc_name
 
-                # Clear previous allocations for this consultant
-                SC_Store_Allocation.objects.filter(consultant=consultant).delete()
-
-                # Create new allocations for the selected stores
                 for store_no in store_nos:
-                    # Fetch the store based on store_id
                     store = StoreConsultant.objects.get(store_id=store_no)
 
-                    # Create a new SC_Store_Allocation object, store the consultant's sc_name and store_id
+                    # Check if the store is already allocated
+                    existing_allocation = SC_Store_Allocation.objects.filter(store=store).first()
+                    if existing_allocation and existing_allocation.consultant.id != consultant_id:
+                        # Add warning if reassignment occurs
+                        reassignment_warnings.append({
+                            'store_id': store.store_id,
+                            'previous_sc_name': existing_allocation.consultant.sc_name,
+                            'new_sc_name': sc_name
+                        })
+
+                    # Remove the store from its current allocation if necessary
+                    SC_Store_Allocation.objects.filter(store=store).delete()
+
+                    # Assign the store to the new consultant
                     SC_Store_Allocation.objects.create(
                         consultant=consultant,
                         store=store,
-                        store_name=store.store_name,  # Store the name of the store
-                        sc_name=sc_name,  # Store the sc_name of the consultant
-                        store_no=store.store_id  # Store the store_id in store_no
+                        store_name=store.store_name,
+                        sc_name=sc_name,
+                        store_no=store.store_id
                     )
 
                 results.append({
                     'status': 'success',
-                    'consultant_id': consultant_id,  # Include the consultant's ID in the response
-                    'sc_name': sc_name,  # Include the consultant's name in the response
-                    'store_ids': store_nos  # Include the store IDs
+                    'consultant_id': consultant_id,
+                    'sc_name': sc_name,
+                    'store_ids': store_nos
                 })
 
-        return JsonResponse({'results': results})
-    except StoreConsultant.DoesNotExist:
-        print(f"Store with store_id {store_no} does not exist")
-        return JsonResponse({'status': 'failed', 'message': f'Store with store_id {store_no} does not exist'},
-                            status=400)
-    except Consultants.DoesNotExist:
-        print(f"Consultant with id {consultant_id} does not exist")
-        return JsonResponse({'status': 'failed', 'message': f'Consultant with id {consultant_id} does not exist'},
-                            status=400)
+        return JsonResponse({'results': results, 'reassignment_warnings': reassignment_warnings})
+
+    except StoreConsultant.DoesNotExist as e:
+        return JsonResponse({'status': 'failed', 'message': f'Store not found: {str(e)}'}, status=400)
+    except Consultants.DoesNotExist as e:
+        return JsonResponse({'status': 'failed', 'message': f'Consultant not found: {str(e)}'}, status=400)
     except Exception as e:
-        # Log the full error details for easier debugging
-        print(f"Error saving consultant stores: {str(e)}")
         return JsonResponse({'status': 'failed', 'message': str(e)}, status=500)
 
 
@@ -409,6 +430,32 @@ def assign_stores(request):
     else:
         stores = StoreConsultant.objects.all()
         return render(request, 'assign_stores.html', {'stores': stores})
+
+
+def populate_historical_allocations():
+    for allocation in Allocation.objects.all():
+        sc_store_allocations = SC_Store_Allocation.objects.filter(consultant=allocation.consultant)
+
+        for sc_store_allocation in sc_store_allocations:
+            HisAllocation.objects.create(
+                consultant=allocation.consultant,
+                store=sc_store_allocation.store,
+                store_name=sc_store_allocation.store_name,
+                sc_name=sc_store_allocation.sc_name,
+                store_no=sc_store_allocation.store_no,
+                year=allocation.year,
+                month=allocation.month,
+                team_no=allocation.team_no,
+                area=allocation.area,
+                store_cons=allocation.store_cons,
+                tags=allocation.tags
+            )
+    print("Historical data populated successfully!")
+
+
+# Run the script
+populate_historical_allocations()
+
 # def get_unallocated_stores(request):
 #     unallocated_stores = StoreConsultant.objects.filter(allocation__isnull=True)
 #     store_data = [{'store_id': store.store_id} for store in unallocated_stores]

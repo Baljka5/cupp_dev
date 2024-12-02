@@ -1,54 +1,70 @@
-const ul = document.querySelector("ul"),
-input = document.querySelector("input"),
-tagNumb = document.querySelector(".details span");
-
-let maxTags = 10,
-tags = ["coding", "nepal"];
-
-countTags();
-createTag();
-
-function countTags(){
-    input.focus();
-    tagNumb.innerText = maxTags - tags.length;
+function showTeamDetails(teamId, teamNo, event) {
+    event.stopPropagation();
+    fetch(`/get-scs-by-team/${teamId}/`)
+        .then((response) => response.json())
+        .then((data) => {
+            const popup = document.getElementById("popup");
+            const popupText = document.getElementById("popup-text");
+            
+            let content = `<h2>Team Details for ${teamNo}</h2>`;
+            data.scs.forEach((sc) => {
+                content += `
+                <div>
+                    ${sc.name} - Store IDs: ${sc.store_ids.join(", ")}
+                </div>`;
+            });
+            popupText.innerHTML = content;
+            popup.style.display = "block";
+        })
+        .catch((error) => console.error("Error fetching team details:", error));
 }
 
-function createTag(){
-    ul.querySelectorAll("li").forEach(li => li.remove());
-    tags.slice().reverse().forEach(tag =>{
-        let liTag = `<li>${tag} <i class="uit uit-multiply" onclick="remove(this, '${tag}')"></i></li>`;
-        ul.insertAdjacentHTML("afterbegin", liTag);
+function closePopup() {
+    document.getElementById("popup").style.display = "none";
+}
+
+function saveAllocations() {
+    const allocations = [];
+    document.querySelectorAll(".team-body").forEach((body) => {
+        const teamId = body.dataset.areaId;
+        body.querySelectorAll(".sc").forEach((consultant) => {
+            allocations.push({
+                teamId: teamId,
+                consultantId: consultant.dataset.consultantId,
+            });
+        });
     });
-    countTags();
+    
+    fetch("/save-allocations/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({allocations}),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.status === "success") {
+                alert("Allocations saved successfully!");
+            } else {
+                alert("Error saving allocations.");
+            }
+        })
+        .catch((error) => console.error("Error saving allocations:", error));
 }
 
-function remove(element, tag){
-    let index  = tags.indexOf(tag);
-    tags = [...tags.slice(0, index), ...tags.slice(index + 1)];
-    element.parentElement.remove();
-    countTags();
-}
-
-function addTag(e){
-    if(e.key == "Enter"){
-        let tag = e.target.value.replace(/\s+/g, ' ');
-        if(tag.length > 1 && !tags.includes(tag)){
-            if(tags.length < 10){
-                tag.split(',').forEach(tag => {
-                    tags.push(tag);
-                    createTag();
-                });
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-        e.target.value = "";
     }
+    return cookieValue;
 }
-
-input.addEventListener("keyup", addTag);
-
-const removeBtn = document.querySelector(".details button");
-removeBtn.addEventListener("click", () =>{
-    tags.length = 0;
-    ul.querySelectorAll("li").forEach(li => li.remove());
-    countTags();
-});
