@@ -80,6 +80,12 @@ def is_in_legal_team_group(context):
     return request.user.groups.filter(name='legal_team').exists() or request.user.is_superuser
 
 
+@register.simple_tag(takes_context=True)
+def is_in_planning_manager(context):
+    request = context['request']
+    return request.user.groups.filter(name='planning_manager').exists() or request.user.is_superuser
+
+
 @login_required
 def custom_login_redirect(request):
     if request.user.is_superuser:

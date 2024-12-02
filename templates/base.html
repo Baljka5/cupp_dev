@@ -94,6 +94,7 @@
             {% is_in_area_group as user_in_area_group %}
             {% is_in_sc_direct_group as user_in_sc_direct_group %}
             {% is_in_st_manager_group as user_in_st_manager_group %}
+            {% is_in_planning_manager as user_in_planning_manager_group %}
             {% if user.is_superuser %}
                 <a href="{% url 'map' %}" class="d-inline-block">
                     <img src="/static/images/logo.png" alt="xbook logo">
@@ -116,6 +117,10 @@
                 </a>
             {% elif user_in_store_consultant_group or user_in_area_group or user_in_sc_direct_group %}
                 <a href="{% url 'store-index' %}" class="d-inline-block">
+                    <img src="/static/images/logo.png" alt="xbook logo">
+                </a>
+            {% elif user_in_planning_manager_group %}
+                <a href="{% url 'sc-index' %}" class="d-inline-block">
                     <img src="/static/images/logo.png" alt="xbook logo">
                 </a>
             {% else %}
@@ -235,12 +240,15 @@
                             <span>Settings</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="{% url 'sc-index' %}" class="navbar-nav-link">
-                            <i class="icon-database-edit2 mr-1"></i>
-                            <span>SC & Store Allocation</span>
-                        </a>
-                    </li>
+                    {% is_in_planning_manager as user_in_planning_manager_group %}
+                    {% if user_in_store_planner_group %}
+                        <li class="nav-item">
+                            <a href="{% url 'sc-index' %}" class="navbar-nav-link">
+                                <i class="icon-database-edit2 mr-1"></i>
+                                <span>SC & Store Allocation</span>
+                            </a>
+                        </li>
+                    {% endif %}
                 {% endif %}
                 <li class="nav-item">
                     <a href="{% url 'password_change' %}" class="navbar-nav-link">
