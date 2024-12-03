@@ -2,7 +2,7 @@ import re
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from cupp.store_consultant.models import StoreConsultant
+from cupp.store_consultant.models import StoreConsultant, Area, Consultants
 from cupp.store_trainer.models import StoreTrainer
 from cupp.point.models import Point, StorePlanning
 from cupp.master_api.serializers import CompositeStoreSerializer
@@ -75,6 +75,19 @@ class StoreMasterAPI(APIView):
                 close_date = store_consultant.close_date
                 is_close = bool(close_date)
 
+            area_manager_phone = None
+            if store_consultant.team_mgr:
+                area_manager = Area.objects.filter(team_man_email=store_consultant.team_mgr).first()
+                if area_manager:
+                    area_manager_phone = area_manager.team_man_phone
+
+            sc_phone = None
+            if store_consultant.sc_name:
+                sc = Consultants.objects.filter(
+                    sc_email=store_consultant.sc_name).first()  # Use .first() to get the first matching instance
+                if sc:
+                    sc_phone = sc.sc_phone
+
             for store_planning in store_plannings:
                 data.append({
                     'branchType': branch_type,
@@ -84,10 +97,10 @@ class StoreMasterAPI(APIView):
                     'branchOpeningDate': store_trainer.open_date if store_trainer else None,
                     'branchInChargeEmail': store_consultant.sc_name,
                     'branchInChargeName': branch_employee_name,
-                    'branchInChargePhone': '',
+                    'branchInChargePhone': sc_phone,
                     'areaManagerName': area_branch_employee_name,
                     'areaManagerEmail': store_consultant.team_mgr,
-                    'areaManagerPhone': '',
+                    'areaManagerPhone': area_manager_phone,
                     'branchEmployees': employees_data,
                     'openTime': open_time,
                     'closeTime': close_time,
