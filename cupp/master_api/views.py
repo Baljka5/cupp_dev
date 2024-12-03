@@ -92,7 +92,7 @@ class StoreMasterAPI(APIView):
                     'openTime': open_time,
                     'closeTime': close_time,
                     'roZone': store_planning.cluster if store_planning else '',
-                    'storeEmail': '',
+                    'storeEmail': store_planning.storeEmail,
                     # 'storeEmail': store_email,
                     'is24Open': is_24h_open,
                     'isClose': is_close,

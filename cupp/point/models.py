@@ -249,6 +249,7 @@ class StorePlanning(m.Model):
     disadv = m.TextField('Disadvantage', blank=True, default='')
     propose = m.TextField('Suggestions for improvement', blank=True, null=True)
     address_simple = m.CharField('Address Simple', blank=True, null=True, max_length=255)
+    storeEmail = m.CharField('Store email', blank=True, null=True, max_length=50)
     created_date = m.DateTimeField('Created date', auto_now_add=True)
     modified_date = m.DateTimeField('Modified date', auto_now=True)
     created_by = m.ForeignKey(User, verbose_name='Created by', related_name='store_planning_created',
