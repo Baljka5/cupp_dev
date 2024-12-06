@@ -29,7 +29,7 @@
         </div>
 
         <div class="clear-sc-allocation-container" style="position: absolute; top: 20px; right: 20px;">
-    <button id="clearSCAllocationBtn" onclick="clearSCAllocations()" style="
+            <button id="clearSCAllocationBtn" onclick="clearSCAllocations()" style="
         padding: 10px 20px;
         margin-top: 30%;
         background-color: #FF5733;
@@ -40,9 +40,9 @@
         font-size: 14px;
         font-weight: bold;
     ">
-        SC Allocation Clear
-    </button>
-</div>
+                SC Allocation Clear
+            </button>
+        </div>
 
 
         <div class="teams-container">
@@ -98,24 +98,28 @@
 
                 </div>
             </div>
-            <div class="store-allocation-body" id="store-allocation" ondrop="drop(event)" ondragover="allowDrop(event)" data-area-id="store-allocation">
-    <div class="store-allocation">
-        <h2>Unallocated Store Consultants:</h2>
-    </div>
-</div>
+            <div class="store-allocation-body" id="store-allocation" ondrop="drop(event)" ondragover="allowDrop(event)"
+                 data-area-id="store-allocation">
+                <div class="store-allocation">
+                    <h2>Unallocated Store Consultants:</h2>
+                </div>
+            </div>
 
-<div class="not-allocated-body" id="not-allocated" ondrop="drop(event)" ondragover="allowDrop(event)" data-area-id="not-allocated">
-    <div class="not-allocated">
-        {% for consultant in consultants %}
-            <div class="sc" id="sc{{ consultant.id }}" draggable="true" ondragstart="drag(event)" data-consultant-id="{{ consultant.id }}">
-                {{ consultant.sc_name }}
-                <span class="store-count" style="background-color: #4CAF50; color: white; border-radius: 4px; padding: 5px; margin-left: 10px;">
+            <div class="not-allocated-body" id="not-allocated" ondrop="drop(event)" ondragover="allowDrop(event)"
+                 data-area-id="not-allocated">
+                <div class="not-allocated">
+                    {% for consultant in consultants %}
+                        <div class="sc" id="sc{{ consultant.id }}" draggable="true" ondragstart="drag(event)"
+                             data-consultant-id="{{ consultant.id }}">
+                            {{ consultant.sc_name }}
+                            <span class="store-count"
+                                  style="background-color: #4CAF50; color: white; border-radius: 4px; padding: 5px; margin-left: 10px;">
                     {{ consultant.store_count }}
                 </span>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
-        {% endfor %}
-    </div>
-</div>
 
             <div class="save-close-container">
                 <button id="saveCloseBtn" onclick="saveAllocations()">SAVE & CLOSE</button>
@@ -123,7 +127,11 @@
             <div class="store-allocation-body" id="unallocated-store-allocation">
                 <h2>Unallocated Stores:</h2>
                 <div id="unallocated-stores-container" class="store-not-allocated">
-                    <!-- Unallocated stores will be dynamically injected here -->
+                    {% for store_consultant in store_consultants %}
+                        <div class="store-id" data-store-name="{{ store_consultant.store_name }}">
+    {{ store_consultant.store_id }}
+</div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -346,43 +354,49 @@
         }
 
         .sc {
-    background-color: #ffffff; /* White background for contrast */
-    padding: 10px;
-    margin: 2px;
-    border-radius: 6px; /* Rounded corners for smoother appearance */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow effect */
-    font-size: 14px; /* Adjust font size for readability */
-    color: #333; /* Darker text color */
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover effect */
-    cursor: grab; /* Show draggable cursor */
-}
-.sc:hover {
-    transform: scale(1.05); /* Slight zoom-in effect on hover */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
-    background-color: #e8f0ff; /* Light blue background on hover */
-}
+            background-color: #ffffff; /* White background for contrast */
+            padding: 10px;
+            margin: 2px;
+            border-radius: 6px; /* Rounded corners for smoother appearance */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow effect */
+            font-size: 14px; /* Adjust font size for readability */
+            color: #333; /* Darker text color */
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover effect */
+            cursor: grab; /* Show draggable cursor */
+        }
+
+        .sc:hover {
+            transform: scale(1.05); /* Slight zoom-in effect on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+            background-color: #e8f0ff; /* Light blue background on hover */
+        }
 
         .not-allocated-body {
-    padding: 15px;
-    margin: 20px; /* Add spacing to separate it visually */
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Add a shadow for a lifted effect */
-    {#background-color: white; /* Light blue background for better visibility */#}
-    border: 1px solid #d1d9e6; /* Add a border for clarity */
-}
+            padding: 15px;
+            margin: 20px; /* Add spacing to separate it visually */
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for container */
+            background-color: #f9f9f9; /* Neutral background */
+            border: 1px solid #d1d9e6; /* Add a border for definition */
+            display: flex; /* Use flexbox for better alignment */
+            flex-wrap: wrap; /* Allow wrapping of SC elements */
+            gap: 10px; /* Spacing between SC elements */
+            justify-content: flex-start; /* Align SC elements to the left */
+        }
 
 
         .not-allocated {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px; /* Space between consultants */
-    justify-content: flex-start; /* Align items to the left */
-}
-h2 {
-    font-size: 18px;
-    margin-bottom: 10px;
-    color: #4a4a4a; /* Neutral dark text color */
-}
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px; /* Space between consultants */
+            justify-content: flex-start; /* Align items to the left */
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #4a4a4a; /* Neutral dark text color */
+        }
 
         .save-close-container {
             display: flex;
@@ -514,12 +528,47 @@ h2 {
         }
 
         .store-id {
-            padding: 5px 10px;
+            position: relative;
+            display: inline-block;
             background-color: #EBEDF3;
+            padding: 5px 10px;
             border-radius: 3px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             white-space: nowrap;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
         }
+
+        .store-id:hover {
+            background-color: #d1d9e6; /* Highlight on hover */
+        }
+
+        /* Tooltip content */
+        .store-id::after {
+            content: attr(data-store-name); /* Use data-store-name for tooltip text */
+            position: absolute;
+            bottom: 120%; /* Position the tooltip above the element */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            z-index: 2000; /* Ensure tooltip is above other elements */
+            pointer-events: none; /* Ensure it doesn’t interfere with hover */
+        }
+
+        .store-id:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
 
         .popup-content {
             position: absolute;
