@@ -33,6 +33,7 @@ from cupp.competitors import views as comp_views
 from cupp.master_api.views import StoreMasterAPI
 from cupp.veritech_api.views import fetch_and_save_employee_data
 from cupp.dispute import views as leg_views
+
 # from cupp.powerBI_api.views import fetch_powerbi_data
 
 # from cupp.ajax_table_list import ajax_table_list
@@ -75,6 +76,7 @@ urlpatterns = [
     path('get-allocations/', sc_views.get_allocations, name='get_allocations'),
     path('get-team-data/<int:team_id>/', sc_views.get_team_data, name='get_team_data'),
     path('get-scs-by-team/<int:team_id>/', sc_views.get_scs_by_team, name='get_scs_by_team'),
+    path('clear-allocations/', sc_views.clear_allocations, name='clear_allocations'),
 
     path('save-consultant-stores/', sc_views.save_consultant_stores, name='save-consultant-stores'),
 

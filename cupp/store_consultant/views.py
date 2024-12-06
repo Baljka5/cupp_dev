@@ -12,7 +12,7 @@ from cupp.store_consultant.models import Area, Consultants, Allocation, StoreCon
     HisAllocation
 from cupp.store_trainer.models import StoreTrainer
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from cupp.store_consultant.forms import StoreConsultantForm
 from django.views import generic as g
 from django.conf import settings
@@ -88,7 +88,7 @@ def sc_view(request, id):
 
 def store_view(request, id):
     try:
-        store = StoreConsultant.objects.get(id=id)  # Use `id` to query the store
+        store = StoreConsultant.objects.get(id=id)  # Use id to query the store
     except StoreConsultant.DoesNotExist:
         raise Http404("Store not found")
 
@@ -303,58 +303,87 @@ def save_allocations(request):
 def save_consultant_stores(request):
     try:
         data = json.loads(request.body)
+        print(f"Incoming payload: {data}")  # Debug incoming data
+
         store_allocations = data.get('storeAllocations', [])
-        results = []
-        reassignment_warnings = []
+        removed_stores = data.get('removedStores', [])
+        overwrite = data.get('overwrite', False)  # Flag for overwrite confirmation
+
+        warnings = []  # Collect warnings for store conflicts
 
         with transaction.atomic():
-            for store_allocation in store_allocations:
-                consultant_id = store_allocation.get('consultantId')
-                store_nos = store_allocation.get('storeIds', [])
+            # Check for store conflicts
+            for allocation in store_allocations:
+                consultant_id = allocation['consultantId']
+                store_ids = allocation['storeIds']
 
-                # Fetch the consultant object
-                consultant = Consultants.objects.get(id=consultant_id)
-                sc_name = consultant.sc_name
+                for store_id in store_ids:
+                    # Check if the store ID is valid
+                    if not store_id.strip():
+                        continue  # Skip empty store IDs
+                    if not StoreConsultant.objects.filter(store_id=store_id).exists():
+                        return JsonResponse({
+                            'status': 'failed',
+                            'message': f"Store ID {store_id} does not exist."
+                        }, status=400)
 
-                for store_no in store_nos:
-                    store = StoreConsultant.objects.get(store_id=store_no)
+                    # Check if the store is already allocated to another consultant
+                    existing_allocation = SC_Store_Allocation.objects.filter(
+                        store__store_id=store_id
+                    ).exclude(consultant_id=consultant_id).first()
 
-                    # Check if the store is already allocated
-                    existing_allocation = SC_Store_Allocation.objects.filter(store=store).first()
-                    if existing_allocation and existing_allocation.consultant.id != consultant_id:
-                        # Add warning if reassignment occurs
-                        reassignment_warnings.append({
-                            'store_id': store.store_id,
-                            'previous_sc_name': existing_allocation.consultant.sc_name,
-                            'new_sc_name': sc_name
-                        })
+                    if existing_allocation:
+                        if not overwrite:
+                            warnings.append({
+                                'store_id': store_id,
+                                'previous_sc_name': existing_allocation.consultant.sc_name,
+                                'new_sc_name': Consultants.objects.get(id=consultant_id).sc_name
+                            })
+                        else:
+                            # Remove the previous allocation if overwrite is confirmed
+                            existing_allocation.delete()
 
-                    # Remove the store from its current allocation if necessary
-                    SC_Store_Allocation.objects.filter(store=store).delete()
+            # If there are warnings and overwrite is not confirmed, return warnings
+            if warnings and not overwrite:
+                return JsonResponse({'status': 'warning', 'warnings': warnings}, status=200)
 
-                    # Assign the store to the new consultant
+            # Process removals
+            for removed in removed_stores:
+                consultant_id = removed['consultantId']
+                store_ids = [store_id for store_id in removed['storeIds'] if
+                             store_id.strip()]  # Filter out empty store IDs
+                if store_ids:
+                    SC_Store_Allocation.objects.filter(
+                        consultant_id=consultant_id,
+                        store__store_id__in=store_ids
+                    ).delete()
+
+            # Process new allocations
+            for allocation in store_allocations:
+                consultant_id = allocation['consultantId']
+                store_ids = [store_id for store_id in allocation['storeIds'] if
+                             store_id.strip()]  # Filter out empty store IDs
+
+                # Clear existing allocations for this consultant
+                SC_Store_Allocation.objects.filter(consultant_id=consultant_id).delete()
+
+                # Create new allocations
+                for store_id in store_ids:
+                    store = StoreConsultant.objects.get(store_id=store_id)  # This is now safe
+                    consultant = Consultants.objects.get(id=consultant_id)
                     SC_Store_Allocation.objects.create(
                         consultant=consultant,
                         store=store,
                         store_name=store.store_name,
-                        sc_name=sc_name,
+                        sc_name=consultant.sc_name,
                         store_no=store.store_id
                     )
 
-                results.append({
-                    'status': 'success',
-                    'consultant_id': consultant_id,
-                    'sc_name': sc_name,
-                    'store_ids': store_nos
-                })
+        return JsonResponse({'status': 'success', 'message': 'Allocations saved successfully.'})
 
-        return JsonResponse({'results': results, 'reassignment_warnings': reassignment_warnings})
-
-    except StoreConsultant.DoesNotExist as e:
-        return JsonResponse({'status': 'failed', 'message': f'Store not found: {str(e)}'}, status=400)
-    except Consultants.DoesNotExist as e:
-        return JsonResponse({'status': 'failed', 'message': f'Consultant not found: {str(e)}'}, status=400)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JsonResponse({'status': 'failed', 'message': str(e)}, status=500)
 
 
@@ -432,6 +461,18 @@ def assign_stores(request):
     else:
         stores = StoreConsultant.objects.all()
         return render(request, 'assign_stores.html', {'stores': stores})
+
+
+@csrf_exempt
+def clear_allocations(request):
+    if request.method == 'POST':
+        try:
+            # Delete all records in the Allocation table
+            Allocation.objects.all().delete()
+            return JsonResponse({'status': 'success', 'message': 'All SC allocations cleared.'})
+        except Exception as e:
+            return JsonResponse({'status': 'failed', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'failed', 'message': 'Invalid request method.'}, status=400)
 
 
 def populate_historical_allocations():
