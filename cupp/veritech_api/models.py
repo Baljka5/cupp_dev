@@ -19,7 +19,7 @@ class General(models.Model):
     maritalstatus = models.CharField(max_length=50, null=True, blank=True)
     nooffamilymember = models.IntegerField(null=True, blank=True)
     noofchildren = models.IntegerField(null=True, blank=True)
-    departmentname = models.CharField(max_length=50, null=True, blank=True)
+    departmentname = models.CharField(max_length=100, null=True, blank=True)
     positionname = models.CharField(max_length=100, null=True, blank=True)
     insuredtypename = models.CharField(max_length=100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)  # Automatically set when created
@@ -108,3 +108,41 @@ class Skills(models.Model):
     examname = models.CharField(max_length=100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class SubInfo(models.Model):
+    employeeid = models.CharField(max_length=50, null=True, blank=True)
+    workstartdate = models.DateField(null=True, blank=True)
+    workenddate = models.DateField(null=True, blank=True)
+    booktypename = models.CharField(max_length=255, null=True, blank=True)
+    departmentcode = models.CharField(max_length=20, null=True, blank=True)
+    departmentname = models.CharField(max_length=20, null=True, blank=True)
+    positionname = models.CharField(max_length=50, null=True, blank=True)
+    insuredtypename = models.CharField(max_length=255, null=True, blank=True)
+    statusname = models.CharField(max_length=50, null=True, blank=True)
+
+
+class CandidateGeneral(models.Model):
+    candidateid = models.CharField(max_length=50, null=True, blank=True)
+    code = models.CharField(max_length=20, null=True, blank=True)
+    civilregnumber = models.CharField(max_length=50, null=True, blank=True)
+    firstname = models.CharField(max_length=50, null=True, blank=True)
+    lastname = models.CharField(max_length=50, null=True, blank=True)
+    stateregnumber = models.CharField(max_length=20, null=True, blank=True)
+    dateofbirth = models.DateField(null=True, blank=True)
+    departmentcode = models.CharField(max_length=20, blank=True, null=True)
+    departmentname = models.CharField(max_length=50, blank=True, null=True)
+    positioncode = models.CharField(max_length=20, blank=True, null=True)
+    positionname = models.CharField(max_length=100, blank=True, null=True)
+    phonenumber = models.IntegerField(blank=True, null=True)
+    createddate = models.CharField(max_length=50, null=True, blank=True)
+    workedtime = models.CharField(max_length=50, null=True, blank=True)
+
+
+class CandidateAddress(models.Model):
+    candidateid = models.CharField(max_length=50, blank=True, null=True)
+    addresstypename = models.CharField(max_length=255, blank=True, null=True)
+    cityname = models.CharField(max_length=100, blank=True, null=True)
+    districtname = models.CharField(max_length=100, blank=True, null=True)
+    streetname = models.CharField(max_length=100, blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True, null=True)

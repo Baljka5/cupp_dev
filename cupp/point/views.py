@@ -33,22 +33,35 @@ class FormBase(GroupMixin):
     def form_valid(self, form):
         context = self.get_context_data()
         photo_formset = context['photo_formset']
-        if photo_formset.is_valid():
-            form.instance.created_by = self.request.user if not form.instance.pk else form.instance.created_by
-            form.instance.modified_by = self.request.user
-            instance = form.save()
+        store_planning_form = context['store_planning_form']
 
-            photo_formset.instance = instance
+        if photo_formset.is_valid() and store_planning_form.is_valid():
+            # Save the Point instance
+            form.instance.created_by = self.request.user
+            self.object = form.save()
+
+            # Save StorePlanning instance
+            store_planning = store_planning_form.save(commit=False)
+            store_planning.point = self.object
+            store_planning.save()
+
+            # Save photos
+            photo_formset.instance = self.object
             photo_formset.save()
 
-            if form.data.get('next'):
-                return redirect('/create/')
+            return redirect(self.get_success_url())
 
-            return super(FormBase, self).form_valid(form)
+        # Log validation errors
+        if not photo_formset.is_valid():
+            print("Photo Formset Errors:", photo_formset.errors)
+        if not store_planning_form.is_valid():
+            print("Store Planning Form Errors:", store_planning_form.errors)
+        if not form.is_valid():
+            print("Point Form Errors:", form.errors)
 
-        context['photo_formset'] = photo_formset
-        context['form'] = form
-        return self.render_to_response(context)
+        return self.render_to_response(
+            self.get_context_data(form=form, photo_formset=photo_formset, store_planning_form=store_planning_form)
+        )
 
 
 class Create(LoginRequiredMixin, FormBase, g.CreateView):

@@ -1,7 +1,8 @@
 import requests
 from django.utils.dateparse import parse_date
 from django.shortcuts import render
-from .models import General, Address, Bank, Experience, Education, Attitude, Family, Skills
+from .models import General, Address, Bank, Experience, Education, Attitude, Family, Skills, SubInfo, CandidateGeneral, \
+    CandidateAddress
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
@@ -15,7 +16,7 @@ def fetch_and_save_employee_data(request):
         "request": {
             "username": "cu_hr",
             "password": "123",
-            "command": "cuHrEmpInfoDv_004V2",
+            "command": "cuHrEmpInfoDv_004",
             "parameters": {
                 "criteria": {
                     "id": {
@@ -39,6 +40,52 @@ def fetch_and_save_employee_data(request):
         return HttpResponse("Data saved successfully.", status=200)
     else:
         return HttpResponse("Failed to fetch data from external service.", status=500)
+
+
+@csrf_exempt
+def fetch_and_save_candidate_employee_data(request):
+    url = "http://10.10.90.22:8080/erp-services/RestWS/runJson"
+    headers = {'Content-Type': 'application/json'}
+
+    payload = {
+        "request": {
+            "username": "cu_hr",
+            "password": "123",
+            "command": "cuHrCandidateInfoDv_004",
+            "parameters": {
+                "criteria": {
+                    "id": {
+                        "0": {
+                            "operator": "=",
+                            "operand": "1"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+
+    if response.status_code == 200:
+        candidate_data = response.json()['response']['result']
+        employee_candidate_data = candidate_data.get('candidateinfo', {})
+        save_multiple_candidate_employees(employee_candidate_data)
+        return HttpResponse("Data saved successfully.", status=200)
+    else:
+        return HttpResponse("Failed to fetch data from external service.", status=500)
+
+
+def save_multiple_candidate_employees(candidate_employee_data):
+    """
+    Save data for the first 60 employees (or fewer if not available), ensuring no duplicates.
+    """
+    for idx, candidate_employee in enumerate(candidate_employee_data.values()):
+        if idx >= 5000:
+            break
+        # Check if employee with the same employeeid already exists to avoid duplication
+        if not CandidateGeneral.objects.filter(candidateid=candidate_employee.get('candidateid')).exists():
+            save_candidate_data_to_db(candidate_employee)
 
 
 def save_multiple_employees(employee_data):
@@ -209,8 +256,55 @@ def save_data_to_db(data):
         )
         skills_record.save()
 
+    for i in range(safe_int(data.get('empsubinfo_size', 0))):
+        subinfo = data['empsubinfo'].get(str(i), {})
+        subinfo_record = SubInfo(
+            employeeid=subinfo.get('employeeid', None),
+            workstartdate=parse_date_if_valid(subinfo.get('workstartdate', None)),
+            workenddate=parse_date_if_valid(subinfo.get('workenddate', None)),
+            booktypename=subinfo.get('booktypename', None),
+            departmentcode=subinfo.get('departmentcode', None),
+            departmentname=subinfo.get('departmentname', None),
+            positionname=subinfo.get('positionname', None),
+            insuredtypename=subinfo.get('insuredtypename', None),
+            statusname=subinfo.get('statusname', None)
+        )
+        subinfo_record.save()
 
-# Helper function to safely parse dates
+
+def save_candidate_data_to_db(candidate_data):
+    # Save General Data
+    candidate_general_info = CandidateGeneral(
+        candidateid=candidate_data.get('candidateid', None),
+        code=candidate_data.get('code', None),
+        civilregnumber=candidate_data.get('civilregnumber', None),
+        firstname=candidate_data.get('firstname', None),
+        lastname=candidate_data.get('lastname', None),
+        stateregnumber=candidate_data.get('stateregnumber', None),
+        dateofbirth=parse_date_if_valid(candidate_data.get('dateofbirth', None)),
+        departmentcode=candidate_data.get('departmentcode', None),
+        departmentname=candidate_data.get('departmentname', None),
+        positionname=candidate_data.get('positionname', None),
+        phonenumber=candidate_data.get('phonenumber', None),
+        createddate=candidate_data.get('createddate', None),
+        workedtime=candidate_data.get('workedtime', None),
+    )
+    candidate_general_info.save()
+
+    for i in range(
+            safe_int(candidate_data.get('candidateaddress_size', 0))):  # Use safe_int to handle missing/empty keys
+        candidate_address = candidate_data['candidateaddress'].get(str(i), {})
+        candidate_address_record = CandidateAddress(
+            candidateid=candidate_address.get('candidateid', None),
+            addresstypename=candidate_address.get('addresstypename', None),
+            cityname=candidate_address.get('cityname', None),
+            districtname=candidate_address.get('districtname', None),
+            streetname=candidate_address.get('streetname', None),
+            address=candidate_address.get('address', None)
+        )
+        candidate_address_record.save()
+
+
 def parse_date_if_valid(date_string):
     if date_string:
         return parse_date(date_string)

@@ -156,20 +156,20 @@ class Point(m.Model):
             try:
                 with transaction.atomic():
                     # Update or create StorePlanning instance
-                    StorePlanning.objects.update_or_create(
+                    StorePlanning.objects.update_or_create_or_delete(
                         store_id=self.store_id,
                         defaults=store_related_defaults
                     )
 
                     # Update or create StoreTrainer instance
-                    StoreTrainer.objects.update_or_create(
+                    StoreTrainer.objects.update_or_create_or_delete(
                         store_id=self.store_id,
                         defaults={'store_name': self.store_name, 'created_by': self.created_by,
                                   'modified_by_id': self.modified_by}
                     )
 
                     # Update or create StoreConsultant instance
-                    StoreConsultant.objects.update_or_create(
+                    StoreConsultant.objects.update_or_create_or_delete(
                         store_id=self.store_id,
                         defaults={'store_name': self.store_name, 'created_by': self.created_by,
                                   'modified_by_id': self.modified_by}

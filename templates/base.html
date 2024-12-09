@@ -265,36 +265,36 @@
             </ul>
         {% endif %}
     </div>
-    <div id="loading-spinner" style="display: none;">
-        <div class="spinner"></div>
-    </div>
+{#    <div id="loading-spinner" style="display: none;">#}
+{#        <div class="spinner"></div>#}
+{#    </div>#}
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const spinner = document.getElementById('loading-spinner');
-
-        // Show spinner when navigating to a new page
-        document.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', (event) => {
-                if (link.href && link.target !== '_blank') {
-                    spinner.style.display = 'flex';
-                }
-            });
-        });
-
-        // Show spinner on form submission
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', () => {
-                spinner.style.display = 'flex';
-            });
-        });
-
-        // Hide spinner once the page has fully loaded
-        window.addEventListener('load', () => {
-            spinner.style.display = 'none';
-        });
-    });
-</script>
+{#<script>#}
+{#    document.addEventListener('DOMContentLoaded', () => {#}
+{#        const spinner = document.getElementById('loading-spinner');#}
+{##}
+{#        // Show spinner when navigating to a new page#}
+{#        document.querySelectorAll('a').forEach(link => {#}
+{#            link.addEventListener('click', (event) => {#}
+{#                if (link.href && link.target !== '_blank') {#}
+{#                    spinner.style.display = 'flex';#}
+{#                }#}
+{#            });#}
+{#        });#}
+{##}
+{#        // Show spinner on form submission#}
+{#        document.querySelectorAll('form').forEach(form => {#}
+{#            form.addEventListener('submit', () => {#}
+{#                spinner.style.display = 'flex';#}
+{#            });#}
+{#        });#}
+{##}
+{#        // Hide spinner once the page has fully loaded#}
+{#        window.addEventListener('load', () => {#}
+{#            spinner.style.display = 'none';#}
+{#        });#}
+{#    });#}
+{#</script>#}
 <!-- /main navbar -->
 
 <!-- Page content -->

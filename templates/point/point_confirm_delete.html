@@ -6,7 +6,7 @@
 
 {% block content %}
     <div class="content d-flex justify-content-center">
-        <form class="login-form" method="post" autocomplete="off" enctype="multipart/form-data">
+        <form method="post" action="{% url 'point_delete' object.id %}">
             {% csrf_token %}
             <div class="card mb-0 border-0">
                 <div class="card-body">

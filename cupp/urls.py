@@ -31,7 +31,7 @@ from cupp.store_consultant import views as sc_views
 from cupp.store_trainer import views as st_views
 from cupp.competitors import views as comp_views
 from cupp.master_api.views import StoreMasterAPI
-from cupp.veritech_api.views import fetch_and_save_employee_data
+from cupp.veritech_api.views import fetch_and_save_employee_data, fetch_and_save_candidate_employee_data
 from cupp.dispute import views as leg_views
 
 # from cupp.powerBI_api.views import fetch_powerbi_data
@@ -41,6 +41,7 @@ from cupp.dispute import views as leg_views
 urlpatterns = [
 
     path('save/', fetch_and_save_employee_data, name='save_employee_data'),
+    path('candidate_save/', fetch_and_save_candidate_employee_data, name='save_candidate_employee_data'),
     # path('power/', fetch_powerbi_data, name='save_powerbi_data'),
 
     path('api/storemaster/', StoreMasterAPI.as_view(), name='storemaster-api'),

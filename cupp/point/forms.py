@@ -55,9 +55,9 @@ class StorePlanningForm(f.ModelForm):
 
     class Meta:
         model = StorePlanning
-        fields = ('__all__')
-        # fields = (
-        #     'addr1_prov', 'addr2_dist', 'addr3_khr', 'address_det', 'sp_name', 'near_gs_cvs', 'near_school',
-        #     'park_slot', 'floor', 'cont_st_dt', 'cont_ed_dt', 'zip_code', 'rent_tp', 'rent_near', 'lessee_promise',
-        #     'adv', 'disadv', 'propose',
-        # )
+        # fields = ('__all__')
+        fields = (
+            'addr1_prov', 'addr2_dist', 'addr3_khr', 'address_det', 'sp_name', 'near_gs_cvs', 'near_school',
+            'park_slot', 'floor', 'cont_st_dt', 'cont_ed_dt', 'zip_code', 'rent_tp', 'rent_near', 'lessee_promise',
+            'adv', 'disadv', 'propose', 'address_simple'
+        )
