@@ -645,8 +645,8 @@
             });
 
             // Show the spinner
-            const spinner = document.getElementById('loading-spinner');
-            spinner.style.display = 'flex';
+            {#const spinner = document.getElementById('loading-spinner');#}
+            {#spinner.style.display = 'flex';#}
 
             fetch(`/get-scs-by-team/${teamId}/`)
                 .then(response => response.json())
@@ -720,10 +720,9 @@
                     console.error('Error fetching SC details:', error);
                     alert('Failed to load SC details. Please try again.');
                 })
-                .finally(() => {
-                    // Hide the spinner after data is loaded
-                    spinner.style.display = 'none';
-                });
+                {#.finally(() => {#}
+                {#    // Hide the spinner after data is loaded#}
+                {#    spinner.style.display = 'none';});#}
         }
 
         function closePopup() {
