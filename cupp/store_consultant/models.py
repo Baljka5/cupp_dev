@@ -172,7 +172,7 @@ class Consultants(m.Model):
         super(Consultants, self).save(*args, **kwargs)
 
     class Meta:
-        db_table = 'consultant'
+        db_table = 'sc_mst'
         verbose_name = 'Consultant'
 
 
@@ -247,7 +247,7 @@ class Allocation(m.Model):
         super(Allocation, self).save(*args, **kwargs)
 
     class Meta:
-        db_table = 'allocation'
+        db_table = 'team_allocation'
         verbose_name = 'Allocation'
 
 

@@ -4,6 +4,8 @@ from sqlite3 import IntegrityError
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.validators import RegexValidator
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.db import models as m, transaction
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -165,14 +167,14 @@ class Point(m.Model):
                     StoreTrainer.objects.update_or_create(
                         store_id=self.store_id,
                         defaults={'store_name': self.store_name, 'created_by': self.created_by,
-                                  'modified_by_id': self.modified_by}
+                                  'modified_by': self.modified_by}
                     )
 
                     # Update or create StoreConsultant instance
                     StoreConsultant.objects.update_or_create(
                         store_id=self.store_id,
                         defaults={'store_name': self.store_name, 'created_by': self.created_by,
-                                  'modified_by_id': self.modified_by}
+                                  'modified_by': self.modified_by}
                     )
             except MultipleObjectsReturned:
 
@@ -187,6 +189,16 @@ class Point(m.Model):
     class Meta:
         db_table = 'cupp_point'
         verbose_name = 'Point'
+
+
+@receiver(post_delete, sender=Point)
+def delete_related_record(sender, instance, **kwargs):
+    try:
+        StorePlanning.objects.filter(store_id=instance.store_id).delete()
+        StoreTrainer.objects.filter(store_id=instance.store_id).delete()
+        StoreConsultant.objects.filter(store_id=instance.store_id).delete()
+    except Exception as e:
+        print(f"Error deleting related records for Point {instance.store_id}: {e}")
 
 
 class PointPhoto(m.Model):

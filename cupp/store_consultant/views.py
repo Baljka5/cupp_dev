@@ -180,14 +180,16 @@ def scIndex(request):
         store_count=Count('store_allocations')  # Corrected related name
     )
     store_consultants = StoreConsultant.objects.all()
+    store_id_and_name = StoreConsultant.objects.values('store_id', 'store_name')
 
     context = {
         'areas': areas,
         'consultants': consultants,
         'store_consultants': store_consultants,
-        'next_three_years': next_three_years,  # Pass filtered years
-        'months': remaining_months,  # Pass filtered months
-        'last_year': last_year,  # Pass the last saved year to the template
+        'store_id_and_name': store_id_and_name,
+        'next_three_years': next_three_years,
+        'months': remaining_months,
+        'last_year': last_year,
         'last_month': last_month,  # Pass the last saved month to the template
     }
 
