@@ -129,7 +129,9 @@
                     {% for store_id_and_names in store_id_and_name %}
                         <div class="store-id" data-store-name="{{ store_id_and_names.store_name }}">
     {{ store_id_and_names.store_id }}
+    <span class="store-name-hover">{{ store_id_and_names.store_name }}</span>
 </div>
+
                     {% endfor %}
                 </div>
             </div>
@@ -138,6 +140,9 @@
     <style>
         .team-header-container {
             position: relative;
+        }
+        .store-id {
+        position: relative;
         }
 
         .team-manager-name {
@@ -154,9 +159,31 @@
             z-index: 1;
         }
 
-        .team-header-container:hover .team-manager-name {
-            visibility: visible; /* Show the manager's name on hover */
+
+
+        .store-name {
+            visibility: hidden; /* Hide the manager name by default */
+            position: absolute;
+            top: 50%; /* Adjust as needed */
+            left: 100%; /* Adjust as needed */
+            background-color: rgba(0, 0, 0, 0.7); /* Dark background */
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            white-space: nowrap;
+            transform: translateY(-50%);
+            z-index: 1;
         }
+
+        .team-header-container:hover .team-manager-name {
+            visibility: visible;
+        }
+
+        .store-id:hover .store-name {
+            visibility: visible;
+        }
+
+
 
         .team-body img {
             width: 100px; /* Default photo size */
@@ -529,7 +556,6 @@
     position: relative;
         }
 
-
 .store-id {
     position: relative;
     display: inline-block;
@@ -546,28 +572,23 @@
     background-color: #d1d9e6; /* Highlight on hover */
 }
 
-
-.store-id::after {
-    content: attr(data-store-name); /* Tooltip text from data-store-name */
+.store-id .store-name-hover {
+    visibility: hidden; /* Hide the manager name by default */
     position: absolute;
-    bottom: 120%; /* Position above the store-id */
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%);
-    background-color: #4CAF50; /* Tooltip background color */
-    color: white; /* Tooltip text color */
-    padding: 5px 10px;
-    border-radius: 4px;
+    top: 100%; /* Position below the store-id */
+    left: 0; /* Align with the left side of the store-id */
+    background-color: rgba(0, 0, 0, 0.7); /* Dark background */
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
     white-space: nowrap;
-    font-size: 12px;
-    opacity: 0; /* Initially hidden */
-    visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
-    z-index: 2000;
+    transform: translateY(5px); /* Slightly lower to create a gap */
+    z-index: 1;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Optional: shadow for depth */
 }
 
-.store-id:hover::after {
-    opacity: 1; /* Show the tooltip on hover */
-    visibility: visible; /* Make it visible */
+.store-id:hover .store-name-hover {
+    visibility: visible; /* Show on hover */
 }
 
 
@@ -747,23 +768,37 @@
             fetchUnallocatedStores();
 
             function fetchUnallocatedStores() {
-                fetch('/get-unallocated-stores/')
-                    .then(response => response.json())
-                    .then(data => {
-                        const container = document.getElementById('unallocated-stores-container');
-                        container.innerHTML = ''; // Clear existing content
-                        data.stores.forEach(store => {
-                            const storeElement = document.createElement('div');
-                            storeElement.className = 'store-id';
-                            storeElement.textContent = `${store.store_id}`;
-                            container.appendChild(storeElement);
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error fetching unallocated stores:', error);
-                        alert('Failed to load unallocated stores.');
-                    });
-            }
+    fetch('/get-unallocated-stores/')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('unallocated-stores-container');
+            container.innerHTML = ''; // Clear existing content
+
+            data.stores.forEach(store => {
+                // Create the main container for each store
+                const storeElement = document.createElement('div');
+                storeElement.className = 'store-id';
+
+                // Create and append the span element for the store ID
+                const storeIdSpan = document.createElement('span');
+                storeIdSpan.textContent = `${store.store_id}`;
+                storeElement.appendChild(storeIdSpan);
+
+                // Create and append the span element for the store name, which will be hidden and shown on hover
+                const storeNameSpan = document.createElement('span');
+                storeNameSpan.className = 'store-name-hover';
+                storeNameSpan.textContent = `${store.store_name}`;
+                storeElement.appendChild(storeNameSpan);
+
+                // Append the fully constructed store element to the container
+                container.appendChild(storeElement);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching unallocated stores:', error);
+            alert('Failed to load unallocated stores.');
+        });
+}
 
             document.querySelectorAll('.team').forEach(team => {
                 team.addEventListener('click', function () {
