@@ -84,7 +84,6 @@
                         <div class="team-body-container">
                             <div class="team-body" id="area-{{ area.id }}" ondrop="drop(event)"
                                  ondragover="allowDrop(event)" data-area-id="{{ area.id }}">
-
                             </div>
                         </div>
                     </div>
@@ -127,9 +126,9 @@
             <div class="store-allocation-body" id="unallocated-store-allocation">
                 <h2>Unallocated Stores:</h2>
                 <div id="unallocated-stores-container" class="store-not-allocated">
-                    {% for store_consultant in store_consultants %}
-                        <div class="store-id" data-store-name="{{ store_consultant.store_name }}">
-    {{ store_consultant.store_id }}
+                    {% for store_id_and_names in store_id_and_name %}
+                        <div class="store-id" data-store-name="{{ store_id_and_names.store_name }}">
+    {{ store_id_and_names.store_id }}
 </div>
                     {% endfor %}
                 </div>
@@ -348,6 +347,7 @@
         }
 
         .team-body {
+        min-height: 280px;
             background-color: #cddeef;
             padding: 10px;
 
@@ -525,49 +525,50 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             margin-top: 20px;
+                overflow: visible; /* Ensure tooltips are not clipped */
+    position: relative;
         }
 
-        .store-id {
-            position: relative;
-            display: inline-block;
-            background-color: #EBEDF3;
-            padding: 5px 10px;
-            border-radius: 3px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            white-space: nowrap;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
 
-        .store-id:hover {
-            background-color: #d1d9e6; /* Highlight on hover */
-        }
+.store-id {
+    position: relative;
+    display: inline-block;
+    background-color: #EBEDF3;
+    padding: 5px 10px;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
 
-        /* Tooltip content */
-        .store-id::after {
-            content: attr(data-store-name); /* Use data-store-name for tooltip text */
-            position: absolute;
-            bottom: 120%; /* Position the tooltip above the element */
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #4CAF50;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            white-space: nowrap;
-            font-size: 12px;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s ease, visibility 0.2s ease;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            z-index: 2000; /* Ensure tooltip is above other elements */
-            pointer-events: none; /* Ensure it doesn’t interfere with hover */
-        }
+.store-id:hover {
+    background-color: #d1d9e6; /* Highlight on hover */
+}
 
-        .store-id:hover::after {
-            opacity: 1;
-            visibility: visible;
-        }
+
+.store-id::after {
+    content: attr(data-store-name); /* Tooltip text from data-store-name */
+    position: absolute;
+    bottom: 120%; /* Position above the store-id */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%);
+    background-color: #4CAF50; /* Tooltip background color */
+    color: white; /* Tooltip text color */
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 12px;
+    opacity: 0; /* Initially hidden */
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    z-index: 2000;
+}
+
+.store-id:hover::after {
+    opacity: 1; /* Show the tooltip on hover */
+    visibility: visible; /* Make it visible */
+}
 
 
         .popup-content {
