@@ -139,25 +139,29 @@
     </div>
     <style>
         .team-header-container {
-            position: relative;
-        }
+    position: relative;
+    cursor: pointer; /* Ensures that the hover effect is more intuitive */
+}
+
         .store-id {
         position: relative;
         }
 
         .team-manager-name {
-            visibility: hidden; /* Hide the manager name by default */
-            position: absolute;
-            top: 50%; /* Adjust as needed */
-            left: 100%; /* Adjust as needed */
-            background-color: rgba(0, 0, 0, 0.7); /* Dark background */
-            color: white;
-            padding: 5px;
-            border-radius: 5px;
-            white-space: nowrap;
-            transform: translateY(-50%);
-            z-index: 1;
-        }
+    visibility: hidden; /* Initially hidden */
+    position: absolute;
+    bottom: -20px; /* Position it just below the team header */
+    left: 50%; /* Center it under the team header */
+    transform: translateX(-50%); /* Ensure it's centered perfectly */
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+    color: white; /* Text color */
+    padding: 5px 10px; /* Padding for a better visual appeal */
+    border-radius: 5px; /* Rounded corners */
+    white-space: nowrap; /* Keeps the text on one line */
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.3); /* Soft shadow for depth */
+    transition: visibility 0.2s, opacity 0.2s ease; /* Smooth transition for the hover effect */
+    opacity: 0; /* Start with it transparent */
+}
 
 
 
@@ -176,12 +180,34 @@
         }
 
         .team-header-container:hover .team-manager-name {
-            visibility: visible;
-        }
+    visibility: visible; /* Make it visible on hover */
+    opacity: 1; /* Make it fully opaque */
+}
 
         .store-id:hover .store-name {
             visibility: visible;
         }
+        html, body {
+    height: 100%; /* Full height */
+    overflow: hidden; /* Prevents scrolling on the entire page */
+    margin: 0; /* Removes default margin */
+}
+
+.content {
+    height: 100%; /* Full height of its container */
+    overflow: auto; /* Allows scrolling within the content area only */
+    padding: 20px; /* Adds some space inside the content area */
+}
+
+/* Specific scrollable section */
+.scrollable-section {
+    max-height: calc(100vh - 100px); /* Adjust based on your header/footer */
+    overflow-y: auto; /* Vertical scrolling only */
+}
+.teams-container {
+    max-height: 80vh; /* Example height, adjust based on your layout */
+    overflow-y: auto; /* Enables vertical scrolling */
+}
 
 
 
