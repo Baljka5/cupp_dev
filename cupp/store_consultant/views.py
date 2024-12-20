@@ -166,22 +166,18 @@ def scIndex(request):
         {'value': 'DEC', 'name': 'December'},
     ]
 
-    # Filter months to only show current and future months of the year
     remaining_months = [month for month in months if months.index(month) + 1 >= current_month]
-
     # Fetch the last saved allocation's year and month
     last_allocation = Allocation.objects.order_by('-created_date').first()
     last_year = last_allocation.year if last_allocation else current_year
     last_month = last_allocation.month if last_allocation else 'jan'
-
-    # Fetch areas, consultants, and store consultants
+    # Fetch areas, consultants, and store consultants with use_yn = 1
     areas = Area.objects.all()
     consultants = Consultants.objects.annotate(
-        store_count=Count('store_allocations')  # Corrected related name
+        store_count=Count('store_allocations')  # Assuming the related name is correctly set
     )
-    store_consultants = StoreConsultant.objects.all()
-    store_id_and_name = StoreConsultant.objects.values('store_id', 'store_name')
-
+    store_consultants = StoreConsultant.objects.filter(use_yn=1)  # Only include active stores
+    store_id_and_name = store_consultants.values('store_id', 'store_name')
     context = {
         'areas': areas,
         'consultants': consultants,
@@ -190,9 +186,8 @@ def scIndex(request):
         'next_three_years': next_three_years,
         'months': remaining_months,
         'last_year': last_year,
-        'last_month': last_month,  # Pass the last saved month to the template
+        'last_month': last_month,
     }
-
     return render(request, 'store_consultant/index.html', context)
 
 
@@ -246,7 +241,9 @@ def update_consultant_store(request):
 
 def get_unallocated_stores(request):
     unallocated_stores = StoreConsultant.objects.filter(
-        ~Q(store_id__in=SC_Store_Allocation.objects.values_list('store__store_id', flat=True)))
+        ~Q(store_id__in=SC_Store_Allocation.objects.values_list('store__store_id', flat=True)),
+        use_yn=1  # Include only active stores
+    )
     store_data = [{'store_id': store.store_id, 'store_name': store.store_name} for store in unallocated_stores]
     return JsonResponse({'stores': store_data})
 
@@ -497,9 +494,8 @@ def populate_historical_allocations():
             )
     print("Historical data populated successfully!")
 
-
 # Run the script
-populate_historical_allocations()
+# populate_historical_allocations()
 
 # def get_unallocated_stores(request):
 #     unallocated_stores = StoreConsultant.objects.filter(allocation__isnull=True)
