@@ -157,6 +157,15 @@ class Detail(LoginRequiredMixin, g.DetailView):
     model = Point
     template_name = 'point/detail.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            store_planning = StorePlanning.objects.get(point=self.object)
+            context['store_planning'] = store_planning
+        except StorePlanning.DoesNotExist:
+            context['store_planning'] = None
+        return context
+
 
 def sp_data(request, point):
     model = StorePlanning.objects.get(point=point)

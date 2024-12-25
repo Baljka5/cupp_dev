@@ -41,6 +41,12 @@ class StoreConsultantForm(f.ModelForm):
         ('Нүдний шилний газар', 'Нүдний шилний газар'),
         ('Other', 'Other'),
     ]
+    GENDER = [
+        ('', '---------'),
+        (True, 'Male'),
+        (False, 'Female'),
+    ]
+
     tt_type = f.ChoiceField(choices=TT_TYPE_CHOICES, widget=f.Select(attrs={'class': 'form-control'}), required=False)
     ser_storabox = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
                                  required=False)
@@ -93,6 +99,8 @@ class StoreConsultantForm(f.ModelForm):
                                  required=False)
     water_tank = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
                                required=False)
+    sc_sex = f.ChoiceField(choices=GENDER, widget=f.Select(attrs={'class': 'form-control'}),
+                           required=False)
 
     class Meta:
         model = StoreConsultant

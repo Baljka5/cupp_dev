@@ -122,6 +122,8 @@
 
             <div class="save-close-container">
                 <button id="saveCloseBtn" onclick="saveAllocations()">SAVE & CLOSE</button>
+                <button id="pushBtn" onclick="pushData()" disabled>PUSH</button>
+
             </div>
             <div class="store-allocation-body" id="unallocated-store-allocation">
                 <h2>Unallocated Stores:</h2>
@@ -460,6 +462,15 @@
         #saveCloseBtn {
             padding: 10px 20px;
             background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+        }
+        #pushBtn {
+            padding: 10px 20px;
+            margin-left: 5px;
+            background-color: #673ab7;
             color: white;
             border: none;
             cursor: pointer;
@@ -1110,6 +1121,41 @@
                 $(select).select2();
             });
         }
+
+        function pushData() {
+    fetch('/push-data/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === 'success') {
+            alert('Data pushed successfully!');
+        } else {
+            alert('Failed to push data.');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const today = new Date();
+    const day = today.getDate();
+
+    // Get the PUSH button by its ID
+    const pushButton = document.getElementById('pushBtn');
+
+    // Enable the button only on the 1st and 15th of each month
+    if (day === 1 || day === 15) {
+        pushButton.disabled = false;
+    } else {
+        pushButton.disabled = true;
+        pushButton.title = "Available only on the 1st and 15th of each month";
+    }
+});
 
 
         $(document).ready(function () {

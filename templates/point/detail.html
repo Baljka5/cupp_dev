@@ -171,47 +171,47 @@
                             <div class="row">
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Дэлгэрэнгүй хаяг:</label>
-                                    <div class="form-control-plaintext pt-0">{{ store_planning.address_det }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.address_det|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Дэлгэрэнгүй хаяг:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.addr3_khr|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.addr3_khr|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Хариуцсан SP:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.sp_name|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.sp_name|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">300 метр дотор GS25-н тоо:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.near_gs_cvs|default:0 }}м</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.near_gs_cvs|default:0 }}м</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">300 метр дотор сургуулийн тоо:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.near_school|default:0 }}м</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.near_school|default:0 }}м</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Зогсоолын тоо:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.park_slot|default:0 }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.park_slot|default:0 }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Давхарын тоо:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.floor|default:0 }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.floor|default:0 }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Түрээсийн гэрээ эхлэх хугацаа:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.cont_st_dt|date:'Y/m/d'|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.cont_st_dt|date:'Y/m/d'|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Түрээсийн гэрээ дуусах хугацаа:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.cont_ed_dt|date:'Y/m/d'|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.cont_ed_dt|date:'Y/m/d'|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Zip code:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.zip_code|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.zip_code|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Түрээсийн гэрээний төрөл:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.rent_tp|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.rent_tp|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Дамжуулж буй компани:</label>
@@ -219,19 +219,19 @@
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Амлалт:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.rent_near|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.rent_near|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Байршлын давуу тал:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.adv|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.adv|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Байршлын сул тал:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.disadv|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.disadv|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Байршлыг сайжруулах санал:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.disadv|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.disadv|default:'-' }}</div>
                                 </div>
                             </div>
 
@@ -407,47 +407,48 @@
                             <div class="row">
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Дэлгэрэнгүй хаяг:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.address_det|default:'-' }}</div>
+                                    {#                                    <div class="form-control-plaintext pt-0">{{ object.address_det|default:'-' }}</div>#}
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.address_det|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Хороо:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.addr3_khr|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.addr3_khr|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Хариуцсан SP:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.sp_name|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.sp_name|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">300 метр дотор GS25-н тоо:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.near_gs_cvs|default:0 }}м</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.near_gs_cvs|default:0 }}м</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">300 метр дотор сургуулийн тоо:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.near_school|default:0 }}м</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.near_school|default:0 }}м</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Зогсоолын тоо:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.park_slot|default:0 }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.park_slot|default:0 }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Давхарын тоо:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.floor|default:0 }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.floor|default:0 }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Түрээсийн гэрээ эхлэх хугацаа:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.cont_st_dt|date:'Y/m/d'|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.cont_st_dt|date:'Y/m/d'|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Түрээсийн гэрээ дуусах хугацаа:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.cont_ed_dt|date:'Y/m/d'|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.cont_ed_dt|date:'Y/m/d'|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Zip code:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.zip_code|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.zip_code|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Түрээсийн гэрээний төрөл:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.rent_tp|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.rent_tp|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Дамжуулж буй компани:</label>
@@ -455,19 +456,19 @@
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Амлалт:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.rent_near|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.rent_near|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Байршлын давуу тал:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.adv|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.adv|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Байршлын сул тал:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.disadv|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.disadv|default:'-' }}</div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="font-weight-semibold mb-1">Байршлыг сайжруулах санал:</label>
-                                    <div class="form-control-plaintext pt-0">{{ object.disadv|default:'-' }}</div>
+                                    <div class="form-control-plaintext pt-0">{{ store_planning.disadv|default:'-' }}</div>
                                 </div>
                             </div>
 

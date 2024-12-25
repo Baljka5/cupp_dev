@@ -4,7 +4,7 @@ from django.conf import settings
 from cupp.common.fields import ClearableFileInput
 # from cupp.store_planning.models import StorePlanning
 
-from .models import Point, PointPhoto, StorePlanning
+from .models import Point, PointPhoto, StorePlanning, District, City
 from cupp.constants import CHOICES_POINT_TYPE
 
 
@@ -61,3 +61,16 @@ class StorePlanningForm(f.ModelForm):
             'park_slot', 'floor', 'cont_st_dt', 'cont_ed_dt', 'zip_code', 'rent_tp', 'rent_near', 'lessee_promise',
             'adv', 'disadv', 'propose', 'address_simple'
         )
+
+
+class DistrictForm(f.ModelForm):
+    class Meta:
+        model = District
+        fields = ['district_name', 'city']
+        widgets = {
+            'city': f.Select(attrs={'class': 'form-control'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(DistrictForm, self).__init__(*args, **kwargs)
+        self.fields['city'].queryset = City.objects.filter(id=2)

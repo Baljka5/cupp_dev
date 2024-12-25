@@ -202,6 +202,24 @@ class SC_Store_Allocation(m.Model):
         return f"{self.consultant.sc_name} - {self.store.store_id} ({self.store_name})"
 
 
+class SC_Store_AllocationTemp(m.Model):
+    consultant = m.ForeignKey(Consultants, on_delete=m.CASCADE, related_name='store_allocations_temp')
+    store = m.ForeignKey(StoreConsultant, on_delete=m.CASCADE, related_name='sc_allocations_temp')
+    store_name = m.CharField(max_length=100)
+    sc_name = m.CharField(max_length=100, null=True, blank=True)  # Add this field to store the consultant's name
+    store_no = m.CharField(max_length=5, null=True, blank=True)
+    created_date = m.DateTimeField(auto_now_add=True)
+    modified_date = m.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'sc_store_allocation_temp'
+        verbose_name = 'SC Store Allocation'
+        verbose_name_plural = 'SC Store Allocations'
+
+    def __str__(self):
+        return f"{self.consultant.sc_name} - {self.store.store_id} ({self.store_name})"
+
+
 # @receiver(post_save, sender=SC_Store_Allocation)
 # def sync_allocation(sender, instance, created, **kwargs):
 #     """
@@ -249,6 +267,31 @@ class Allocation(m.Model):
     class Meta:
         db_table = 'team_allocation'
         verbose_name = 'Allocation'
+
+
+class AllocationTemp(m.Model):
+    consultant = m.ForeignKey(Consultants, on_delete=m.CASCADE, null=True, blank=True)
+    area = m.ForeignKey(Area, on_delete=m.SET_NULL, null=True, blank=True)
+    year = m.CharField('Year', max_length=4, blank=True, null=True)
+    month = m.CharField('Month', max_length=12, blank=True, null=True)
+    team_no = m.CharField('Team no', max_length=10, blank=True, null=True)
+    store_cons = m.CharField('Store Consultant', max_length=50, blank=True, null=True)
+    storeID = m.CharField('Store ID', max_length=5, blank=True, null=True)
+    store_name = m.CharField('Store name', max_length=50, blank=True, null=True)
+    tags = m.TextField('Tags and Store IDs', blank=True, null=True)
+    created_date = m.DateTimeField('Created Date', auto_now_add=True)
+    created_by = m.ForeignKey(User, verbose_name='Created by', related_name='allocation_temp_created',
+                              on_delete=m.PROTECT, null=True)
+    modified_date = m.DateTimeField('Modified date', auto_now=True)
+    modified_by = m.ForeignKey(User, verbose_name='Modified by', related_name='allocation_temp_modified',
+                               on_delete=m.PROTECT, null=True)
+
+    def __str__(self):
+        return self.team_no
+
+    class Meta:
+        db_table = 'team_allocation_temp'
+        verbose_name = 'Temporary Allocation'
 
 
 class HisAllocation(m.Model):

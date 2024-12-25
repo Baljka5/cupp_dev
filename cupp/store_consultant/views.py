@@ -9,7 +9,7 @@ from django.db import transaction
 from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from cupp.store_consultant.models import Area, Consultants, Allocation, StoreConsultant, Tag, SC_Store_Allocation, \
-    HisAllocation
+    HisAllocation, AllocationTemp, SC_Store_AllocationTemp
 from cupp.store_trainer.models import StoreTrainer
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
@@ -168,7 +168,7 @@ def scIndex(request):
 
     remaining_months = [month for month in months if months.index(month) + 1 >= current_month]
     # Fetch the last saved allocation's year and month
-    last_allocation = Allocation.objects.order_by('-created_date').first()
+    last_allocation = AllocationTemp.objects.order_by('-created_date').first()
     last_year = last_allocation.year if last_allocation else current_year
     last_month = last_allocation.month if last_allocation else 'jan'
     # Fetch areas, consultants, and store consultants with use_yn = 1
@@ -241,7 +241,7 @@ def update_consultant_store(request):
 
 def get_unallocated_stores(request):
     unallocated_stores = StoreConsultant.objects.filter(
-        ~Q(store_id__in=SC_Store_Allocation.objects.values_list('store__store_id', flat=True)),
+        ~Q(store_id__in=SC_Store_AllocationTemp.objects.values_list('store__store_id', flat=True)),
         use_yn=1  # Include only active stores
     )
     store_data = [{'store_id': store.store_id, 'store_name': store.store_name} for store in unallocated_stores]
@@ -273,14 +273,16 @@ def save_allocations(request):
                 area = Area.objects.get(id=area_id) if area_id != 'not-allocated' else None
 
                 # Delete existing allocations for the consultant to avoid duplicates
-                Allocation.objects.filter(consultant=consultant).delete()
+                AllocationTemp.objects.filter(consultant=consultant).delete()
 
                 # Create a new allocation
-                Allocation.objects.create(
+                AllocationTemp.objects.create(
                     consultant=consultant,
                     area=area,
                     year=year,
-                    month=month
+                    month=month,
+                    created_by=request.user,
+                    modified_by=request.user
                 )
 
         return JsonResponse({'status': 'success'})
@@ -294,6 +296,39 @@ def save_allocations(request):
     except Exception as e:
         # Log the full error details for easier debugging
         print(f"Error during save_allocations: {str(e)}")
+        return JsonResponse({'status': 'failed', 'message': str(e)}, status=500)
+
+
+@require_POST
+def push_data(request):
+    try:
+        with transaction.atomic():
+            # Logic to copy data from temporary to permanent tables
+            temp_allocations = AllocationTemp.objects.all()
+            for temp in temp_allocations:
+                Allocation.objects.create(
+                    consultant=temp.consultant,
+                    area=temp.area,
+                    year=temp.year,
+                    month=temp.month,
+                    created_by=request.user,
+                    modified_by=request.user
+                )
+            AllocationTemp.objects.all().delete()
+
+            temp_store_allocations = SC_Store_AllocationTemp.objects.all()
+            for temp_store in temp_store_allocations:
+                SC_Store_Allocation.objects.create(
+                    consultant=temp_store.consultant,
+                    store=temp_store.store,
+                    store_name=temp_store.store_name,
+                    sc_name=temp_store.sc_name,
+                    store_no=temp_store.store_no
+                )
+            SC_Store_AllocationTemp.objects.all().delete()
+
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
         return JsonResponse({'status': 'failed', 'message': str(e)}, status=500)
 
 
@@ -327,7 +362,7 @@ def save_consultant_stores(request):
                         }, status=400)
 
                     # Check if the store is already allocated to another consultant
-                    existing_allocation = SC_Store_Allocation.objects.filter(
+                    existing_allocation = SC_Store_AllocationTemp.objects.filter(
                         store__store_id=store_id
                     ).exclude(consultant_id=consultant_id).first()
 
@@ -352,7 +387,7 @@ def save_consultant_stores(request):
                 store_ids = [store_id for store_id in removed['storeIds'] if
                              store_id.strip()]  # Filter out empty store IDs
                 if store_ids:
-                    SC_Store_Allocation.objects.filter(
+                    SC_Store_AllocationTemp.objects.filter(
                         consultant_id=consultant_id,
                         store__store_id__in=store_ids
                     ).delete()
@@ -364,13 +399,13 @@ def save_consultant_stores(request):
                              store_id.strip()]  # Filter out empty store IDs
 
                 # Clear existing allocations for this consultant
-                SC_Store_Allocation.objects.filter(consultant_id=consultant_id).delete()
+                SC_Store_AllocationTemp.objects.filter(consultant_id=consultant_id).delete()
 
                 # Create new allocations
                 for store_id in store_ids:
                     store = StoreConsultant.objects.get(store_id=store_id)  # This is now safe
                     consultant = Consultants.objects.get(id=consultant_id)
-                    SC_Store_Allocation.objects.create(
+                    SC_Store_AllocationTemp.objects.create(
                         consultant=consultant,
                         store=store,
                         store_name=store.store_name,
@@ -387,7 +422,7 @@ def save_consultant_stores(request):
 
 
 def get_allocations(request):
-    allocations = Allocation.objects.all().values('id', 'consultant__id', 'area__id', 'year', 'month')
+    allocations = AllocationTemp.objects.all().values('id', 'consultant__id', 'area__id', 'year', 'month')
     return JsonResponse(list(allocations), safe=False)
 
 
@@ -423,15 +458,15 @@ class SCDirectorView(g.TemplateView):
 
 
 def get_scs_by_team(request, team_id):
-    scs = Consultants.objects.filter(allocation__area_id=team_id)
+    scs = Consultants.objects.filter(allocationtemp__area_id=team_id)
     sc_data = []
 
     # Get a list of already allocated stores (across all consultants)
-    allocated_stores = SC_Store_Allocation.objects.values_list('store__store_id', flat=True).distinct()
+    allocated_stores = SC_Store_AllocationTemp.objects.values_list('store__store_id', flat=True).distinct()
 
     for sc in scs:
         # Get the store IDs and names allocated to the consultant
-        store_allocations = SC_Store_Allocation.objects.filter(consultant=sc)
+        store_allocations = SC_Store_AllocationTemp.objects.filter(consultant=sc)
         store_ids = list(store_allocations.values_list('store__store_id', flat=True))  # Get store IDs
         store_names = list(store_allocations.values_list('store_name', flat=True))  # Get store names
 
@@ -467,7 +502,7 @@ def clear_allocations(request):
     if request.method == 'POST':
         try:
             # Delete all records in the Allocation table
-            Allocation.objects.all().delete()
+            AllocationTemp.objects.all().delete()
             return JsonResponse({'status': 'success', 'message': 'All SC allocations cleared.'})
         except Exception as e:
             return JsonResponse({'status': 'failed', 'message': str(e)}, status=500)
