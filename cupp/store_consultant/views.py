@@ -174,7 +174,7 @@ def scIndex(request):
     # Fetch areas, consultants, and store consultants with use_yn = 1
     areas = Area.objects.all()
     consultants = Consultants.objects.annotate(
-        store_count=Count('store_allocations')  # Assuming the related name is correctly set
+        store_count=Count('store_allocations_temp')  # Assuming the related name is correctly set
     )
     store_consultants = StoreConsultant.objects.filter(use_yn=1)  # Only include active stores
     store_id_and_name = store_consultants.values('store_id', 'store_name')
@@ -193,7 +193,7 @@ def scIndex(request):
 
 def get_team_data(request, team_id):
     # Assuming team_id is passed correctly and you have a model Consultants with a related field allocation
-    scs = Consultants.objects.filter(allocation__area_id=team_id).values('id', 'sc_name')
+    scs = Consultants.objects.filter(allocationtemp__area_id=team_id).values('id', 'sc_name')
     team_scs = list(scs)
     # Assuming you need to pass store allocations or other details, add them here
     return JsonResponse({'team_scs': team_scs})
@@ -268,6 +268,7 @@ def save_allocations(request):
 
                 # Fetch the consultant object
                 consultant = Consultants.objects.get(id=consultant_id)
+                store_cons = Consultants.objects.get(sc_name=consultant.sc_name)
 
                 # Fetch the area, set to None if 'not-allocated'
                 area = Area.objects.get(id=area_id) if area_id != 'not-allocated' else None
@@ -279,6 +280,7 @@ def save_allocations(request):
                 AllocationTemp.objects.create(
                     consultant=consultant,
                     area=area,
+                    store_cons=store_cons,
                     year=year,
                     month=month,
                     created_by=request.user,
@@ -303,29 +305,33 @@ def save_allocations(request):
 def push_data(request):
     try:
         with transaction.atomic():
-            # Logic to copy data from temporary to permanent tables
             temp_allocations = AllocationTemp.objects.all()
             for temp in temp_allocations:
-                Allocation.objects.create(
-                    consultant=temp.consultant,
-                    area=temp.area,
-                    year=temp.year,
-                    month=temp.month,
-                    created_by=request.user,
-                    modified_by=request.user
+                Allocation.objects.update_or_create(
+                    store_cons=temp.store_cons,
+                    defaults={
+                        'consultant': temp.consultant,
+                        'area': temp.area,
+                        'year': temp.year,
+                        'month': temp.month,
+                        'created_by': request.user,
+                        'modified_by': request.user
+                    }
                 )
-            AllocationTemp.objects.all().delete()
 
             temp_store_allocations = SC_Store_AllocationTemp.objects.all()
             for temp_store in temp_store_allocations:
-                SC_Store_Allocation.objects.create(
-                    consultant=temp_store.consultant,
+                SC_Store_Allocation.objects.update_or_create(
                     store=temp_store.store,
                     store_name=temp_store.store_name,
-                    sc_name=temp_store.sc_name,
-                    store_no=temp_store.store_no
+                    defaults={
+                        'consultant': temp_store.consultant,
+                        'store': temp_store.store,
+                        'store_name': temp_store.store_name,
+                        'sc_name': temp_store.sc_name,
+                        'store_no': temp_store.store_no
+                    }
                 )
-            SC_Store_AllocationTemp.objects.all().delete()
 
         return JsonResponse({'status': 'success'})
     except Exception as e:

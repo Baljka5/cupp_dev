@@ -138,6 +138,22 @@
                 </div>
             </div>
         </div>
+        <div id="loading-spinner" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; height: 100%; width: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1050;">
+    <div class="spinner" style="border: 16px solid #f3f3f3; /* Light grey */
+                                 border-top: 16px solid #3498db; /* Blue */
+                                 border-radius: 50%;
+                                 width: 120px;
+                                 height: 120px;
+                                 animation: spin 2s linear infinite;">
+    </div>
+</div>
+
+<style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
     </div>
     <style>
         .team-header-container {
@@ -467,6 +483,11 @@
             cursor: pointer;
             border-radius: 10px;
         }
+        #saveCloseBtn:hover {
+            background-color: #4CAF50; /* Darker shade of purple on hover */
+            transform: scale(1.05); /* Slightly enlarge the button on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
+        }
         #pushBtn {
             padding: 10px 20px;
             margin-left: 5px;
@@ -475,6 +496,11 @@
             border: none;
             cursor: pointer;
             border-radius: 10px;
+        }
+        #pushBtn:hover {
+            background-color: #5b33a5; /* Darker shade of purple on hover */
+            transform: scale(1.05); /* Slightly enlarge the button on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
         }
 
         .dropdown-section {
@@ -1122,7 +1148,17 @@
             });
         }
 
-        function pushData() {
+function pushData() {
+    const pushButton = document.getElementById('pushBtn');
+    // Check if the button is disabled first
+    if (pushButton.disabled) {
+        alert('The PUSH button is currently disabled and can only be used on the 1st and 15th of each month.');
+        return; // Stop the function from proceeding further
+    }
+
+    const spinner = document.getElementById('loading-spinner');
+    spinner.style.display = 'flex'; // Show the loading spinner if the button is active
+
     fetch('/push-data/', {
         method: 'POST',
         headers: {
@@ -1132,24 +1168,27 @@
     })
     .then(response => response.json())
     .then(data => {
-        if(data.status === 'success') {
+        if (data.status === 'success') {
             alert('Data pushed successfully!');
         } else {
             alert('Failed to push data.');
         }
+        spinner.style.display = 'none'; // Hide the spinner after processing the response
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while trying to push data.');
+        spinner.style.display = 'none'; // Hide the spinner if there is an error
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
     const today = new Date();
     const day = today.getDate();
-
-    // Get the PUSH button by its ID
     const pushButton = document.getElementById('pushBtn');
 
-    // Enable the button only on the 1st and 15th of each month
-    if (day === 1 || day === 25) {
+    // Enable the PUSH button only on the 1st and 15th of each month
+    if (day === 1 || day === 26) {
         pushButton.disabled = false;
     } else {
         pushButton.disabled = true;
