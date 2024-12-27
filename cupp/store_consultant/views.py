@@ -301,11 +301,22 @@ def save_allocations(request):
         return JsonResponse({'status': 'failed', 'message': str(e)}, status=500)
 
 
+from django.db.models import Q
+
+
 @require_POST
 def push_data(request):
     try:
         with transaction.atomic():
+            # Get all current entries in AllocationTemp
             temp_allocations = AllocationTemp.objects.all()
+            temp_store_allocations = SC_Store_AllocationTemp.objects.all()
+
+            # Set of store_cons from AllocationTemp for comparison
+            temp_store_cons_ids = set(temp_allocations.values_list('store_cons', flat=True))
+            temp_store_ids = set(temp_store_allocations.values_list('store', flat=True))
+
+            # Update or create new entries in Allocation based on AllocationTemp
             for temp in temp_allocations:
                 Allocation.objects.update_or_create(
                     store_cons=temp.store_cons,
@@ -319,19 +330,23 @@ def push_data(request):
                     }
                 )
 
-            temp_store_allocations = SC_Store_AllocationTemp.objects.all()
+            # Update or create new entries in SC_Store_Allocation based on SC_Store_AllocationTemp
             for temp_store in temp_store_allocations:
                 SC_Store_Allocation.objects.update_or_create(
                     store=temp_store.store,
-                    store_name=temp_store.store_name,
                     defaults={
                         'consultant': temp_store.consultant,
-                        'store': temp_store.store,
                         'store_name': temp_store.store_name,
                         'sc_name': temp_store.sc_name,
                         'store_no': temp_store.store_no
                     }
                 )
+
+            # Delete entries from Allocation that are not in AllocationTemp
+            Allocation.objects.filter(~Q(store_cons__in=temp_store_cons_ids)).delete()
+
+            # Delete entries from SC_Store_Allocation that are not in SC_Store_AllocationTemp
+            SC_Store_Allocation.objects.filter(~Q(store__in=temp_store_ids)).delete()
 
         return JsonResponse({'status': 'success'})
     except Exception as e:
