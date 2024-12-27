@@ -48,7 +48,7 @@ urlpatterns = [
     # path('power/', fetch_powerbi_data, name='save_powerbi_data'),
 
     path('api/storemaster/', StoreMasterAPI.as_view(), name='storemaster-api'),
-    path('fetch/mongo_biz_loc/', update_store_type.update_store_type, name='update_store_type'),
+    # path('fetch/mongo_biz_loc/', update_store_type.update_store_type, name='update_store_type'),
 
     path('ajax/get_districts/', get_districts, name='ajax_get_districts'),
     path('', auth_views.LoginView.as_view(redirect_authenticated_user=True), name='login'),
