@@ -6,27 +6,6 @@ from cupp.store_consultant.models import StoreConsultant, Area, Consultants
 from cupp.store_trainer.models import StoreTrainer
 from cupp.point.models import Point, StorePlanning
 from cupp.master_api.serializers import CompositeStoreSerializer
-from cupp.master_api.mongo_util import get_bizloc_tp_by_cd
-from django.http import JsonResponse
-
-
-def update_store_type(request):
-    store_id = request.GET.get('store_id')
-    if not store_id:
-        return JsonResponse({'status': 'error', 'message': 'Store ID is required'}, status=400)
-
-    bizloc_tp = get_bizloc_tp_by_cd(store_id)
-
-    if bizloc_tp is not None:
-        store_consultant = StoreConsultant.objects.filter(store_id=store_id).first()
-        if store_consultant:
-            store_consultant.store_type = bizloc_tp
-            store_consultant.save()
-            return JsonResponse({'status': 'success', 'message': 'Store type updated'})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Store consultant not found'}, status=404)
-    else:
-        return JsonResponse({'status': 'error', 'message': 'Business location not found'}, status=404)
 
 
 class StoreMasterAPI(APIView):
