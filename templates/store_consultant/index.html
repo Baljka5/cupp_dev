@@ -122,7 +122,7 @@
 
             <div class="save-close-container">
                 <button id="saveCloseBtn" onclick="saveAllocations()">SAVE & CLOSE</button>
-                <button id="pushBtn" onclick="pushData()" disabled>PUSH</button>
+                <button id="pushBtn" onclick="pushData()">PUSH</button>
 
             </div>
             <div class="store-allocation-body" id="unallocated-store-allocation">
@@ -1147,17 +1147,18 @@
                 $(select).select2();
             });
         }
-
 function pushData() {
-    const pushButton = document.getElementById('pushBtn');
-    // Check if the button is disabled first
-    if (pushButton.disabled) {
-        alert('The PUSH button is currently disabled and can only be used on the 1st and 15th of each month.');
-        return; // Stop the function from proceeding further
+    const today = new Date();
+    const day = today.getDate();
+
+    // Allow button click only on the 1st and 15th of the month
+    if (day !== 1 && day !== 30) {
+        alert('The PUSH button can only be used on the 1st and 15th of each month.');
+        return; // Stop further execution
     }
 
     const spinner = document.getElementById('loading-spinner');
-    spinner.style.display = 'flex'; // Show the loading spinner if the button is active
+    spinner.style.display = 'flex'; // Show the loading spinner
 
     fetch('/push-data/', {
         method: 'POST',
@@ -1173,12 +1174,12 @@ function pushData() {
         } else {
             alert('Failed to push data.');
         }
-        spinner.style.display = 'none'; // Hide the spinner after processing the response
+        spinner.style.display = 'none'; // Hide the spinner after processing
     })
     .catch(error => {
         console.error('Error:', error);
         alert('An error occurred while trying to push data.');
-        spinner.style.display = 'none'; // Hide the spinner if there is an error
+        spinner.style.display = 'none'; // Hide the spinner if there's an error
     });
 }
 
@@ -1187,12 +1188,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const day = today.getDate();
     const pushButton = document.getElementById('pushBtn');
 
-    // Enable the PUSH button only on the 1st and 15th of each month
-    if (day === 1 || day === 27) {
-        pushButton.disabled = false;
-    } else {
-        pushButton.disabled = true;
-        pushButton.title = "Available only on the 1st and 15th of each month";
+    // Add a tooltip for non-eligible days
+    if (day !== 1 && day !== 30) {
+        pushButton.title = "The PUSH button is only available on the 1st and 15th of each month.";
     }
 });
 
