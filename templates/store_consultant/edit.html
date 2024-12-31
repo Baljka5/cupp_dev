@@ -5,7 +5,7 @@
 {% endblock %}
 {% block content %}
     <div class="container">
-        <form method="POST" class="post-form" action="{% url 'sc-update' model.id %}">
+        <form method="POST" action="{% url 'sc-update' model.id %}">
             {% csrf_token %}
             {{ form.as_p }}
             <div class="row">
@@ -75,21 +75,21 @@
                     {#                        <input type="time" class="form-control" name="wday_hours" id="id_wday_hours"#}
                     {#                               value="{{ model.wday_hours }}"/>#}
                     {#                    </div>#}
-                    <div class="form-group col-md-6 liquor-time">
-                        <label>Нээх цагийн хуваарь: </label>
-                        <input type="text" id="id_wday_hours" name="wday_hours" class="form-control"
-                               value="{{ model.wday_hours }}" placeholder="HH:MM:SS" required>
-                    </div>
+{#                    <div class="form-group col-md-6 liquor-time">#}
+{#                        <label>Нээх цагийн хуваарь: </label>#}
+{#                        <input type="text" id="id_wday_hours" name="wday_hours" class="form-control"#}
+{#                               value="{{ model.wday_hours }}" placeholder="HH:MM:SS" required>#}
+{#                    </div>#}
                     {#                    <div class="form-group col-md-6">#}
                     {#                        <label>Цагийн хуваарь: </label>#}
                     {#                        <input type="time" class="form-control" name="wend_hours" id="id_wend_hours"#}
                     {#                               value="{{ model.wend_hours }}"/>#}
                     {#                    </div>#}
-                    <div class="form-group col-md-6 liquor-time">
-                        <label>Хаах цагийн хуваарь: </label>
-                        <input type="text" id="id_wend_hours" name="wend_hours" class="form-control"
-                               value="{{ model.wend_hours }}" placeholder="HH:MM:SS" required>
-                    </div>
+{#                    <div class="form-group col-md-6 liquor-time">#}
+{#                        <label>Хаах цагийн хуваарь: </label>#}
+{#                        <input type="text" id="id_wend_hours" name="wend_hours" class="form-control"#}
+{#                               value="{{ model.wend_hours }}" placeholder="HH:MM:SS" required>#}
+{#                    </div>#}
                     <div class="form-group col-md-6">
                         <label>Дэлгүүрийн менежерийн нэр: </label>
                         <input type="text" class="form-control" name="sm_name" id="id_sm_name"

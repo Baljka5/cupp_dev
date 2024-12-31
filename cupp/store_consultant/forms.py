@@ -104,7 +104,22 @@ class StoreConsultantForm(f.ModelForm):
 
     class Meta:
         model = StoreConsultant
-        fields = "__all__"
+        fields = ['store_id', 'store_name', 'team_mgr', 'sc_name', 'sm_num', 'am_num', 'tt_type', 'wday_hours',
+                  'wday_hours', 'atm', 'chest_frz_kr', 'chest_frz_ru', 'up_frz_kr', 'ba_rob_frz', 'up_frz_suu',
+                  'up_frz_ice', 'ser_storabox',
+                  'ser_Umoney', 'ser_pow_bank', 'ser_lottery', 'ser_delivery', 'ser_print', 'ser_ticket', 'alc_reason',
+                  'ciga_reason', 'reason_not_24', 'close_date', 'close_reason', 'near_gs', 'sm_name', 'sm_phone',
+                  'prc_grade', 'tv_screen', 'toilet_tp', 'walkin_chiller', 'lunch_case_L8', 'war_yn', 'toilet_seat',
+                  'squat_toilet_yn', 'desk_qty', 'chair_qty', 'building_purpose', 'customer_base', 'shelf',
+                  'shelf_list', 'entrace_qty',
+                  'cu_bar', 'cu_bar_door', 'doorstep_yn', 'doorstep_qty', 'out_banner_qty', 'entrance_connection',
+                  'alc_lic_yn',
+                  'alc_type', 'alc_lin_tn', 'tobacco_yn', 'vape_sell', 'out_city_flow', 'car_park_slot',
+                  'near_bus_station',
+                  'bus_station_range', 'sub_rent1', 'sub_rent2', 'university_range', 'high_school_range',
+                  'garbage_area',
+                  'garbage_transport', 'water_tank'
+                  ]
 
     class AllocationForm(f.ModelForm):
         tags = f.CharField(widget=f.TextInput(attrs={'class': 'form-control'}), required=False)

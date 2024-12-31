@@ -116,13 +116,28 @@ def edit(request, id):
     return render(request, 'store_consultant/edit.html', {'model': model})
 
 
+# def update(request, id):
+#     model = StoreConsultant.objects.get(id=id)
+#     form = StoreConsultantForm(request.POST, instance=model)
+#     if form.is_valid():
+#         form.save()
+#         return redirect("/store-index")
+#     return render(request, 'store_consultant/edit.html', {'model': model})
+
 def update(request, id):
-    model = StoreConsultant.objects.get(id=id)
-    form = StoreConsultantForm(request.POST, instance=model)
-    if form.is_valid():
-        form.save()
-        return redirect("/store-index")
-    return render(request, 'store_consultant/edit.html', {'model': model})
+    model = get_object_or_404(StoreConsultant, id=id)
+
+    if request.method == 'POST':
+        form = StoreConsultantForm(request.POST, instance=model)
+        if form.is_valid():
+            form.save()
+            return redirect("/store-index")  # Adjust the redirect URL as needed
+        else:
+            print(form.errors)  # Print form errors in the console for debugging
+    else:
+        form = StoreConsultantForm(instance=model)
+
+    return render(request, 'store_consultant/edit.html', {'form': form, 'model': model})
 
 
 # def update(request, id):
