@@ -1,6 +1,6 @@
 from django import forms as f
 from django.conf import settings
-from cupp.store_consultant.models import StoreConsultant, Allocation, Tag
+from cupp.store_consultant.models import StoreConsultant, Allocation, Tag, Consultants
 
 
 class StoreConsultantForm(f.ModelForm):
@@ -106,7 +106,7 @@ class StoreConsultantForm(f.ModelForm):
         model = StoreConsultant
         fields = ['sm_num', 'am_num', 'tt_type', 'wday_hours',
                   'wday_hours', 'atm', 'chest_frz_kr', 'chest_frz_ru', 'up_frz_kr', 'up_frz_suu',
-                  'up_frz_ice', 'ser_storabox',
+                  'up_frz_ice', 'ser_storabox', 'out_city_flow',
                   'ser_Umoney', 'ser_pow_bank', 'ser_lottery', 'ser_delivery', 'ser_print', 'ser_ticket', 'alc_reason',
                   'ciga_reason', 'reason_not_24', 'close_date', 'close_reason', 'near_gs', 'sm_name', 'sm_phone',
                   'prc_grade', 'tv_screen', 'toilet_tp', 'walkin_chiller', 'lunch_case_L8', 'war_yn', 'toilet_seat',
@@ -128,3 +128,9 @@ class StoreConsultantForm(f.ModelForm):
             model = Allocation
             fields = ['consultant', 'area', 'year', 'month', 'team_no', 'store_cons', 'storeID', 'store_name',
                       'tags']
+
+    # class ConsultantFrom(f.ModelForm):
+    #     class Meta:
+    #         model = Consultants
+    #         fields = ['sc_name', 'sc_surname', 'sc_email', 'sc_phone', 'sc_sex', 'sc_birthd', 'sc_rel_status',
+    #                   'sc_child', 'sc_Addr1', 'sc_Addr2', 'sc_Addr3', 'sc_Addr4']
