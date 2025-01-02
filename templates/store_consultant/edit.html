@@ -75,21 +75,21 @@
                     {#                        <input type="time" class="form-control" name="wday_hours" id="id_wday_hours"#}
                     {#                               value="{{ model.wday_hours }}"/>#}
                     {#                    </div>#}
-{#                    <div class="form-group col-md-6 liquor-time">#}
-{#                        <label>Нээх цагийн хуваарь: </label>#}
-{#                        <input type="text" id="id_wday_hours" name="wday_hours" class="form-control"#}
-{#                               value="{{ model.wday_hours }}" placeholder="HH:MM:SS" required>#}
-{#                    </div>#}
+                    {#                    <div class="form-group col-md-6 liquor-time">#}
+                    {#                        <label>Нээх цагийн хуваарь: </label>#}
+                    {#                        <input type="text" id="id_wday_hours" name="wday_hours" class="form-control"#}
+                    {#                               value="{{ model.wday_hours }}" placeholder="HH:MM:SS" required>#}
+                    {#                    </div>#}
                     {#                    <div class="form-group col-md-6">#}
                     {#                        <label>Цагийн хуваарь: </label>#}
                     {#                        <input type="time" class="form-control" name="wend_hours" id="id_wend_hours"#}
                     {#                               value="{{ model.wend_hours }}"/>#}
                     {#                    </div>#}
-{#                    <div class="form-group col-md-6 liquor-time">#}
-{#                        <label>Хаах цагийн хуваарь: </label>#}
-{#                        <input type="text" id="id_wend_hours" name="wend_hours" class="form-control"#}
-{#                               value="{{ model.wend_hours }}" placeholder="HH:MM:SS" required>#}
-{#                    </div>#}
+                    {#                    <div class="form-group col-md-6 liquor-time">#}
+                    {#                        <label>Хаах цагийн хуваарь: </label>#}
+                    {#                        <input type="text" id="id_wend_hours" name="wend_hours" class="form-control"#}
+                    {#                               value="{{ model.wend_hours }}" placeholder="HH:MM:SS" required>#}
+                    {#                    </div>#}
                     <div class="form-group col-md-6">
                         <label>Дэлгүүрийн менежерийн нэр: </label>
                         <input type="text" class="form-control" name="sm_name" id="id_sm_name"
@@ -322,9 +322,8 @@
                         <h3>Sub-Rent</h3>
                     </div>
                     <div class="form-group col-md-6">
-                        <label>Дамжуулдаг түрээсэлдэг төрөл: <span
-                                class="text-purple">*</span></label>
-                        <select name="sub_rent1" id="id_sub_rent1" class="form-control" required>
+                        <label>Дамжуулдаг түрээсэлдэг төрөл: </label>
+                        <select name="sub_rent1" id="id_sub_rent1" class="form-control">
                             <option value="">{{ sub_rent1 }}</option>
                             <option value="ATM" {% if model.sub_rent1 == "ATM" %}selected{% endif %}>ATM</option>
                             <option value="Эмийн сан" {% if model.sub_rent1 == "Эмийн сан" %}selected{% endif %}>Эмийн
@@ -345,9 +344,8 @@
                         </select>
                     </div>
                     <div class="form-group col-md-6">
-                        <label>Дамжуулдаг түрээсэлдэг төрөл2: <span
-                                class="text-purple">*</span></label>
-                        <select name="sub_rent2" id="id_sub_rent2" class="form-control" required>
+                        <label>Дамжуулдаг түрээсэлдэг төрөл2: </label>
+                        <select name="sub_rent2" id="id_sub_rent2" class="form-control">
                             <option value="">{{ sub_rent2 }}</option>
                             <option value="ATM" {% if model.sub_rent2 == "ATM" %}selected{% endif %}>ATM</option>
                             <option value="Эмийн сан" {% if model.sub_rent2 == "Эмийн сан" %}selected{% endif %}>Эмийн
@@ -572,6 +570,41 @@
 
                 if (ttTypeSelect.value) {
                     updateTimetableFields();
+                }
+            });
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const alcLicYnSelect = document.getElementById('id_alc_lic_yn');
+                const tobaccoYnSelect = document.getElementById('id_tobbacco_yn');
+                const alcTypeSelect = document.getElementById('id_alc_type');
+                const vapeSellSelect = document.getElementById('id_vape_sell');
+
+                alcLicYnSelect.addEventListener('change', function () {
+                    if (alcLicYnSelect.value === 'False') {
+                        alcTypeSelect.value = ''; // Set to None or the appropriate value that represents None
+                        alcTypeSelect.disabled = true; // Optionally disable the select
+                    } else {
+                        alcTypeSelect.disabled = false; // Re-enable the select
+                    }
+                });
+
+                tobaccoYnSelect.addEventListener('change', function () {
+                    if (tobaccoYnSelect.value === 'False') {
+                        vapeSellSelect.value = ''; // Set to None or the appropriate value that represents None
+                        vapeSellSelect.disabled = true; // Optionally disable the select
+                    } else {
+                        vapeSellSelect.disabled = false; // Re-enable the select
+                    }
+                });
+
+                // Initial state check in case the select is preset to 'Үгүй'
+                if (alcLicYnSelect.value === 'False') {
+                    alcTypeSelect.value = '';
+                    alcTypeSelect.disabled = true;
+                }
+                if (tobaccoYnSelect.value === 'False') {
+                    vapeSellSelect.value = '';
+                    vapeSellSelect.disabled = true;
                 }
             });
         </script>

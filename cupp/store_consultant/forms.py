@@ -77,15 +77,15 @@ class StoreConsultantForm(f.ModelForm):
                                     required=False)
     cu_bar = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
                            required=False)
-    doorstep_yn = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
-                                required=False)
+    entrace_connection = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
+                                       required=False)
     entrance_connection = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
                                         required=False)
     alc_lin_tn = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
                                required=False)
     alc_type = f.ChoiceField(choices=ALC_TYPE, widget=f.Select(attrs={'class': 'form-control'}), required=False)
-    tobacco_yn = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
-                               required=False)
+    tobbacco_yn = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
+                                required=False)
     vape_sell = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
                               required=False)
     out_city_flow = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
@@ -112,9 +112,9 @@ class StoreConsultantForm(f.ModelForm):
                   'prc_grade', 'tv_screen', 'toilet_tp', 'walkin_chiller', 'lunch_case_L8', 'war_yn', 'toilet_seat',
                   'squat_toilet_yn', 'desk_qty', 'chair_qty', 'building_purpose', 'customer_base', 'shelf',
                   'shelf_list', 'entrace_qty',
-                  'cu_bar', 'cu_bar_door', 'doorstep_yn', 'doorstep_qty', 'out_banner_qty', 'entrance_connection',
-                  'alc_lic_yn',
-                  'alc_type', 'alc_lin_tn', 'tobacco_yn', 'vape_sell', 'out_city_flow', 'car_park_slot',
+                  'cu_bar', 'cu_bar_door', 'doorstep_yn', 'doorstep_qty', 'out_banner_qty', 'entrace_connection',
+                  'alc_lic_yn', 'tobbacco_yn', 'in_out_flow',
+                  'alc_type', 'alc_lin_tn', 'vape_sell', 'car_park_slot',
                   'near_bus_station',
                   'bus_station_range', 'sub_rent1', 'sub_rent2', 'university_range', 'high_school_range',
                   'garbage_area',
