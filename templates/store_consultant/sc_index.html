@@ -712,7 +712,7 @@
                                         <input type="number" class="form-control" name="entrance_qty"
                                                id="id_entrance_qty"
                                                readonly
-                                               value="{{ model.entrance_qty }}"/>
+                                               value="{{ model.entrace_qty }}"/>
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label>CU BAR-тай эсэх: <span
@@ -768,12 +768,12 @@
                                         <select name="entrance_connection" id="id_entrance_connection"
                                                 class="form-control"
                                                 disabled>
-                                            <option value="">{{ entrance_connection }}</option>
-                                            <option value="True" {% if model.entrance_connection %}selected{% endif %}>
+                                            <option value="">{{ entrace_connection }}</option>
+                                            <option value="True" {% if model.entrace_connection %}selected{% endif %}>
                                                 Тийм
                                             </option>
                                             <option value="False"
-                                                    {% if model.entrance_connection == False %}selected{% endif %}>
+                                                    {% if model.entrace_connection == False %}selected{% endif %}>
                                                 Үгүй
                                             </option>
                                         </select>
@@ -803,11 +803,11 @@
                                         <select name="garbage_area" id="id_garbage_area" class="form-control"
                                                 disabled>
                                             <option value="">{{ garbage_area }}</option>
-                                            <option value="True" {% if model.garbage_area %}selected{% endif %}>Орох
+                                            <option value="True" {% if model.garbage_area %}selected{% endif %}>Тийм
                                             </option>
                                             <option value="False"
                                                     {% if model.garbage_area == False %}selected{% endif %}>
-                                                Гарах
+                                                Үгүй
                                             </option>
                                         </select>
                                     </div>
@@ -817,11 +817,11 @@
                                         <select name="water_tank" id="id_water_tank" class="form-control"
                                                 disabled>
                                             <option value="">{{ water_tank }}</option>
-                                            <option value="True" {% if model.water_tank %}selected{% endif %}>Орох
+                                            <option value="True" {% if model.water_tank %}selected{% endif %}>Тийм
                                             </option>
                                             <option value="False"
                                                     {% if model.water_tank == False %}selected{% endif %}>
-                                                Гарах
+                                                Үгүй
                                             </option>
                                         </select>
                                     </div>
