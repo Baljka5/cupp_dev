@@ -104,8 +104,8 @@ class StoreConsultantForm(f.ModelForm):
 
     class Meta:
         model = StoreConsultant
-        fields = ['store_id', 'store_name', 'team_mgr', 'sc_name', 'sm_num', 'am_num', 'tt_type', 'wday_hours',
-                  'wday_hours', 'atm', 'chest_frz_kr', 'chest_frz_ru', 'up_frz_kr', 'ba_rob_frz', 'up_frz_suu',
+        fields = ['sm_num', 'am_num', 'tt_type', 'wday_hours',
+                  'wday_hours', 'atm', 'chest_frz_kr', 'chest_frz_ru', 'up_frz_kr', 'up_frz_suu',
                   'up_frz_ice', 'ser_storabox',
                   'ser_Umoney', 'ser_pow_bank', 'ser_lottery', 'ser_delivery', 'ser_print', 'ser_ticket', 'alc_reason',
                   'ciga_reason', 'reason_not_24', 'close_date', 'close_reason', 'near_gs', 'sm_name', 'sm_phone',
