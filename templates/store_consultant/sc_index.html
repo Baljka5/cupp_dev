@@ -564,56 +564,65 @@
                                     <div class="form-group col-md-3">
                                         <label>Дамжуулдаг түрээсэлдэг төрөл: <span
                                                 class="text-purple">*</span></label>
-                                        <select name="sub_rent1" id="id_sub_rent1" class="form-control"
-                                                disabled>
-                                            <option value="">{{ sub_rent1 }}</option>
-                                            <option value="ATM" {% if model.sub_rent1 %}selected{% endif %}>ATM
-                                            </option>
-                                            <option value="Эмийн сан"
-                                                    {% if model.sub_rent1 == False %}selected{% endif %}>
-                                                Эмийн сан
-                                            </option>
-                                            <option value="Stora Box" {% if model.sub_rent1 %}selected{% endif %}>Stora
-                                                Box
-                                            </option>
-                                            <option value="Хөлдүү зайрмаг" {% if model.sub_rent1 %}selected{% endif %}>
-                                                Хөлдүү
-                                                зайрмаг
-                                            </option>
-                                            <option value="Нүдний шилний газар"
-                                                    {% if model.sub_rent1 %}selected{% endif %}>
-                                                Нүдний шилний газар
-                                            </option>
-                                            <option value="Others" {% if model.sub_rent1 %}selected{% endif %}>Others
-                                            </option>
-                                        </select>
+
+                                        <input type="text" class="form-control" name="sub_rent1"
+                                               id="id_sub_rent1"
+                                               readonly
+                                               value="{{ model.sub_rent1 }}"/>
                                     </div>
+{#                                        <select name="sub_rent1" id="id_sub_rent1" class="form-control"#}
+{#                                                disabled>#}
+{#                                            <option value="">{{ sub_rent1 }}</option>#}
+{#                                            <option value="ATM" {% if model.sub_rent1 %}selected{% endif %}>ATM#}
+{#                                            </option>#}
+{#                                            <option value="Эмийн сан"#}
+{#                                                    {% if model.sub_rent1 == False %}selected{% endif %}>#}
+{#                                                Эмийн сан#}
+{#                                            </option>#}
+{#                                            <option value="Stora Box" {% if model.sub_rent1 %}selected{% endif %}>Stora#}
+{#                                                Box#}
+{#                                            </option>#}
+{#                                            <option value="Хөлдүү зайрмаг" {% if model.sub_rent1 %}selected{% endif %}>#}
+{#                                                Хөлдүү#}
+{#                                                зайрмаг#}
+{#                                            </option>#}
+{#                                            <option value="Нүдний шилний газар"#}
+{#                                                    {% if model.sub_rent1 %}selected{% endif %}>#}
+{#                                                Нүдний шилний газар#}
+{#                                            </option>#}
+{#                                            <option value="Others" {% if model.sub_rent1 %}selected{% endif %}>Others#}
+{#                                            </option>#}
+{#                                        </select>#}
                                     <div class="form-group col-md-3">
                                         <label>Дамжуулдаг түрээсэлдэг төрөл: <span
                                                 class="text-purple">*</span></label>
-                                        <select name="sub_rent2" id="id_sub_rent2" class="form-control"
-                                                disabled>
-                                            <option value="">{{ sub_rent2 }}</option>
-                                            <option value="ATM" {% if model.sub_rent2 %}selected{% endif %}>ATM
-                                            </option>
-                                            <option value="Эмийн сан"
-                                                    {% if model.sub_rent2 == False %}selected{% endif %}>
-                                                Эмийн сан
-                                            </option>
-                                            <option value="Stora Box" {% if model.sub_rent2 %}selected{% endif %}>Stora
-                                                Box
-                                            </option>
-                                            <option value="Хөлдүү зайрмаг" {% if model.sub_rent2 %}selected{% endif %}>
-                                                Хөлдүү
-                                                зайрмаг
-                                            </option>
-                                            <option value="Нүдний шилний газар"
-                                                    {% if model.sub_rent2 %}selected{% endif %}>
-                                                Нүдний шилний газар
-                                            </option>
-                                            <option value="Others" {% if model.sub_rent2 %}selected{% endif %}>Others
-                                            </option>
-                                        </select>
+{#                                        <select name="sub_rent2" id="id_sub_rent2" class="form-control"#}
+{#                                                disabled>#}
+{#                                            <option value="">{{ sub_rent2 }}</option>#}
+{#                                            <option value="ATM" {% if model.sub_rent2 %}selected{% endif %}>ATM#}
+{#                                            </option>#}
+{#                                            <option value="Эмийн сан"#}
+{#                                                    {% if model.sub_rent2 == False %}selected{% endif %}>#}
+{#                                                Эмийн сан#}
+{#                                            </option>#}
+{#                                            <option value="Stora Box" {% if model.sub_rent2 %}selected{% endif %}>Stora#}
+{#                                                Box#}
+{#                                            </option>#}
+{#                                            <option value="Хөлдүү зайрмаг" {% if model.sub_rent2 %}selected{% endif %}>#}
+{#                                                Хөлдүү#}
+{#                                                зайрмаг#}
+{#                                            </option>#}
+{#                                            <option value="Нүдний шилний газар"#}
+{#                                                    {% if model.sub_rent2 %}selected{% endif %}>#}
+{#                                                Нүдний шилний газар#}
+{#                                            </option>#}
+{#                                            <option value="Others" {% if model.sub_rent2 %}selected{% endif %}>Others#}
+{#                                            </option>#}
+{#                                        </select>#}
+                                         <input type="text" class="form-control" name="sub_rent2"
+                                               id="id_sub_rent2"
+                                               readonly
+                                               value="{{ model.sub_rent2 }}"/>
                                     </div>
                                 </div>
                             </div>
