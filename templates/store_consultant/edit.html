@@ -588,23 +588,10 @@
                     }
                 });
 
-                tobaccoYnSelect.addEventListener('change', function () {
-                    if (tobaccoYnSelect.value === 'False') {
-                        vapeSellSelect.value = ''; // Set to None or the appropriate value that represents None
-                        vapeSellSelect.disabled = true; // Optionally disable the select
-                    } else {
-                        vapeSellSelect.disabled = false; // Re-enable the select
-                    }
-                });
-
                 // Initial state check in case the select is preset to 'Үгүй'
                 if (alcLicYnSelect.value === 'False') {
                     alcTypeSelect.value = '';
                     alcTypeSelect.disabled = true;
-                }
-                if (tobaccoYnSelect.value === 'False') {
-                    vapeSellSelect.value = '';
-                    vapeSellSelect.disabled = true;
                 }
             });
         </script>
