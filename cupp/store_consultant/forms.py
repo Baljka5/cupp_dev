@@ -39,7 +39,7 @@ class StoreConsultantForm(f.ModelForm):
         ('Stora box', 'Stora box'),
         ('Хөлдүү зайрмаг', 'Хөлдүү зайрмаг'),
         ('Нүдний шилний газар', 'Нүдний шилний газар'),
-        ('Other', 'Other'),
+        ('Others', 'Others'),
     ]
     GENDER = [
         ('', '---------'),
