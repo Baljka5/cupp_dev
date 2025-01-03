@@ -36,7 +36,7 @@ class StoreConsultantForm(f.ModelForm):
         ('', '--------'),
         ('ATM', 'ATM'),
         ('Эмийн сан', 'Эмийн сан'),
-        ('Stora box', 'Stora box'),
+        ('Stora Box', 'Stora Box'),
         ('Хөлдүү зайрмаг', 'Хөлдүү зайрмаг'),
         ('Нүдний шилний газар', 'Нүдний шилний газар'),
         ('Others', 'Others'),
