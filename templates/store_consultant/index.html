@@ -1189,9 +1189,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const pushButton = document.getElementById('pushBtn');
 
     // Add a tooltip for non-eligible days
-    if (day !== 1 && day !== 6 && day !== 31) {
+
+        if (day !== 1 && day !== 6) {
         pushButton.title = "The PUSH button is only available on the 1st and 15th of each month.";
     }
+    {#if (day !== 1 && day !== 6 && day !== 31) {#}
+    {#    pushButton.title = "The PUSH button is only available on the 1st and 15th of each month.";}#}
 });
 
 
