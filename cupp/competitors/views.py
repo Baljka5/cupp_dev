@@ -77,16 +77,16 @@ def comp_addnew(request):
 
 
 def index(request):
-    store_no_query = request.GET.get('store_id', '')
+    store_no_query = request.GET.get('store_no', '')
     activ_cat_query = request.GET.get('comp_name', '')  # Get the search query parameter
     sort = request.GET.get('sort', 'id')  # Default sort is by 'id'
     order = request.GET.get('order', 'desc')  # Default order is ascending
 
     query = Q()
     if store_no_query:
-        query &= Q(store_no__icontains=store_no_query)
+        query &= Q(store_id__icontains=store_no_query)
     if activ_cat_query:
-        query &= Q(activ_cat__activ_cat__icontains=activ_cat_query)
+        query &= Q(comp_name__comp_name__icontains=activ_cat_query)
 
     if sort:
         if order == 'asc':
