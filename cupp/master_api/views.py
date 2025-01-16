@@ -48,7 +48,6 @@ class StoreMasterAPI(APIView):
                 continue
 
             branch_type = "Direct" if store_consultant.store_type == 0 else "Franchise"
-
             wday_hours = store_consultant.wday_hours or "00:00-23:59"
             time_format = r"^\d{2}:\d{2}:\d{2}$"
 
@@ -60,18 +59,27 @@ class StoreMasterAPI(APIView):
             is_24h_open = store_consultant.tt_type == "24H" if store_consultant else False
 
             sc_name = store_consultant.sc_name or ""
+            branch_employee_name = "N/A"
+            sc_surname = None
             if "@cumongol.mn" in sc_name:
                 sc_name_part = sc_name.split("@")[0]
                 branch_employee_name = " ".join(word.capitalize() for word in sc_name_part.split("."))
-            else:
-                branch_employee_name = "N/A"
+
+                sc = Consultants.objects.filter(sc_email=sc_name).first()
+                if sc:
+                    sc_surname = sc.sc_surname
 
             area_name = store_consultant.team_mgr or ""
+            area_branch_employee_name = "N/A"
+            branch_area_surname = None  # Initialize the branchAreaSurname as None
             if "@cumongol.mn" in area_name:
                 area_name_part = area_name.split("@")[0]
                 area_branch_employee_name = " ".join(word.capitalize() for word in area_name_part.split("."))
-            else:
-                area_branch_employee_name = "N/A"
+                # Query the Area model using the email to get the surname
+                area_manager = Area.objects.filter(team_man_email=area_name).first()
+                if area_manager:
+                    branch_area_surname = area_manager.team_man_surname
+
 
             store_id_stripped = store_consultant.store_id.lstrip('0') if store_consultant.store_id else None
             store_email_prefix = "cu" if store_consultant.store_type == 0 else "cuf"
@@ -83,7 +91,6 @@ class StoreMasterAPI(APIView):
                 'phone': store_consultant.sm_phone if store_consultant else "",
             }]
 
-            # Retrieve the lan and lon values from StorePlanning if they exist
             lat = None
             lon = None
             for store_planning in store_plannings:
@@ -92,49 +99,41 @@ class StoreMasterAPI(APIView):
                     lon = store_planning.lon
                     break  # Assuming there is only one matching store_planning per store_id
 
-            for store_planning in store_plannings:
-                close_date = store_consultant.close_date
-                is_close = bool(close_date)
-
             area_manager_phone = None
-            if store_consultant.team_mgr:
-                area_manager = Area.objects.filter(team_man_email=store_consultant.team_mgr).first()
-                if area_manager:
-                    area_manager_phone = area_manager.team_man_phone
+            if store_consultant.team_mgr and area_manager:
+                area_manager_phone = area_manager.team_man_phone
 
             sc_phone = None
             if store_consultant.sc_name:
-                sc = Consultants.objects.filter(
-                    sc_email=store_consultant.sc_name).first()  # Use .first() to get the first matching instance
+                sc = Consultants.objects.filter(sc_email=store_consultant.sc_name).first()  # Use .first() to get the first matching instance
                 if sc:
                     sc_phone = sc.sc_phone
 
-            for store_planning in store_plannings:
-                data.append({
-                    'branchType': branch_type,
-                    'branchNo': store_consultant.store_id,
-                    'branchAddress': store_planning.address_det if store_planning else None,
-                    'branchName': store_consultant.store_name,
-                    'branchOpeningDate': store_trainer.open_date if store_trainer else None,
-                    'branchInChargeEmail': store_consultant.sc_name,
-                    'branchInChargeName': branch_employee_name,
-                    'branchInChargePhone': sc_phone,
-                    'areaManagerName': area_branch_employee_name,
-                    'areaManagerEmail': store_consultant.team_mgr,
-                    'areaManagerPhone': area_manager_phone,
-                    'branchEmployees': employees_data,
-                    'openTime': open_time,
-                    'closeTime': close_time,
-                    'roZone': store_planning.cluster if store_planning else '',
-                    # 'storeEmail': store_planning.storeEmail,
-                    'storeEmail': store_email,
-                    'is24Open': is_24h_open,
-                    'isClose': is_close,
-                    'closeDate': store_consultant.close_date,
-                    # 'closedDescription': store_consultant.close_reason,
-                    'lat': lat,  # Adding the lan value
-                    'long': lon,  # Adding the lon value
-                })
+            data.append({
+                'branchType': branch_type,
+                'branchNo': store_consultant.store_id,
+                'branchAddress': store_planning.address_det if store_planning else None,
+                'branchName': store_consultant.store_name,
+                'branchOpeningDate': store_trainer.open_date if store_trainer else None,
+                'branchInChargeEmail': store_consultant.sc_name,
+                'branchInChargeName': branch_employee_name,
+                'branchInChargePhone': sc_phone,
+                'areaManagerName': area_branch_employee_name,
+                'branchInChargeSurname': sc_surname,
+                'areaManagerEmail': store_consultant.team_mgr,
+                'areaManagerPhone': area_manager_phone,
+                'branchAreaSurname': branch_area_surname,  # Add the surname to the response
+                'branchEmployees': employees_data,
+                'openTime': open_time,
+                'closeTime': close_time,
+                'roZone': store_planning.cluster if store_planning else '',
+                'storeEmail': store_email,
+                'is24Open': is_24h_open,
+                'isClose': bool(store_consultant.close_date),
+                'closeDate': store_consultant.close_date,
+                'lat': lat,
+                'long': lon,
+            })
 
         if not data:
             return Response({'message': 'Store not found', 'success': False}, status=status.HTTP_404_NOT_FOUND)
