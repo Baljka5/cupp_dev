@@ -86,6 +86,13 @@ def is_in_planning_manager(context):
     return request.user.groups.filter(name='planning_manager').exists() or request.user.is_superuser
 
 
+@register.filter
+def truncate_chars(value, num):
+    if len(value) > num:
+        return value[:num] + '...'
+    return value
+
+
 @login_required
 def custom_login_redirect(request):
     if request.user.is_superuser:

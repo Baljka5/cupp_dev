@@ -66,7 +66,8 @@
                                 <td>{{ model.date }}</td>
                                 <td>{{ model.store_no }}</td>
                                 <td>{{ model.store_name }}</td>
-                                <td>{{ model.disp_desc }}</td>
+                                {#                                <td>{{ model.disp_desc }}</td>#}
+                                <td>{{ model.disp_desc|truncate_chars:50 }}</td>
                                 <td>{{ model.disp_cat }}</td>
                                 <td>{{ model.dmg_amt }}</td>
                                 <td>{{ model.dmg_uom }}</td>
@@ -80,8 +81,9 @@
                                         None
                                     {% endif %}
                                 </td>
-                                <td>{{ model.disp_progress }}</td>
-                            <td>
+                                {#                                <td>{{ model.disp_progress }}</td>#}
+                                <td>{{ model.disp_progress|truncate_chars:50 }}</td>
+                                <td>
                                     {% if model.disp_result is True %}
                                         Yes
                                     {% elif model.disp_result is False %}
