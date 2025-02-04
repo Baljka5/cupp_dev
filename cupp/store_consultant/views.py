@@ -13,12 +13,14 @@ from cupp.store_consultant.models import Area, Consultants, Allocation, StoreCon
 from cupp.store_trainer.models import StoreTrainer
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from cupp.store_consultant.forms import StoreConsultantForm
+from cupp.store_consultant.forms import StoreConsultantForm, ConsultantFrom
 from django.views import generic as g
 from django.conf import settings
 from django.templatetags.static import static
+from django.contrib import messages
 
 
+@login_required
 def index(request):
     store_id_query = request.GET.get('store_id', '')
 
@@ -26,18 +28,21 @@ def index(request):
     if store_id_query:
         query &= Q(store_id__icontains=store_id_query)
 
+    # Fetch all stores for SC Director or Superuser
     if request.user.groups.filter(name='SC Director').exists() or request.user.is_superuser:
-        models = StoreConsultant.objects.all().order_by('id')
+        models = StoreConsultant.objects.filter(query).order_by('id')
+
+    # Fetch stores assigned to the logged-in Store Consultant
+    elif request.user.groups.filter(name='Store Consultant').exists():
+        models = StoreConsultant.objects.filter(query & Q(sc_name__icontains=request.user.username)).distinct().order_by('id')
+
+    # Fetch stores assigned to the logged-in Area Manager
+    elif request.user.groups.filter(name='Area').exists():
+        models = StoreConsultant.objects.filter(
+            query & Q(team_mgr__icontains=request.user.username)).distinct().order_by('id')
+
     else:
-        models = StoreConsultant.objects.filter(query).distinct().order_by('id')
-
-    if request.user.groups.filter(name='Store Consultant').exists():
-        models = models.filter(sc_name__icontains=request.user.username)
-
-    if request.user.groups.filter(name='Area').exists():
-        models = models.filter(team_mgr__icontains=request.user.username)
-
-    models = StoreConsultant.objects.filter(query)
+        models = StoreConsultant.objects.none()  # No access for other users
 
     paginator = Paginator(models, 10)
     page_number = request.GET.get('page')
@@ -125,12 +130,19 @@ def edit(request, id):
 #     return render(request, 'store_consultant/edit.html', {'model': model})
 
 def update(request, id):
-    model = StoreConsultant.objects.get(id=id)
-    form = StoreConsultantForm(request.POST, instance=model)
-    if form.is_valid():
-        form.save()
-        return redirect("/store-index")
-    return render(request, 'store_consultant/edit.html', {'model': model})
+    model = get_object_or_404(StoreConsultant, id=id)
+
+    if request.method == 'POST':
+        form = StoreConsultantForm(request.POST, instance=model)
+        if form.is_valid():
+            form.save()
+            return redirect("/store-index")  # Adjust the redirect URL as needed
+        else:
+            print(form.errors)  # Print form errors in the console for debugging
+    else:
+        form = StoreConsultantForm(instance=model)
+
+    return render(request, 'store_consultant/edit.html', {'form': form, 'model': model})
 
 
 # def update(request, id):
@@ -309,7 +321,74 @@ def save_allocations(request):
         return JsonResponse({'status': 'failed', 'message': str(e)}, status=500)
 
 
-from django.db.models import Q
+def sc_add_index(request):
+    sc_name_query = request.GET.get('sc_name', '')
+
+    # Build the query based on presence of filter values
+    query = Q()
+    if sc_name_query:
+        query &= Q(sc_name__icontains=sc_name_query)
+
+    models = Consultants.objects.filter(query).distinct().order_by('id')
+
+    paginator = Paginator(models, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "store_consultant/sc_add_show.html", {
+        'page_obj': page_obj,
+        'sc_name_query': sc_name_query,
+    })
+
+
+# Create a new consultant
+def sc_add_new(request):
+    if request.method == "POST":
+        form = ConsultantFrom(request.POST)
+        if form.is_valid():
+            try:
+                form.instance.created_by = request.user if not form.instance.pk else form.instance.created_by
+                form.instance.modified_by = request.user
+                form.save()
+                messages.success(request, 'Form submission successful.')
+                return redirect('/sc-add-index')
+            except Exception as e:
+                # If save fails, add an error message and print the exception
+                messages.error(request, 'Form could not be saved. Please try again.')
+                print(f"Error saving form: {e}")
+        else:
+            # If form is not valid, show errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Error in {field}: {error}")
+    else:
+        form = ConsultantFrom()
+
+    return render(request, 'store_consultant/sc_add_index.html', {
+        'form': form,
+    })
+
+
+# Edit an existing consultant
+def sc_add_edit(request, id):
+    consultant = get_object_or_404(Consultants, id=id)
+    if request.method == 'POST':
+        form = ConsultantFrom(request.POST, instance=consultant)
+        if form.is_valid():
+            form.save()
+            return redirect('sc-add-index')
+    else:
+        form = ConsultantFrom(instance=consultant)
+    return render(request, 'store_consultant/sc_add_edit.html', {'form': form, 'consultant': consultant})
+
+
+# Delete a consultant
+def sc_add_delete(request, id):
+    consultant = get_object_or_404(Consultants, id=id)
+    if request.method == 'POST':
+        consultant.delete()
+        return redirect('sc-add-index')
+    return render(request, 'store_consultant/sc_add_delete.html', {'consultant': consultant})
 
 
 @require_POST
@@ -366,83 +445,109 @@ def push_data(request):
 def save_consultant_stores(request):
     try:
         data = json.loads(request.body)
-        print(f"Incoming payload: {data}")  # Debug incoming data
+        print(f"Incoming payload: {data}")
 
         store_allocations = data.get('storeAllocations', [])
         removed_stores = data.get('removedStores', [])
-        overwrite = data.get('overwrite', False)  # Flag for overwrite confirmation
+        print(f"removedStores: {removed_stores}")
+        overwrite = data.get('overwrite', False)
 
         warnings = []  # Collect warnings for store conflicts
+        new_distribution = []  # Track new allocations
+        deleted_allocations = []  # Track removed allocations
+        changed_allocations = []  # Track consultant changes
 
         with transaction.atomic():
-            # Check for store conflicts
-            for allocation in store_allocations:
-                consultant_id = allocation['consultantId']
-                store_ids = allocation['storeIds']
+            # Step 1: Fetch all existing allocations
+            existing_allocations = {
+                alloc.store.store_id: {
+                    "id": alloc.id,
+                    "consultant_id": alloc.consultant.id,
+                    "sc_name": alloc.sc_name,
+                    "store_no": alloc.store_no
+                }
+                for alloc in SC_Store_AllocationTemp.objects.all()
+            }
 
-                for store_id in store_ids:
-                    # Check if the store ID is valid
-                    if not store_id.strip():
-                        continue  # Skip empty store IDs
-                    if not StoreConsultant.objects.filter(store_id=store_id).exists():
-                        return JsonResponse({
-                            'status': 'failed',
-                            'message': f"Store ID {store_id} does not exist."
-                        }, status=400)
-
-                    # Check if the store is already allocated to another consultant
-                    existing_allocation = SC_Store_AllocationTemp.objects.filter(
-                        store__store_id=store_id
-                    ).exclude(consultant_id=consultant_id).first()
-
-                    if existing_allocation:
-                        if not overwrite:
-                            warnings.append({
-                                'store_id': store_id,
-                                'previous_sc_name': existing_allocation.consultant.sc_name,
-                                'new_sc_name': Consultants.objects.get(id=consultant_id).sc_name
-                            })
-                        else:
-                            # Remove the previous allocation if overwrite is confirmed
-                            existing_allocation.delete()
-
-            # If there are warnings and overwrite is not confirmed, return warnings
-            if warnings and not overwrite:
-                return JsonResponse({'status': 'warning', 'warnings': warnings}, status=200)
-
-            # Process removals
+            # Step 2: Process removals
             for removed in removed_stores:
                 consultant_id = removed['consultantId']
-                store_ids = [store_id for store_id in removed['storeIds'] if
-                             store_id.strip()]  # Filter out empty store IDs
+                store_ids = [store_id.strip() for store_id in removed['storeIds'] if store_id.strip()]
                 if store_ids:
+                    deleted_allocations.extend([
+                        {'store_id': store_id, 'consultant_id': consultant_id}
+                        for store_id in store_ids
+                    ])
                     SC_Store_AllocationTemp.objects.filter(
                         consultant_id=consultant_id,
                         store__store_id__in=store_ids
                     ).delete()
 
-            # Process new allocations
+            # Step 3: Process new allocations and updates
             for allocation in store_allocations:
                 consultant_id = allocation['consultantId']
-                store_ids = [store_id for store_id in allocation['storeIds'] if
-                             store_id.strip()]  # Filter out empty store IDs
+                store_ids = [store_id.strip() for store_id in allocation['storeIds'] if store_id.strip()]
 
-                # Clear existing allocations for this consultant
-                SC_Store_AllocationTemp.objects.filter(consultant_id=consultant_id).delete()
-
-                # Create new allocations
                 for store_id in store_ids:
-                    store = StoreConsultant.objects.get(store_id=store_id)  # This is now safe
+                    store = StoreConsultant.objects.get(store_id=store_id)
                     consultant = Consultants.objects.get(id=consultant_id)
-                    SC_Store_AllocationTemp.objects.create(
-                        consultant=consultant,
-                        store=store,
-                        store_name=store.store_name,
-                        sc_name=consultant.sc_name,
-                        store_no=store.store_id
-                    )
 
-        return JsonResponse({'status': 'success', 'message': 'Allocations saved successfully.'})
+                    if store_id in existing_allocations:
+                        # Update if consultant_id or other data has changed
+                        existing_data = existing_allocations[store_id]
+                        if (
+                                existing_data["consultant_id"] != consultant_id or
+                                existing_data["sc_name"] != consultant.sc_name or
+                                existing_data["store_no"] != store.store_id
+                        ):
+                            SC_Store_AllocationTemp.objects.filter(id=existing_data["id"]).update(
+                                consultant=consultant,
+                                sc_name=consultant.sc_name,
+                                store_no=store.store_id,
+                                store_name=store.store_name
+                            )
+                            if existing_data["consultant_id"] != consultant_id:
+                                changed_allocations.append({
+                                    'store_id': store_id,
+                                    'consultant_id': consultant_id,
+                                    'from_sc': existing_data["sc_name"],
+                                    'to_sc': consultant.sc_name
+                                })
+                    else:
+                        # Create a new allocation
+                        new_allocation = SC_Store_AllocationTemp.objects.create(
+                            consultant=consultant,
+                            store=store,
+                            sc_name=consultant.sc_name,
+                            store_no=store.store_id,
+                            store_name=store.store_name
+                        )
+                        new_distribution.append({
+                            'store_id': new_allocation.store.store_id,
+                            'consultant_id': new_allocation.consultant.id,
+                            'consultant_name': new_allocation.consultant.sc_name
+                        })
+
+            # Print results for debugging
+            print("\nNew Allocations:")
+            for dist in new_distribution:
+                print(dist)
+
+            print("\nDeleted Allocations:")
+            for dist in deleted_allocations:
+                print(dist)
+
+            print("\nChanged Allocations:")
+            for change in changed_allocations:
+                print(f"Store {change['store_id']} moved from {change['from_sc']} → {change['to_sc']}")
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Allocations saved successfully.',
+            'new_allocations': new_distribution,
+            'deleted_allocations': deleted_allocations,
+            'changed_allocations': changed_allocations
+        })
 
     except Exception as e:
         import traceback
