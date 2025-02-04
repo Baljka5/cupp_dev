@@ -13,7 +13,7 @@ from cupp.store_consultant.models import Area, Consultants, Allocation, StoreCon
 from cupp.store_trainer.models import StoreTrainer
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from cupp.store_consultant.forms import StoreConsultantForm, ConsultantFrom
+from cupp.store_consultant.forms import StoreConsultantForm
 from django.views import generic as g
 from django.conf import settings
 from django.templatetags.static import static
