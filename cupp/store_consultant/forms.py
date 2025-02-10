@@ -99,8 +99,10 @@ class StoreConsultantForm(f.ModelForm):
                                  required=False)
     water_tank = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
                                required=False)
-    sc_sex = f.ChoiceField(choices=GENDER, widget=f.Select(attrs={'class': 'form-control'}),
-                           required=False)
+    # sc_sex = f.ChoiceField(choices=GENDER, widget=f.Select(attrs={'class': 'form-control'}),
+    #                        required=False)
+
+    # sc_birthdt = f.DateField(input_formats=settings.DATE_INPUT_FORMATS)
 
     class Meta:
         model = StoreConsultant
@@ -129,8 +131,9 @@ class StoreConsultantForm(f.ModelForm):
             fields = ['consultant', 'area', 'year', 'month', 'team_no', 'store_cons', 'storeID', 'store_name',
                       'tags']
 
-    # class ConsultantFrom(f.ModelForm):
-    #     class Meta:
-    #         model = Consultants
-    #         fields = ['sc_name', 'sc_surname', 'sc_email', 'sc_phone', 'sc_sex', 'sc_birthd', 'sc_rel_status',
-    #                   'sc_child', 'sc_Addr1', 'sc_Addr2', 'sc_Addr3', 'sc_Addr4']
+
+class ConsultantFrom(f.ModelForm):
+    class Meta:
+        model = Consultants
+        fields = ['sc_name', 'sc_surname', 'sc_email', 'sc_phone', 'sc_sex', 'sc_birthdt', 'sc_rel_status',
+                  'sc_child', 'sc_Addr1', 'sc_Addr2', 'sc_Addr3', 'sc_Addr4']
