@@ -34,7 +34,8 @@ def index(request):
 
     # Fetch stores assigned to the logged-in Store Consultant
     elif request.user.groups.filter(name='Store Consultant').exists():
-        models = StoreConsultant.objects.filter(query & Q(sc_name__icontains=request.user.username)).distinct().order_by('id')
+        models = StoreConsultant.objects.filter(
+            query & Q(sc_name__icontains=request.user.username)).distinct().order_by('id')
 
     # Fetch stores assigned to the logged-in Area Manager
     elif request.user.groups.filter(name='Area').exists():
@@ -342,53 +343,53 @@ def sc_add_index(request):
 
 
 # Create a new consultant
-def sc_add_new(request):
-    if request.method == "POST":
-        form = ConsultantFrom(request.POST)
-        if form.is_valid():
-            try:
-                form.instance.created_by = request.user if not form.instance.pk else form.instance.created_by
-                form.instance.modified_by = request.user
-                form.save()
-                messages.success(request, 'Form submission successful.')
-                return redirect('/sc-add-index')
-            except Exception as e:
-                # If save fails, add an error message and print the exception
-                messages.error(request, 'Form could not be saved. Please try again.')
-                print(f"Error saving form: {e}")
-        else:
-            # If form is not valid, show errors
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"Error in {field}: {error}")
-    else:
-        form = ConsultantFrom()
-
-    return render(request, 'store_consultant/sc_add_index.html', {
-        'form': form,
-    })
+# def sc_add_new(request):
+#     if request.method == "POST":
+#         form = ConsultantFrom(request.POST)
+#         if form.is_valid():
+#             try:
+#                 form.instance.created_by = request.user if not form.instance.pk else form.instance.created_by
+#                 form.instance.modified_by = request.user
+#                 form.save()
+#                 messages.success(request, 'Form submission successful.')
+#                 return redirect('/sc-add-index')
+#             except Exception as e:
+#                 # If save fails, add an error message and print the exception
+#                 messages.error(request, 'Form could not be saved. Please try again.')
+#                 print(f"Error saving form: {e}")
+#         else:
+#             # If form is not valid, show errors
+#             for field, errors in form.errors.items():
+#                 for error in errors:
+#                     messages.error(request, f"Error in {field}: {error}")
+#     else:
+#         form = ConsultantFrom()
+#
+#     return render(request, 'store_consultant/sc_add_index.html', {
+#         'form': form,
+#     })
 
 
 # Edit an existing consultant
-def sc_add_edit(request, id):
-    consultant = get_object_or_404(Consultants, id=id)
-    if request.method == 'POST':
-        form = ConsultantFrom(request.POST, instance=consultant)
-        if form.is_valid():
-            form.save()
-            return redirect('sc-add-index')
-    else:
-        form = ConsultantFrom(instance=consultant)
-    return render(request, 'store_consultant/sc_add_edit.html', {'form': form, 'consultant': consultant})
+# def sc_add_edit(request, id):
+#     consultant = get_object_or_404(Consultants, id=id)
+#     if request.method == 'POST':
+#         form = ConsultantFrom(request.POST, instance=consultant)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('sc-add-index')
+#     else:
+#         form = ConsultantFrom(instance=consultant)
+#     return render(request, 'store_consultant/sc_add_edit.html', {'form': form, 'consultant': consultant})
 
 
 # Delete a consultant
-def sc_add_delete(request, id):
-    consultant = get_object_or_404(Consultants, id=id)
-    if request.method == 'POST':
-        consultant.delete()
-        return redirect('sc-add-index')
-    return render(request, 'store_consultant/sc_add_delete.html', {'consultant': consultant})
+# def sc_add_delete(request, id):
+#     consultant = get_object_or_404(Consultants, id=id)
+#     if request.method == 'POST':
+#         consultant.delete()
+#         return redirect('sc-add-index')
+#     return render(request, 'store_consultant/sc_add_delete.html', {'consultant': consultant})
 
 
 @require_POST
@@ -449,72 +450,92 @@ def save_consultant_stores(request):
 
         store_allocations = data.get('storeAllocations', [])
         removed_stores = data.get('removedStores', [])
-        print(f"removedStores: {removed_stores}")
-        overwrite = data.get('overwrite', False)
+        print(f"Removed Stores: {removed_stores}")
 
-        warnings = []  # Collect warnings for store conflicts
         new_distribution = []  # Track new allocations
         deleted_allocations = []  # Track removed allocations
         changed_allocations = []  # Track consultant changes
 
         with transaction.atomic():
-            # Step 1: Fetch all existing allocations
+            # Step 1: Fetch existing allocations per consultant
             existing_allocations = {
                 alloc.store.store_id: {
                     "id": alloc.id,
                     "consultant_id": alloc.consultant.id,
-                    "sc_name": alloc.sc_name,
-                    "store_no": alloc.store_no
+                    "consultant_name": alloc.sc_name
                 }
                 for alloc in SC_Store_AllocationTemp.objects.all()
             }
 
-            # Step 2: Process removals
+            # Track consultants whose allocations are being modified
+            processed_consultants = set()
+
+            # Step 2: Delete removed allocations
             for removed in removed_stores:
-                consultant_id = removed['consultantId']
-                store_ids = [store_id.strip() for store_id in removed['storeIds'] if store_id.strip()]
-                if store_ids:
+                consultant_id = int(removed['consultantId'])
+                store_ids = set([store_id.strip() for store_id in removed['storeIds'] if store_id.strip()])
+                processed_consultants.add(consultant_id)
+
+                to_delete = [
+                    store_id for store_id in store_ids if store_id in existing_allocations
+                ]
+
+                if to_delete:
+                    SC_Store_AllocationTemp.objects.filter(
+                        consultant_id=consultant_id, store__store_id__in=to_delete
+                    ).delete()
+
                     deleted_allocations.extend([
                         {'store_id': store_id, 'consultant_id': consultant_id}
-                        for store_id in store_ids
+                        for store_id in to_delete
                     ])
-                    SC_Store_AllocationTemp.objects.filter(
-                        consultant_id=consultant_id,
-                        store__store_id__in=store_ids
-                    ).delete()
 
             # Step 3: Process new allocations and updates
             for allocation in store_allocations:
-                consultant_id = allocation['consultantId']
-                store_ids = [store_id.strip() for store_id in allocation['storeIds'] if store_id.strip()]
+                consultant_id = int(allocation['consultantId'])
+                store_ids = set([store_id.strip() for store_id in allocation['storeIds'] if store_id.strip()])
+                processed_consultants.add(consultant_id)
 
                 for store_id in store_ids:
                     store = StoreConsultant.objects.get(store_id=store_id)
                     consultant = Consultants.objects.get(id=consultant_id)
 
                     if store_id in existing_allocations:
-                        # Update if consultant_id or other data has changed
-                        existing_data = existing_allocations[store_id]
-                        if (
-                                existing_data["consultant_id"] != consultant_id or
-                                existing_data["sc_name"] != consultant.sc_name or
-                                existing_data["store_no"] != store.store_id
-                        ):
-                            SC_Store_AllocationTemp.objects.filter(id=existing_data["id"]).update(
+                        existing_allocation = existing_allocations[store_id]
+
+                        # Check if consultant has changed
+                        if existing_allocation["consultant_id"] != consultant_id:
+                            # Delete old allocation before saving the new one
+                            SC_Store_AllocationTemp.objects.filter(
+                                store__store_id=store_id
+                            ).delete()
+
+                            deleted_allocations.append({
+                                'store_id': store_id,
+                                'consultant_id': existing_allocation["consultant_id"]
+                            })
+
+                            # Save new allocation
+                            new_allocation = SC_Store_AllocationTemp.objects.create(
                                 consultant=consultant,
+                                store=store,
                                 sc_name=consultant.sc_name,
                                 store_no=store.store_id,
                                 store_name=store.store_name
                             )
-                            if existing_data["consultant_id"] != consultant_id:
-                                changed_allocations.append({
-                                    'store_id': store_id,
-                                    'consultant_id': consultant_id,
-                                    'from_sc': existing_data["sc_name"],
-                                    'to_sc': consultant.sc_name
-                                })
+                            new_distribution.append({
+                                'store_id': new_allocation.store.store_id,
+                                'consultant_id': new_allocation.consultant.id,
+                                'consultant_name': new_allocation.consultant.sc_name
+                            })
+
+                            changed_allocations.append({
+                                'store_id': store_id,
+                                'from_sc': existing_allocation["consultant_name"],
+                                'to_sc': consultant.sc_name
+                            })
                     else:
-                        # Create a new allocation
+                        # Create new allocation
                         new_allocation = SC_Store_AllocationTemp.objects.create(
                             consultant=consultant,
                             store=store,
@@ -528,18 +549,25 @@ def save_consultant_stores(request):
                             'consultant_name': new_allocation.consultant.sc_name
                         })
 
-            # Print results for debugging
-            print("\nNew Allocations:")
-            for dist in new_distribution:
-                print(dist)
+            # Step 4: Delete consultants' allocations **only if they had stores before but are now empty**
+            for consultant_id in processed_consultants:
+                assigned_store_ids = set(
+                    SC_Store_AllocationTemp.objects.filter(consultant_id=consultant_id)
+                    .values_list('store__store_id', flat=True)
+                )
 
-            print("\nDeleted Allocations:")
-            for dist in deleted_allocations:
-                print(dist)
+                # If a consultant had allocations before but now has none, delete them
+                if not assigned_store_ids and consultant_id in existing_allocations.values():
+                    SC_Store_AllocationTemp.objects.filter(consultant_id=consultant_id).delete()
+                    deleted_allocations.append({
+                        'consultant_id': consultant_id,
+                        'message': f'All stores removed for consultant {consultant_id}'
+                    })
 
-            print("\nChanged Allocations:")
-            for change in changed_allocations:
-                print(f"Store {change['store_id']} moved from {change['from_sc']} → {change['to_sc']}")
+            # Debugging outputs
+            print("\nNew Allocations:", new_distribution)
+            print("\nDeleted Allocations:", deleted_allocations)
+            print("\nChanged Allocations:", changed_allocations)
 
         return JsonResponse({
             'status': 'success',
