@@ -969,73 +969,81 @@
         }
 
 
-        function saveConsultantStores(overwrite = false) {
-            const storeAllocations = [];
-            const removedStores = [];
+function saveConsultantStores(overwrite = false) {
+    const storeAllocations = [];
+    const removedStores = [];
 
-            document.querySelectorAll('.sc-container').forEach(container => {
-                const scElement = container.querySelector('.sc');
-                const storeSelect = container.querySelector('.store-select');
-                if (scElement && storeSelect) {
-                    const scId = scElement.dataset.consultantId;
-                    const storeIds = Array.from(storeSelect.selectedOptions).map(opt => opt.value);
+    document.querySelectorAll('.sc-container').forEach(container => {
+        const scElement = container.querySelector('.sc');
+        const storeSelect = container.querySelector('.store-select');
 
-                    if (scId && storeIds.length > 0) {
-                        storeAllocations.push({
-                            consultantId: scId,
-                            storeIds: storeIds
-                        });
-                    }
+        if (scElement && storeSelect) {
+            const scId = scElement.dataset.consultantId;
+            const newStoreIds = Array.from(storeSelect.selectedOptions).map(opt => opt.value);
 
-                    const existingStoreIds = Array.from(storeSelect.options)
-                        .filter(opt => opt.selected === false && opt.disabled === true)
-                        .map(opt => opt.value);
+            // Get the previous stored allocations for comparison
+            const previousStoreIds = (scElement.dataset.previousStores || "").split(',').filter(Boolean);
 
-                    if (existingStoreIds.length > 0) {
-                        removedStores.push({
-                            consultantId: scId,
-                            storeIds: existingStoreIds
-                        });
-                    }
-                }
-            });
+            // Stores to add (newly selected stores that were not previously allocated)
+            const storesToAdd = newStoreIds.filter(storeId => !previousStoreIds.includes(storeId));
 
-            if (storeAllocations.length === 0 && removedStores.length === 0) {
-                alert('No valid store allocations or removals to save.');
-                return;
+            // Stores to remove (previously allocated but now deselected stores)
+            const storesToRemove = previousStoreIds.filter(storeId => !newStoreIds.includes(storeId));
+
+            if (storesToAdd.length > 0) {
+                storeAllocations.push({
+                    consultantId: scId,
+                    storeIds: storesToAdd
+                });
             }
 
-            fetch('/save-consultant-stores/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
-                body: JSON.stringify({storeAllocations, removedStores, overwrite})
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'warning') {
-                        const warnings = data.warnings;
-                        const confirmationMessages = warnings.map(warning =>
-                            `${warning.previous_sc_name} дээр ${warning.store_id} хуваарилагдсан байна.Та өмнөхийг хуваарилалтыг цуцалж шинэ ${warning.new_sc_name} дээр хуваарилалт хийх дээ итгэлтэй байна уу ?`);
-
-                        if (confirm(confirmationMessages.join('\n'))) {
-                            // Retry with overwrite flag
-                            saveConsultantStores(true);
-                        }
-                    } else if (data.status === 'success') {
-                        alert('Store allocations and removals saved successfully!');
-                        window.location.href = '/sc-index/';
-                    } else {
-                        alert('Failed to save the store allocations. Please try again.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error during fetch:', error);
-                    alert('Failed to save the store allocations. Please try again.');
+            if (storesToRemove.length > 0) {
+                removedStores.push({
+                    consultantId: scId,
+                    storeIds: storesToRemove
                 });
+            }
         }
+    });
+
+    if (storeAllocations.length === 0 && removedStores.length === 0) {
+        alert('No changes detected to save.');
+        return;
+    }
+
+    fetch('/save-consultant-stores/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({storeAllocations, removedStores, overwrite})
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'warning') {
+                const warnings = data.warnings;
+                const confirmationMessages = warnings.map(warning =>
+                    `${warning.previous_sc_name} дээр ${warning.store_id} хуваарилагдсан байна.Та өмнөхийг хуваарилалтыг цуцалж шинэ ${warning.new_sc_name} дээр хуваарилалт хийх дээ итгэлтэй байна уу ?`
+                );
+
+                if (confirm(confirmationMessages.join('\n'))) {
+                    // Retry with overwrite flag
+                    saveConsultantStores(true);
+                }
+            } else if (data.status === 'success') {
+                alert('Store allocations and removals saved successfully!');
+                window.location.href = '/sc-index/';
+            } else {
+                alert('Failed to save the store allocations. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error during fetch:', error);
+            alert('Failed to save the store allocations. Please try again.');
+        });
+}
+
 
 
         function gatherStoreAllocations() {
@@ -1190,7 +1198,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Add a tooltip for non-eligible days
 
-        if (day !== 1 && day !== 7) {
+        if (day !== 1 && day !== 18) {
         pushButton.title = "The PUSH button is only available on the 1st and 15th of each month.";
     }
     {#if (day !== 1 && day !== 6 && day !== 31) {#}
