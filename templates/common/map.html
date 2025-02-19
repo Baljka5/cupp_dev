@@ -86,6 +86,11 @@
                     Lat/Lon:
                 </label>
                 <input type="text" id="search_latlon" name="latlon" placeholder="47.915711 106.891544"
+                       class="form-control form-control-sm"><br>
+                <label>
+                    Store ID:
+                </label>
+                <input type="text" id="search_store_id" name="storeid" placeholder="Search Store ID"
                        class="form-control form-control-sm">
 
                 {#                <label class="d-block">#}
@@ -237,6 +242,43 @@
         // If you have a search button:
         $('#your_search_button_id').click(function () {
             searchByLatLonCombined();
+        });
+
+        $(document).ready(function () {
+            $('#search_store_id').on('change', function () {
+                var storeId = $(this).val().trim();
+                if (storeId) {
+                    $.ajax({
+                        url: "{% url 'get_store_location' %}",  // Django URL pattern
+                        type: "GET",
+                        data: {store_id: storeId},
+                        success: function (response) {
+                            if (response.lat && response.lon) {
+                                var latLng = new google.maps.LatLng(response.lat, response.lon);
+                                map.setCenter(latLng);
+                                map.setZoom(15); // Adjust zoom level as needed
+
+                                // Optional: Place a temporary marker at the searched location
+                                var searchMarker = new google.maps.Marker({
+                                    position: latLng,
+                                    map: map,
+                                    title: "Store Location"
+                                });
+
+                                // Clear marker after 3 seconds
+                                setTimeout(function () {
+                                    searchMarker.setMap(null);
+                                }, 3000);
+                            } else {
+                                alert("Store ID not found.");
+                            }
+                        },
+                        error: function () {
+                            alert("Error fetching store location.");
+                        }
+                    });
+                }
+            });
         });
     </script>
 {% endblock %}

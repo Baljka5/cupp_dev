@@ -35,6 +35,7 @@ from cupp.master_api import views as update_store_type
 from cupp.veritech_api.views import fetch_and_save_employee_data, fetch_and_save_candidate_employee_data, \
     fetch_and_save_inactive_employee_data
 from cupp.dispute import views as leg_views
+from cupp.point.views import get_store_location
 
 # from cupp.powerBI_api.views import fetch_powerbi_data
 
@@ -84,6 +85,11 @@ urlpatterns = [
     path('clear-allocations/', sc_views.clear_allocations, name='clear_allocations'),
     path('push-data/', sc_views.push_data, name='push_data'),
 
+    # path('sc-add-new/', sc_views.sc_add_new, name='sc-add-new'),
+    path('sc-add-index/', sc_views.sc_add_index, name='sc-add-index'),
+    # path('sc-add-edit/<int:id>/', sc_views.sc_add_edit, name='sc-add-edit'),
+    # path('sc-add-delete/<int:id>/', sc_views.sc_add_delete, name='sc-add-delete'),
+
     path('save-consultant-stores/', sc_views.save_consultant_stores, name='save-consultant-stores'),
 
     path('log-index/', event_views.index, name='event_index'),
@@ -128,6 +134,7 @@ urlpatterns = [
     path('info/<int:pk>/', point_views.AjaxInfo.as_view(), name='point_ajax_info'),
     path('detail/<int:pk>/', point_views.Detail.as_view(), name='point_detail'),
     path('ajax-points/', point_views.AjaxList.as_view(), name='point_ajax_list'),
+    path('api/get-store-location/', get_store_location, name='get_store_location'),
 
     path('password-change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
     path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),

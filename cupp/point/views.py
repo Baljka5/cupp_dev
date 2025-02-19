@@ -286,6 +286,16 @@ def index(request):
     return render(request, 'base.html', {'user': request.user, 'is_event_user': is_event_user})
 
 
+def get_store_location(request):
+    store_id = request.GET.get('store_id', '').strip()
+
+    try:
+        point = Point.objects.get(store_id=store_id)
+        return JsonResponse({'lat': point.lat, 'lon': point.lon})
+    except Point.DoesNotExist:
+        return JsonResponse({'error': 'Store not found'}, status=404)
+
+
 @login_required
 def custom_login_redirect(request):
     if request.user.is_superuser:
