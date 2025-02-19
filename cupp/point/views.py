@@ -290,10 +290,25 @@ def get_store_location(request):
     store_id = request.GET.get('store_id', '').strip()
 
     try:
-        point = Point.objects.get(store_id=store_id)
-        return JsonResponse({'lat': point.lat, 'lon': point.lon})
+        point = Point.objects.get(store_id=store_id, type='CU')
+        lat, lon = float(point.lat), float(point.lon)
+
+        # Find branches within 1km radius (approx 0.009 degrees lat/lon per km) that are also CU type
+        radius = 0.009
+        nearby_branches = Point.objects.filter(
+            Q(lat__gte=lat - radius, lat__lte=lat + radius) &
+            Q(lon__gte=lon - radius, lon__lte=lon + radius) &
+            ~Q(store_id=store_id) &  # Exclude the searched store
+            Q(type='CU')  # Only show CU branches
+        ).values('store_id', 'store_name', 'lat', 'lon')
+
+        return JsonResponse({
+            'lat': point.lat,
+            'lon': point.lon,
+            'nearby_branches': list(nearby_branches)
+        })
     except Point.DoesNotExist:
-        return JsonResponse({'error': 'Store not found'}, status=404)
+        return JsonResponse({'error': 'CU Store not found'}, status=404)
 
 
 @login_required

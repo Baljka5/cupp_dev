@@ -91,7 +91,9 @@
                     Store ID:
                 </label>
                 <input type="text" id="search_store_id" name="storeid" placeholder="Search Store ID"
-                       class="form-control form-control-sm">
+                       class="form-control form-control-sm"><br>
+                <div id="nearby_branches" class="bg-white p-2 shadow-sm font-size-sm d-none"></div>
+                <br>
 
                 {#                <label class="d-block">#}
                 {#                    <input type="text" id="id_filter_size" name="size"#}
@@ -129,6 +131,31 @@
         </div>
 
     </div>
+    <style>
+        /* Highlight the clicked branch with #673ab7 */
+        .nearby-branch.active {
+            background-color: #673ab7 !important;
+            color: white !important;
+            font-weight: bold;
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        /* Hover effect for better visibility */
+        .nearby-branch:hover {
+            background-color: #9575cd !important;
+            color: white !important;
+            cursor: pointer;
+        }
+
+        #nearby_branches {
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
     <script async defer
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBls3a4Jl1HY60FhdpaSPxBrVBg2D4EYAY&callback=initMap"
             type="text/javascript"></script>
@@ -245,6 +272,10 @@
         });
 
         $(document).ready(function () {
+            let currentMarker = null; // Store the last clicked marker
+            let searchMarker = null;  // Store the searched store marker
+            let timeoutId = null;      // Timeout for clearing markers
+
             $('#search_store_id').on('change', function () {
                 var storeId = $(this).val().trim();
                 if (storeId) {
@@ -256,25 +287,81 @@
                             if (response.lat && response.lon) {
                                 var latLng = new google.maps.LatLng(response.lat, response.lon);
                                 map.setCenter(latLng);
-                                map.setZoom(15); // Adjust zoom level as needed
+                                map.setZoom(15);
 
-                                // Optional: Place a temporary marker at the searched location
-                                var searchMarker = new google.maps.Marker({
+                                // Remove previous markers
+                                if (searchMarker) searchMarker.setMap(null);
+                                if (currentMarker) currentMarker.setMap(null);
+                                if (timeoutId) clearTimeout(timeoutId);
+
+                                // Add new marker for the searched store
+                                searchMarker = new google.maps.Marker({
                                     position: latLng,
                                     map: map,
-                                    title: "Store Location"
+                                    title: `Store ID: ${storeId}`,
                                 });
 
-                                // Clear marker after 3 seconds
-                                setTimeout(function () {
-                                    searchMarker.setMap(null);
+                                // Auto-remove marker after 3 seconds
+                                timeoutId = setTimeout(function () {
+                                    if (searchMarker) searchMarker.setMap(null);
                                 }, 3000);
+
+                                // Display nearby CU branches
+                                if (response.nearby_branches.length > 0) {
+                                    var nearbyHTML = '<h6>Nearby CU Branches</h6><ul class="list-group">';
+                                    response.nearby_branches.forEach(branch => {
+                                        nearbyHTML += `<li class="list-group-item nearby-branch"
+                        data-lat="${branch.lat}"
+                        data-lon="${branch.lon}"
+                        data-id="${branch.store_id}">
+                        <strong>${branch.store_id}</strong> - ${branch.store_name}
+                    </li>`;
+                                    });
+                                    nearbyHTML += '</ul>';
+                                    $('#nearby_branches').html(nearbyHTML).removeClass('d-none');
+
+                                    // Click event for nearby branches
+                                    $('.nearby-branch').click(function () {
+                                        var lat = $(this).data('lat');
+                                        var lon = $(this).data('lon');
+                                        var storeId = $(this).data('id');
+                                        var latLng = new google.maps.LatLng(lat, lon);
+
+                                        // Remove previous branch marker
+                                        if (currentMarker) {
+                                            currentMarker.setMap(null);
+                                        }
+                                        if (timeoutId) clearTimeout(timeoutId);
+
+                                        // Add marker for the clicked branch
+                                        currentMarker = new google.maps.Marker({
+                                            position: latLng,
+                                            map: map,
+                                            title: `Store ID: ${storeId}`,
+                                        });
+
+                                        // Center map on clicked branch
+                                        map.setCenter(latLng);
+                                        map.setZoom(15);
+
+                                        // Remove active class from other branches and add to clicked one
+                                        $('.nearby-branch').removeClass('active');
+                                        $(this).addClass('active');
+
+                                        // Auto-remove marker after 3 seconds
+                                        timeoutId = setTimeout(function () {
+                                            if (currentMarker) currentMarker.setMap(null);
+                                        }, 3000);
+                                    });
+                                } else {
+                                    $('#nearby_branches').addClass('d-none');
+                                }
                             } else {
-                                alert("Store ID not found.");
+                                alert("CU Store ID not found.");
                             }
                         },
                         error: function () {
-                            alert("Error fetching store location.");
+                            alert("Error fetching CU store location.");
                         }
                     });
                 }
