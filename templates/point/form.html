@@ -56,11 +56,11 @@
                             <div id="id_pp_fields" class="row d-none">
                                 <div class="form-group col-md-6 store_fields">
                                     <label>Store ID:</label>
-                                    {% render_field form.store_id class+="form-control" required="required" %}
+                                    {% render_field form.store_id class+="form-control" %}
                                 </div>
                                 <div class="form-group col-md-6 store_fields">
                                     <label>Store Name:</label>
-                                    {% render_field form.store_name class+="form-control" required="required" %}
+                                    {% render_field form.store_name class+="form-control" %}
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label>City&Province: <span class="text-purple">*</span></label>
@@ -415,24 +415,28 @@
 
         function renderPPFileds() {
             var tp = $('#id_type').val();
+            var storeIdField = $('#id_store_id');
+            var storeNameField = $('#id_store_name');
 
-            if (tp === 'CU') {
+            if (tp == 'PP' || tp == 'CU') {
                 $('#id_pp_fields, #id_details_fields').removeClass('d-none');
-                $('.store_fields').removeClass('d-none');
 
-                // Make Store ID and Store Name required dynamically
-                $('#id_store_id').attr('required', true);
-                $('#id_store_name').attr('required', true);
+                if (tp === 'CU') {
+                    $('.store_fields').removeClass('d-none');
+                    storeIdField.prop('required', true);
+                    storeNameField.prop('required', true);
+                } else {
+                    $('.store_fields').addClass('d-none');
+                    storeIdField.prop('required', false);
+                    storeNameField.prop('required', false);
+                }
             } else {
                 $('#id_pp_fields, #id_details_fields').addClass('d-none');
                 $('.store_fields').addClass('d-none');
-
-                // Remove required attribute when not CU
-                $('#id_store_id').removeAttr('required');
-                $('#id_store_name').removeAttr('required');
+                storeIdField.prop('required', false);
+                storeNameField.prop('required', false);
             }
         }
-
 
         {#function renderPPFileds() {#}
         {#    var tp = $('#id_type').val();#}
