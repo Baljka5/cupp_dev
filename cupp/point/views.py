@@ -7,9 +7,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 
 from .forms import PointForm, PhotoFormset, StorePlanningForm
-from .models import Point, District, City, Type, StorePlanning
+from .models import Point, District, City, Type, StorePlanning, NearbyStore
 from .mixins import GroupMixin, StorePlannerMixin
 from django.contrib.auth.models import Group, User
 from django import template
@@ -290,21 +291,42 @@ def get_store_location(request):
     store_id = request.GET.get('store_id', '').strip()
 
     try:
-        point = Point.objects.get(store_id=store_id, type='CU')
-        lat, lon = float(point.lat), float(point.lon)
+        store = Point.objects.get(store_id=store_id, type='CU')
+        lat, lon = float(store.lat), float(store.lon)
 
-        # Find branches within 1km radius (approx 0.009 degrees lat/lon per km) that are also CU type
-        radius = 0.009
+        # Fetch cluster from StorePlanning
+        store_cluster = StorePlanning.objects.filter(store_id=store_id).values_list('cluster', flat=True).first()
+
+        # Define search radius (~0.009 degrees lat/lon per km)
+        radius = 0.005
+
+        # Find nearby CU branches (excluding itself)
         nearby_branches = Point.objects.filter(
             Q(lat__gte=lat - radius, lat__lte=lat + radius) &
             Q(lon__gte=lon - radius, lon__lte=lon + radius) &
-            ~Q(store_id=store_id) &  # Exclude the searched store
-            Q(type='CU')  # Only show CU branches
-        ).values('store_id', 'store_name', 'lat', 'lon')
+            ~Q(store_id=store_id) &  # Exclude itself
+            Q(type='CU')  # Only CU type stores
+        ).values('store_id', 'store_name')
+
+        # Store nearby branches in NearbyStore table with cluster info
+        with transaction.atomic():  # Ensures atomic database operations
+            for branch in nearby_branches:
+                nearby_cluster = StorePlanning.objects.filter(store_id=branch['store_id']).values_list('cluster',
+                                                                                                       flat=True).first()
+
+                NearbyStore.objects.get_or_create(
+                    store_id=store.store_id,
+                    store_name=store.store_name,
+                    cluster=store_cluster,  # Main store's cluster
+
+                    nearby_store_id=branch['store_id'],
+                    nearby_store_name=branch['store_name'],
+                    nearby_cluster=nearby_cluster  # Nearby store's cluster
+                )
 
         return JsonResponse({
-            'lat': point.lat,
-            'lon': point.lon,
+            'lat': store.lat,
+            'lon': store.lon,
             'nearby_branches': list(nearby_branches)
         })
     except Point.DoesNotExist:

@@ -68,6 +68,7 @@ class Type(m.Model):
 # def get_type_choices():
 #     return [(type.type_cd, type.type_name) for type in Type.objects.all()]
 
+
 class Point(m.Model):
     created_date = m.DateTimeField('Created date', auto_now_add=True)
     modified_date = m.DateTimeField('Modified date', auto_now=True)
@@ -115,73 +116,76 @@ class Point(m.Model):
                                on_delete=m.PROTECT, null=True)
 
     def save(self, *args, **kwargs):
-
         if not self.pk and not self.created_by:
             self.created_by = self.modified_by
-        # super(Point, self).save(*args, **kwargs)
-        creating = self._state.adding
-        super().save(*args, **kwargs)  # Call the "real" save() method.
 
-        # Create or update the StorePlanning instance
-        store_related_defaults = {
-            'store_name': self.store_name,
-            'store_id': self.store_id,
-            'lat': self.lat,
-            'lon': self.lon,
-            'grade': self.grade,
-            'size': self.size,
-            'owner_name': self.owner_name,
-            'owner_phone': self.owner_phone,
-            'owner_email': self.owner_email,
-            'base_rent_rate': self.base_rent_rate,
-            'proposed_layout': self.proposed_layout,
-            'availability': self.availability,
-            'deposit': self.deposit,
-            'bep': self.bep,
-            'expected_sales': self.expected_sales,
-            'passers': self.passers,
-            'hh': self.hh,
-            'office': self.office,
-            'students': self.students,
-            'available_date': self.available_date,
-            'isr_file': self.isr_file,
-            'max_rent_rate': self.max_rent_rate,
-            'pl_file': self.pl_file,
-            'radius': self.radius,
-            'turnover_rent_percent': self.turnover_rent_percent,
-            'address': self.address,
-            'created_by': self.created_by,
-            'modified_by': self.modified_by
-            # 'cluster': self.cluster,  # Uncomment and modify if cluster exists in Point and needs to be copied
-        }
-        if creating or not creating:
+        creating = self._state.adding
+        super().save(*args, **kwargs)  # Save the Point instance
+
+        if self.type == "CU":
+            store_related_defaults = {
+                'store_name': self.store_name,
+                'store_id': self.store_id,
+                'lat': self.lat,
+                'lon': self.lon,
+                'grade': self.grade,
+                'size': self.size,
+                'owner_name': self.owner_name,
+                'owner_phone': self.owner_phone,
+                'owner_email': self.owner_email,
+                'base_rent_rate': self.base_rent_rate,
+                'proposed_layout': self.proposed_layout,
+                'availability': self.availability,
+                'deposit': self.deposit,
+                'bep': self.bep,
+                'expected_sales': self.expected_sales,
+                'passers': self.passers,
+                'hh': self.hh,
+                'office': self.office,
+                'students': self.students,
+                'available_date': self.available_date,
+                'isr_file': self.isr_file,
+                'max_rent_rate': self.max_rent_rate,
+                'pl_file': self.pl_file,
+                'radius': self.radius,
+                'turnover_rent_percent': self.turnover_rent_percent,
+                'address': self.address,
+                'created_by': self.created_by,
+                'modified_by': self.modified_by
+            }
+
             try:
                 with transaction.atomic():
-                    # Update or create StorePlanning instance
                     StorePlanning.objects.update_or_create(
                         store_id=self.store_id,
                         defaults=store_related_defaults
                     )
 
-                    # Update or create StoreTrainer instance
                     StoreTrainer.objects.update_or_create(
                         store_id=self.store_id,
                         defaults={'store_name': self.store_name, 'created_by': self.created_by,
                                   'modified_by': self.modified_by}
                     )
 
-                    # Update or create StoreConsultant instance
                     StoreConsultant.objects.update_or_create(
                         store_id=self.store_id,
                         defaults={'store_name': self.store_name, 'created_by': self.created_by,
                                   'modified_by': self.modified_by}
                     )
-            except MultipleObjectsReturned:
 
+            except MultipleObjectsReturned:
                 pass
             except IntegrityError:
-                # Handle database integrity errors, such as violations of unique constraints.
                 pass
+
+        elif self.type == "PP":
+            # Ensure that no blank StorePlanning rows are created
+            StorePlanning.objects.filter(store_id=self.store_id).delete()
+
+        else:
+            StorePlanning.objects.filter(store_id=self.store_id).delete()
+            StoreTrainer.objects.filter(store_id=self.store_id).delete()
+            StoreConsultant.objects.filter(store_id=self.store_id).delete()
 
     def __str__(self):
         return '%s - %s' % (self.get_type_display(), self.address)
@@ -282,3 +286,19 @@ class StorePlanning(m.Model):
     class Meta:
         db_table = 'store_planning'
         verbose_name = 'Store Planning'
+
+
+class NearbyStore(m.Model):
+    store_id = m.CharField(max_length=10, db_index=True)  # Store ID from Point
+    store_name = m.CharField(max_length=255)  # Store Name from Point
+    cluster = m.CharField(max_length=255, null=True, blank=True)  # Store's Cluster
+
+    nearby_store_id = m.CharField(max_length=10)  # Nearby Store ID
+    nearby_store_name = m.CharField(max_length=255)  # Nearby Store Name
+    nearby_cluster = m.CharField(max_length=255, null=True, blank=True)  # Nearby Store's Cluster
+
+    class Meta:
+        unique_together = ('store_id', 'nearby_store_id')  # Prevent duplicate entries
+
+    def __str__(self):
+        return f"{self.store_name} ({self.store_id}) -> {self.nearby_store_name} ({self.nearby_store_id})"
