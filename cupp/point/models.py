@@ -76,7 +76,8 @@ class Point(m.Model):
     created_by = m.ForeignKey(User, verbose_name='Creadted by', related_name='points', on_delete=m.PROTECT)
 
     # type = m.CharField('Type', max_length=10, choices=get_type_choices())
-    store_id = m.CharField('Store ID', blank=True, null=True, max_length=5)
+    store_id = m.CharField('Store ID', blank=True, null=True, max_length=5,
+                           validators=[RegexValidator(r'^\d{5}$', 'Store ID must be exactly 5 digits (numbers only).')])
     store_name = m.CharField('Store name', blank=True, null=True, max_length=500)
     type = m.CharField('Type', max_length=10, choices=CHOICES_POINT_TYPE)
     lat = m.CharField('Latitude', max_length=50, default='47.9116')
@@ -254,7 +255,7 @@ class StorePlanning(m.Model):
     near_gs_cvs = m.IntegerField('GS25 number', blank=True, null=True, default=0)
     near_school = m.IntegerField('School number', blank=True, null=True, default=0)
     park_slot = m.IntegerField('Park number', blank=True, default=0)
-    floor = m.IntegerField('Floor number', blank=True, default=0)
+    floor = m.IntegerField('Floor number', blank=True, default=0, null=True)
     cont_st_dt = m.DateField('Rent agreement start date', blank=True, null=True)
     cont_ed_dt = m.DateField('Rent agreement end date', blank=True, null=True)
     zip_code = m.CharField('Zip code', blank=True, default='', max_length=100)
