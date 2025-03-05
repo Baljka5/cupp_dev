@@ -69,7 +69,8 @@ INSTALLED_APPS = [
     'cupp.rent',
     'cupp.competitors',
     'cupp.veritech_api',
-    'cupp.dispute'
+    'cupp.dispute',
+    'cupp.zipmanager'
 
 ]
 

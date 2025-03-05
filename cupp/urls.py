@@ -36,12 +36,17 @@ from cupp.veritech_api.views import fetch_and_save_employee_data, fetch_and_save
     fetch_and_save_inactive_employee_data
 from cupp.dispute import views as leg_views
 from cupp.point.views import get_store_location
+from cupp.zipmanager.views import upload_zip, zip_list, download_latest_zip
 
 # from cupp.powerBI_api.views import fetch_powerbi_data
 
 # from cupp.ajax_table_list import ajax_table_list
 
 urlpatterns = [
+
+    path('', zip_list, name='zip_list'),
+    path('upload/', upload_zip, name='upload_zip'),
+    path('download/', download_latest_zip, name='download_latest_zip'),
 
     path('save/', fetch_and_save_employee_data, name='save_employee_data'),
     path('inact-save/', fetch_and_save_inactive_employee_data, name='save_in_active_employee_data'),
