@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Uploaded ZIP Files</title>
+</head>
+<body>
+<h2>Uploaded ZIP Files</h2>
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>Version</th>
+        <th>Upload Date</th>
+        <th>Downloads</th>
+        <th>Downloadable</th>
+    </tr>
+    {% for file in files %}
+        <tr>
+            <td>{{ file.name }}</td>
+            <td>{{ file.version }}</td>
+            <td>{{ file.upload_date }}</td>
+            <td>{{ file.download_count }}</td>
+            <td>{% if file.is_download %} ✅ {% else %} ❌ {% endif %}</td>
+        </tr>
+    {% endfor %}
+</table>
+<br>
+<a href="{% url 'upload_zip' %}">Upload New File</a>
+<br><br>
+<a href="{% url 'download_latest_zip' %}">
+    <button>Download Latest File</button>
+</a>
+</body>
+</html>

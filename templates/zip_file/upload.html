@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload ZIP File</title>
+</head>
+<body>
+<h2>Upload ZIP File</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload</button>
+</form>
+<a href="{% url 'zip_list' %}">View Uploaded Files</a>
+</body>
+</html>
