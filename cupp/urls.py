@@ -44,7 +44,7 @@ from cupp.zipmanager.views import upload_zip, zip_list, download_latest_zip
 
 urlpatterns = [
 
-    path('', zip_list, name='zip_list'),
+    path('list/', zip_list, name='zip_list'),
     path('upload/', upload_zip, name='upload_zip'),
     path('download/', download_latest_zip, name='download_latest_zip'),
 
