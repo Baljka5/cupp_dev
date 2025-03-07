@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Downloaded Devices</title>
+</head>
+<body>
+<h2>Downloaded Devices</h2>
+<table border="1">
+    <tr>
+        <th>File Name</th>
+        <th>Version</th>
+        <th>Device Name</th>
+        <th>Download Date</th>
+    </tr>
+    {% for device in devices %}
+        <tr>
+            <td>{{ device.zip_file.name }}</td>
+            <td>{{ device.zip_file.version }}</td>
+            <td>{{ device.device_name }}</td>
+            <td>{{ device.download_date }}</td>
+        </tr>
+    {% endfor %}
+</table>
+<a href="{% url 'zip_list' %}">Back to List</a>
+</body>
+</html>

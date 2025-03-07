@@ -12,3 +12,12 @@ class ZipFile(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.version} (Downloadable: {self.is_download})"
+
+
+class DownloadedDevice(models.Model):
+    zip_file = models.ForeignKey(ZipFile, on_delete=models.CASCADE)
+    device_name = models.CharField(max_length=255)
+    download_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.device_name} downloaded {self.zip_file.name} ({self.zip_file.version})"

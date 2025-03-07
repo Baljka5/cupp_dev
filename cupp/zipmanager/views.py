@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import FileResponse, HttpResponse
 from django.conf import settings
+from user_agents import parse
 import os
-from .models import ZipFile
+from .models import ZipFile, DownloadedDevice
 from .forms import ZipFileForm
 
 
@@ -39,5 +40,19 @@ def download_latest_zip(request):
     zip_file.download_count += 1
     zip_file.save()
 
+    # Extract device info from the request
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    parsed_ua = parse(user_agent)
+    device_name = f"{parsed_ua.os.family} {parsed_ua.os.version_string} - {parsed_ua.device.family}"
+
+    # Store download details
+    DownloadedDevice.objects.create(zip_file=zip_file, device_name=device_name)
+
     file_path = os.path.join(settings.MEDIA_ROOT, str(zip_file.file))
     return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=zip_file.name)
+
+
+def downloaded_devices(request):
+    devices = DownloadedDevice.objects.select_related('zip_file').all()
+    return render(request, 'zip_file/download_devices.html', {'devices': devices})
+
