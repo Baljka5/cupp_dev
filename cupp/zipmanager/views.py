@@ -1,13 +1,12 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from django.http import FileResponse, HttpResponse
 from django.conf import settings
 from user_agents import parse
 import os
+import socket
 from .models import ZipFile, DownloadedDevice
 from .forms import ZipFileForm
 
-
-# Create your views here.
 
 def upload_zip(request):
     if request.method == 'POST':
@@ -40,13 +39,27 @@ def download_latest_zip(request):
     zip_file.download_count += 1
     zip_file.save()
 
-    # Extract device info from the request
+    # Get User-Agent details (OS and device info)
     user_agent = request.META.get('HTTP_USER_AGENT', '')
     parsed_ua = parse(user_agent)
-    device_name = f"{parsed_ua.os.family} {parsed_ua.os.version_string} - {parsed_ua.device.family}"
+    os_info = f"{parsed_ua.os.family} {parsed_ua.os.version_string} - {parsed_ua.device.family}"
+
+    # Get client IP
+    client_ip = request.META.get('REMOTE_ADDR', '')
+
+    # Get device hostname from IP
+    try:
+        device_name = socket.gethostbyaddr(client_ip)[0]  # Get actual PC name
+    except socket.herror:
+        device_name = "Unknown Device"
 
     # Store download details
-    DownloadedDevice.objects.create(zip_file=zip_file, device_name=device_name)
+    DownloadedDevice.objects.create(
+        zip_file=zip_file,
+        device_name=device_name,
+        os_info=os_info,
+        ip_address=client_ip
+    )
 
     file_path = os.path.join(settings.MEDIA_ROOT, str(zip_file.file))
     return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=zip_file.name)
@@ -55,4 +68,3 @@ def download_latest_zip(request):
 def downloaded_devices(request):
     devices = DownloadedDevice.objects.select_related('zip_file').all()
     return render(request, 'zip_file/download_devices.html', {'devices': devices})
-

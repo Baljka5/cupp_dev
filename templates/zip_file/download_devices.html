@@ -10,6 +10,8 @@
         <th>File Name</th>
         <th>Version</th>
         <th>Device Name</th>
+        <th>OS Info</th>
+        <th>IP Address</th>
         <th>Download Date</th>
     </tr>
     {% for device in devices %}
@@ -17,6 +19,8 @@
             <td>{{ device.zip_file.name }}</td>
             <td>{{ device.zip_file.version }}</td>
             <td>{{ device.device_name }}</td>
+            <td>{{ device.os_info }}</td>
+            <td>{{ device.ip_address }}</td>
             <td>{{ device.download_date }}</td>
         </tr>
     {% endfor %}
