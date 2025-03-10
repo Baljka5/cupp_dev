@@ -2,24 +2,8 @@
 <html>
 <head>
     <title>Uploaded ZIP Files</title>
-    <script>
-        function setDeviceName() {
-            fetch("https://api64.ipify.org?format=json")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("ip_address").value = data.ip;
-                });
-
-            try {
-                let deviceName = window.navigator.userAgentData.platform || window.navigator.platform;
-                document.getElementById("device_name").value = deviceName;
-            } catch (error) {
-                document.getElementById("device_name").value = "Unknown";
-            }
-        }
-    </script>
 </head>
-<body onload="setDeviceName()">
+<body>
 <h2>Uploaded ZIP Files</h2>
 <table border="1">
     <tr>
@@ -40,16 +24,10 @@
     {% endfor %}
 </table>
 <br>
-
-<!-- Form for Downloading Latest File with Hostname -->
-<form action="{% url 'download_latest_zip' %}" method="POST">
-    {% csrf_token %}
-    <input type="hidden" id="device_name" name="device_name" value="">
-    <input type="hidden" id="ip_address" name="ip_address" value="">
-    <button type="submit">Download Latest File</button>
-</form>
-
-<br>
 <a href="{% url 'upload_zip' %}">Upload New File</a>
+<br><br>
+<a href="{% url 'download_latest_zip' %}">
+    <button>Download Latest File</button>
+</a>
 </body>
 </html>
