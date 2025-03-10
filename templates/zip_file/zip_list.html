@@ -1,33 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Uploaded ZIP Files</title>
+    <title>Downloaded Devices</title>
 </head>
 <body>
-<h2>Uploaded ZIP Files</h2>
+
+<h2>Downloaded Devices</h2>
+
 <table border="1">
     <tr>
-        <th>Name</th>
+        <th>File Name</th>
         <th>Version</th>
-        <th>Upload Date</th>
-        <th>Downloads</th>
-        <th>Downloadable</th>
+        <th>Device Name</th>
+        <th>OS Info</th>
+        <th>IP Address</th>
+        <th>Download Date</th>
+        <th>Success</th>
     </tr>
-    {% for file in files %}
+    {% for device in devices %}
         <tr>
-            <td>{{ file.name }}</td>
-            <td>{{ file.version }}</td>
-            <td>{{ file.upload_date }}</td>
-            <td>{{ file.download_count }}</td>
-            <td>{% if file.is_download %} ✅ {% else %} ❌ {% endif %}</td>
+            <td>{{ device.zip_file.name }}</td>
+            <td>{{ device.zip_file.version }}</td>
+            <td>{{ device.device_name }}</td>
+            <td>{{ device.os_info }}</td>
+            <td>{{ device.ip_address }}</td>
+            <td>{{ device.download_date }}</td>
+            <td>{% if device.success %} ✅ {% else %} ❌ {% endif %}</td>
         </tr>
     {% endfor %}
 </table>
+
 <br>
-<a href="{% url 'upload_zip' %}">Upload New File</a>
-<br><br>
-<a href="{% url 'download_latest_zip' %}">
-    <button>Download Latest File</button>
-</a>
+<a href="{% url 'zip_list' %}">Back to List</a>
+
+<!-- JavaScript to get hostname and send it with the form -->
+<script>
+    function getClientHostname() {
+        fetch("https://api64.ipify.org?format=json")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("hostname").value = data.ip; // Store detected IP
+            })
+            .catch(error => console.log("Error getting IP:", error));
+    }
+
+    getClientHostname();
+</script>
+
+<form method="post" action="{% url 'download_latest_zip' %}">
+    {% csrf_token %}
+    <input type="hidden" name="hostname" id="hostname">
+    <button type="submit">Download Latest File</button>
+</form>
+
 </body>
 </html>

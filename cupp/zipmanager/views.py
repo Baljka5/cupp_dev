@@ -43,25 +43,35 @@ def download_latest_zip(request):
     parsed_ua = parse(user_agent)
     os_info = f"{parsed_ua.os.family} {parsed_ua.os.version_string} - {parsed_ua.device.family}"
 
-    client_ip = request.META.get('REMOTE_ADDR', '')
+    # Get client IP, checking behind a proxy
+    client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', '')).split(',')[0].strip()
 
-    print(f"device name: {client_ip}")
+    print(f"Client IP: {client_ip}")  # Debugging log
 
-    try:
-        device_name = socket.gethostbyaddr(client_ip)[0]
-        print(f"device name: {device_name}")
-    except (socket.herror, socket.gaierror):
-        device_name = client_ip
+    # Try to resolve hostname from IP
+    device_name = "Unknown Device"
+    if client_ip and client_ip != "127.0.0.1":
+        try:
+            device_name = socket.gethostbyaddr(client_ip)[0]
+            print(f"Resolved Hostname: {device_name}")
+        except (socket.herror, socket.gaierror, socket.timeout):
+            device_name = client_ip  # Fallback to IP if hostname fails
 
+    # Frontend-based hostname fallback (optional)
+    hostname_from_frontend = request.POST.get("hostname", "").strip()
+    if hostname_from_frontend and device_name == "Unknown Device":
+        device_name = hostname_from_frontend  # Use hostname from JS
+
+    print(f"Final Device Name: {device_name}")  # Debugging log
 
     file_path = os.path.join(settings.MEDIA_ROOT, str(zip_file.file))
 
-    success = os.path.exists(file_path)
+    success = os.path.exists(file_path)  # Check if file exists before sending
 
     # Store download attempt
     DownloadedDevice.objects.create(
         zip_file=zip_file,
-        device_name=device_name,  # Now stores PC hostname if available
+        device_name=device_name,  # Store the best available hostname
         os_info=os_info,
         ip_address=client_ip,
         success=success
