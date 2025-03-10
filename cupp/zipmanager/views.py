@@ -43,7 +43,8 @@ def download_latest_zip(request):
     parsed_ua = parse(user_agent)
     os_info = f"{parsed_ua.os.family} {parsed_ua.os.version_string} - {parsed_ua.device.family}"
 
-    client_ip = request.META.get('REMOTE_ADDR', '')
+    # Get client IP (works if the server is behind a proxy)
+    client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', '')).split(',')[0].strip()
 
     # Attempt to resolve the device hostname
     device_name = "Unknown Device"
@@ -54,7 +55,7 @@ def download_latest_zip(request):
         except (socket.herror, socket.gaierror, socket.timeout):
             pass  # If it fails, keep default
 
-    # Fall back to the computer's local hostname if IP-based lookup fails
+    # If hostname is still unknown, try the local hostname as a fallback
     if device_name == "Unknown Device":
         try:
             device_name = socket.gethostname()
