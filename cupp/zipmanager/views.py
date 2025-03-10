@@ -45,10 +45,11 @@ def download_latest_zip(request):
 
     client_ip = request.META.get('REMOTE_ADDR', '')
 
+    # Get the device hostname from IP or local hostname
     try:
-        device_name = socket.gethostbyaddr(client_ip)[0]
-    except socket.herror:
-        device_name = "Unknown Device"
+        device_name = socket.gethostbyaddr(client_ip)[0]  # Try to resolve IP to hostname
+    except (socket.herror, socket.gaierror):
+        device_name = socket.gethostname()  # Fall back to the local machine's hostname
 
     file_path = os.path.join(settings.MEDIA_ROOT, str(zip_file.file))
 
@@ -57,7 +58,7 @@ def download_latest_zip(request):
     # Store download attempt
     DownloadedDevice.objects.create(
         zip_file=zip_file,
-        device_name=device_name,
+        device_name=device_name,  # Save the resolved hostname
         os_info=os_info,
         ip_address=client_ip,
         success=success
