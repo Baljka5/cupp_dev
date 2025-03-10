@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class ZipFile(models.Model):
     name = models.CharField(max_length=255)
     file = models.FileField(upload_to='zips/')
@@ -18,6 +19,8 @@ class DownloadedDevice(models.Model):
     os_info = models.CharField(max_length=255, default="Unknown OS")
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     download_date = models.DateTimeField(auto_now_add=True)
+    success = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.device_name} ({self.os_info}) downloaded {self.zip_file.name} ({self.zip_file.version})"
+        status = "Successful" if self.success else "Failed"
+        return f"{self.device_name} ({self.os_info}) downloaded {self.zip_file.name} ({self.zip_file.version}) - {status}"

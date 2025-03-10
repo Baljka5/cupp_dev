@@ -13,6 +13,7 @@
         <th>OS Info</th>
         <th>IP Address</th>
         <th>Download Date</th>
+        <th>Success</th>
     </tr>
     {% for device in devices %}
         <tr>
@@ -22,6 +23,7 @@
             <td>{{ device.os_info }}</td>
             <td>{{ device.ip_address }}</td>
             <td>{{ device.download_date }}</td>
+            <td>{% if device.success %} ✅ {% else %} ❌ {% endif %}</td>
         </tr>
     {% endfor %}
 </table>

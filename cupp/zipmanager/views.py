@@ -39,29 +39,33 @@ def download_latest_zip(request):
     zip_file.download_count += 1
     zip_file.save()
 
-    # Get User-Agent details (OS and device info)
     user_agent = request.META.get('HTTP_USER_AGENT', '')
     parsed_ua = parse(user_agent)
     os_info = f"{parsed_ua.os.family} {parsed_ua.os.version_string} - {parsed_ua.device.family}"
 
-    # Get client IP
     client_ip = request.META.get('REMOTE_ADDR', '')
 
-    # Get device hostname from IP
     try:
-        device_name = socket.gethostbyaddr(client_ip)[0]  # Get actual PC name
+        device_name = socket.gethostbyaddr(client_ip)[0]
     except socket.herror:
         device_name = "Unknown Device"
 
-    # Store download details
+    file_path = os.path.join(settings.MEDIA_ROOT, str(zip_file.file))
+
+    success = os.path.exists(file_path)  # Check if file exists before attempting to send
+
+    # Store download attempt
     DownloadedDevice.objects.create(
         zip_file=zip_file,
         device_name=device_name,
         os_info=os_info,
-        ip_address=client_ip
+        ip_address=client_ip,
+        success=success
     )
 
-    file_path = os.path.join(settings.MEDIA_ROOT, str(zip_file.file))
+    if not success:
+        return HttpResponse("File not found.", status=404)
+
     return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=zip_file.name)
 
 
