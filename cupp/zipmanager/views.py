@@ -43,33 +43,25 @@ def download_latest_zip(request):
     parsed_ua = parse(user_agent)
     os_info = f"{parsed_ua.os.family} {parsed_ua.os.version_string} - {parsed_ua.device.family}"
 
-    # Get client IP (works if the server is behind a proxy)
-    client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', '')).split(',')[0].strip()
+    client_ip = request.META.get('REMOTE_ADDR', '')
 
-    # Attempt to resolve the device hostname
-    device_name = "Unknown Device"
+    print(f"device name: {client_ip}")
 
-    if client_ip and client_ip != "127.0.0.1":
-        try:
-            device_name = socket.gethostbyaddr(client_ip)[0]  # Try reverse DNS lookup
-        except (socket.herror, socket.gaierror, socket.timeout):
-            pass  # If it fails, keep default
+    try:
+        device_name = socket.gethostbyaddr(client_ip)[0]
+        print(f"device name: {device_name}")
+    except (socket.herror, socket.gaierror):
+        device_name = client_ip
 
-    # If hostname is still unknown, try the local hostname as a fallback
-    if device_name == "Unknown Device":
-        try:
-            device_name = socket.gethostname()
-        except Exception:
-            pass
 
     file_path = os.path.join(settings.MEDIA_ROOT, str(zip_file.file))
 
-    success = os.path.exists(file_path)  # Check if file exists before attempting to send
+    success = os.path.exists(file_path)
 
     # Store download attempt
     DownloadedDevice.objects.create(
         zip_file=zip_file,
-        device_name=device_name,  # Store the best available hostname
+        device_name=device_name,  # Now stores PC hostname if available
         os_info=os_info,
         ip_address=client_ip,
         success=success
