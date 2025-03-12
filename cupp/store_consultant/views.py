@@ -448,18 +448,19 @@ def save_consultant_stores(request):
         data = json.loads(request.body)
         print(f"Incoming payload: {data}")
 
-        store_allocations = data.get('storeAllocations', [])
-        removed_stores = data.get('removedStores', [])
-        print(f"Removed Stores: {removed_stores}")
+        store_allocations = data.get("storeAllocations", [])
+        removed_stores = data.get("removedStores", [])
+        print(f"Removed Stores from frontend: {removed_stores}")
 
         new_distribution = []  # Track new allocations
         deleted_allocations = []  # Track removed allocations
         changed_allocations = []  # Track consultant changes
+        subtracted_allocations = []  # Track store allocation reductions
 
         with transaction.atomic():
-            # Step 1: Fetch existing allocations per consultant
+            # Fetch all current allocations from the database
             existing_allocations = {
-                alloc.store.store_id: {
+                (alloc.consultant.id, alloc.store.store_id): {
                     "id": alloc.id,
                     "consultant_id": alloc.consultant.id,
                     "consultant_name": alloc.sc_name
@@ -467,53 +468,70 @@ def save_consultant_stores(request):
                 for alloc in SC_Store_AllocationTemp.objects.all()
             }
 
-            # Track consultants whose allocations are being modified
+            # Track previous store counts per consultant
+            consultant_store_count = {
+                consultant_id: SC_Store_AllocationTemp.objects.filter(consultant_id=consultant_id).count()
+                for consultant_id in SC_Store_AllocationTemp.objects.values_list("consultant_id", flat=True).distinct()
+            }
+
             processed_consultants = set()
 
-            # Step 2: Delete removed allocations
+            # **Step 1: Detect Missing Allocations (Auto-Detect Removed Stores)**
+            all_current_allocations = {}  # {consultant_id: set(store_ids)}
+            for alloc in SC_Store_AllocationTemp.objects.all():
+                all_current_allocations.setdefault(alloc.consultant.id, set()).add(alloc.store.store_id)
+
+            for allocation in store_allocations:
+                consultant_id = int(allocation["consultantId"])
+                new_store_ids = set(allocation["storeIds"])
+
+                # Compare with the current stored allocations
+                current_store_ids = all_current_allocations.get(consultant_id, set())
+
+                # Find stores that exist in DB but are missing in the new allocation (indicating removal)
+                removed_store_ids = current_store_ids - new_store_ids
+                if removed_store_ids:
+                    removed_stores.append({"consultantId": consultant_id, "storeIds": list(removed_store_ids)})
+
+            print(f"Final Removed Stores (Including Auto-Detected): {removed_stores}")
+
+            # **Step 2: Delete Removed Allocations**
             for removed in removed_stores:
-                consultant_id = int(removed['consultantId'])
-                store_ids = set([store_id.strip() for store_id in removed['storeIds'] if store_id.strip()])
+                consultant_id = int(removed["consultantId"])
+                store_ids = set(store_id.strip() for store_id in removed["storeIds"] if store_id.strip())
                 processed_consultants.add(consultant_id)
 
-                to_delete = [
-                    store_id for store_id in store_ids if store_id in existing_allocations
-                ]
+                if store_ids:
+                    print(f"Deleting allocations: Consultant {consultant_id}, Stores {store_ids}")
 
-                if to_delete:
                     SC_Store_AllocationTemp.objects.filter(
-                        consultant_id=consultant_id, store__store_id__in=to_delete
+                        consultant_id=consultant_id, store__store_id__in=store_ids
                     ).delete()
 
-                    deleted_allocations.extend([
-                        {'store_id': store_id, 'consultant_id': consultant_id}
-                        for store_id in to_delete
-                    ])
+                    deleted_allocations.extend(
+                        [{"store_id": store_id, "consultant_id": consultant_id} for store_id in store_ids]
+                    )
 
-            # Step 3: Process new allocations and updates
+            # **Step 3: Process New Allocations and Updates**
             for allocation in store_allocations:
-                consultant_id = int(allocation['consultantId'])
-                store_ids = set([store_id.strip() for store_id in allocation['storeIds'] if store_id.strip()])
+                consultant_id = int(allocation["consultantId"])
+                store_ids = set(store_id.strip() for store_id in allocation["storeIds"] if store_id.strip())
                 processed_consultants.add(consultant_id)
 
                 for store_id in store_ids:
                     store = StoreConsultant.objects.get(store_id=store_id)
                     consultant = Consultants.objects.get(id=consultant_id)
 
-                    if store_id in existing_allocations:
-                        existing_allocation = existing_allocations[store_id]
+                    if (consultant_id, store_id) in existing_allocations:
+                        existing_allocation = existing_allocations[(consultant_id, store_id)]
 
-                        # Check if consultant has changed
+                        # If consultant has changed, remove old allocation
                         if existing_allocation["consultant_id"] != consultant_id:
-                            # Delete old allocation before saving the new one
-                            SC_Store_AllocationTemp.objects.filter(
-                                store__store_id=store_id
-                            ).delete()
+                            SC_Store_AllocationTemp.objects.filter(store__store_id=store_id).delete()
 
-                            deleted_allocations.append({
-                                'store_id': store_id,
-                                'consultant_id': existing_allocation["consultant_id"]
-                            })
+                            deleted_allocations.append(
+                                {"store_id": store_id, "consultant_id": existing_allocation["consultant_id"]}
+                            )
 
                             # Save new allocation
                             new_allocation = SC_Store_AllocationTemp.objects.create(
@@ -521,19 +539,23 @@ def save_consultant_stores(request):
                                 store=store,
                                 sc_name=consultant.sc_name,
                                 store_no=store.store_id,
-                                store_name=store.store_name
+                                store_name=store.store_name,
                             )
-                            new_distribution.append({
-                                'store_id': new_allocation.store.store_id,
-                                'consultant_id': new_allocation.consultant.id,
-                                'consultant_name': new_allocation.consultant.sc_name
-                            })
+                            new_distribution.append(
+                                {
+                                    "store_id": new_allocation.store.store_id,
+                                    "consultant_id": new_allocation.consultant.id,
+                                    "consultant_name": new_allocation.consultant.sc_name,
+                                }
+                            )
 
-                            changed_allocations.append({
-                                'store_id': store_id,
-                                'from_sc': existing_allocation["consultant_name"],
-                                'to_sc': consultant.sc_name
-                            })
+                            changed_allocations.append(
+                                {
+                                    "store_id": store_id,
+                                    "from_sc": existing_allocation["consultant_name"],
+                                    "to_sc": consultant.sc_name,
+                                }
+                            )
                     else:
                         # Create new allocation
                         new_allocation = SC_Store_AllocationTemp.objects.create(
@@ -541,46 +563,60 @@ def save_consultant_stores(request):
                             store=store,
                             sc_name=consultant.sc_name,
                             store_no=store.store_id,
-                            store_name=store.store_name
+                            store_name=store.store_name,
                         )
-                        new_distribution.append({
-                            'store_id': new_allocation.store.store_id,
-                            'consultant_id': new_allocation.consultant.id,
-                            'consultant_name': new_allocation.consultant.sc_name
-                        })
+                        new_distribution.append(
+                            {
+                                "store_id": new_allocation.store.store_id,
+                                "consultant_id": new_allocation.consultant.id,
+                                "consultant_name": new_allocation.consultant.sc_name,
+                            }
+                        )
 
-            # Step 4: Delete consultants' allocations **only if they had stores before but are now empty**
+            # **Step 4: Compute and Log Subtracted Allocations Per Consultant**
             for consultant_id in processed_consultants:
-                assigned_store_ids = set(
-                    SC_Store_AllocationTemp.objects.filter(consultant_id=consultant_id)
-                    .values_list('store__store_id', flat=True)
-                )
+                new_store_count = SC_Store_AllocationTemp.objects.filter(consultant_id=consultant_id).count()
+                previous_store_count = consultant_store_count.get(consultant_id, 0)
 
-                # If a consultant had allocations before but now has none, delete them
-                if not assigned_store_ids and consultant_id in existing_allocations.values():
+                if previous_store_count > new_store_count:
+                    subtracted_allocations.append(
+                        {
+                            "consultant_id": consultant_id,
+                            "removed_count": previous_store_count - new_store_count,
+                            "message": f"{previous_store_count - new_store_count} stores removed for consultant {consultant_id}",
+                        }
+                    )
+
+                # **If a consultant had allocations before but now has none, delete them**
+                if new_store_count == 0 and previous_store_count > 0:
+                    print(f"Deleting all stores for consultant {consultant_id}")
                     SC_Store_AllocationTemp.objects.filter(consultant_id=consultant_id).delete()
-                    deleted_allocations.append({
-                        'consultant_id': consultant_id,
-                        'message': f'All stores removed for consultant {consultant_id}'
-                    })
+                    deleted_allocations.append(
+                        {"consultant_id": consultant_id,
+                         "message": f"All stores removed for consultant {consultant_id}"}
+                    )
 
-            # Debugging outputs
+            # Debugging Outputs
             print("\nNew Allocations:", new_distribution)
             print("\nDeleted Allocations:", deleted_allocations)
             print("\nChanged Allocations:", changed_allocations)
+            print("\nSubtracted Allocations:", subtracted_allocations)
 
-        return JsonResponse({
-            'status': 'success',
-            'message': 'Allocations saved successfully.',
-            'new_allocations': new_distribution,
-            'deleted_allocations': deleted_allocations,
-            'changed_allocations': changed_allocations
-        })
+        return JsonResponse(
+            {
+                "status": "success",
+                "message": "Allocations saved successfully.",
+                "new_allocations": new_distribution,
+                "deleted_allocations": deleted_allocations,
+                "changed_allocations": changed_allocations,
+                "subtracted_allocations": subtracted_allocations,
+            }
+        )
 
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return JsonResponse({'status': 'failed', 'message': str(e)}, status=500)
+        return JsonResponse({"status": "failed", "message": str(e)}, status=500)
 
 
 def get_allocations(request):
