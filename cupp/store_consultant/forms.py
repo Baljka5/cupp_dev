@@ -65,12 +65,12 @@ class StoreConsultantForm(f.ModelForm):
     toilet_tp = f.ChoiceField(choices=TOILET_TYPE_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
                               required=False)
 
-    wday_hours = f.TimeField(required=False, input_formats=['%H:%M:%S'],
-                             widget=f.TimeInput(attrs={'type': 'time', 'step': '1'})
-                             )
-    wend_hours = f.TimeField(required=False, input_formats=['%H:%M:%S'],
-                             widget=f.TimeInput(attrs={'type': 'time', 'step': '1'})
-                             )
+    # wday_hours = f.TimeField(required=False, input_formats=['%H:%M:%S'],
+    #                          widget=f.TimeInput(attrs={'type': 'time', 'step': '1'})
+    #                          )
+    # wend_hours = f.TimeField(required=False, input_formats=['%H:%M:%S'],
+    #                          widget=f.TimeInput(attrs={'type': 'time', 'step': '1'})
+    #                          )
     war_yn = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
                            required=False)
     squat_toilet_yn = f.ChoiceField(choices=CONSEQUENCES_CHOICES, widget=f.Select(attrs={'class': 'form-control'}),
