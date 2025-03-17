@@ -1,37 +1,52 @@
 from django.core.management.base import BaseCommand
 from pymongo import MongoClient
 import MySQLdb
-from django.conf import settings
+
 
 class Command(BaseCommand):
-    help = 'Sync use_yn from MongoDB to MySQL based on matching store IDs'
+    help = 'Sync use_yn, sal_prc_grd_tp, and bizloc_tp from MongoDB to MySQL based on matching store IDs'
 
     def handle(self, *args, **options):
-        client = MongoClient('mongodb://10.10.90.230/')
+        # Connect to MongoDB
+        client = MongoClient('mongodb://admin:CE2dmin22@10.10.90.230/')
         db = client.nubia_db
         collection = db.bgf_hq_bizloc_mst
 
+        # Connect to MySQL
         mysql_conn = MySQLdb.connect(host='10.10.90.34',
                                      user='cumongol_remote',
                                      password='P@$$_cupp123',
                                      db='cupp')
         cursor = mysql_conn.cursor()
 
-        mongo_documents = collection.find({}, {'bizloc_cd': 1, 'use_yn': 1})
+        # Fetch necessary fields from MongoDB
+        mongo_documents = collection.find({}, {'bizloc_cd': 1, 'use_yn': 1, 'sal_prc_grd_tp': 1, 'bizloc_tp': 1})
+
+        # Prepare batch update data
+        update_data = []
         for document in mongo_documents:
             bizloc_cd = document.get('bizloc_cd')
             use_yn = document.get('use_yn')
+            sal_prc_grd_tp = document.get('sal_prc_grd_tp')
+            bizloc_tp = document.get('bizloc_tp')
 
-            if bizloc_cd and use_yn is not None:
-                update_query = """
-                UPDATE store_consultant
-                SET use_yn = %s
-                WHERE store_id = %s
-                """
-                cursor.execute(update_query, (use_yn, bizloc_cd))
+            if bizloc_cd is not None:
+                update_data.append((use_yn, sal_prc_grd_tp, bizloc_tp, bizloc_cd))
 
+        # Execute batch update using executemany for better performance
+        if update_data:
+            update_query = """
+            UPDATE store_consultant
+            SET use_yn = %s, prc_grade = %s, store_type = %s
+            WHERE store_id = %s
+            """
+            cursor.executemany(update_query, update_data)
+
+        # Commit changes and close connections
         mysql_conn.commit()
         cursor.close()
         mysql_conn.close()
         client.close()
-        self.stdout.write(self.style.SUCCESS('Successfully synced use_yn based on store_id and bizloc_cd.'))
+
+        self.stdout.write(self.style.SUCCESS(
+            'Successfully synced use_yn, prc_grade, and store_type based on store_id and bizloc_cd.'))
