@@ -49,12 +49,11 @@ class StoreMasterAPI(APIView):
 
             branch_type = "Direct" if store_consultant.store_type == 0 else "Franchise"
             wday_hours = store_consultant.wday_hours or "00:00-23:59"
-            time_format = r"^\d{2}:\d{2}:\d{2}$"
 
-            if re.match(time_format, wday_hours):
-                open_time, close_time = None, None
-            else:
+            if '-' in wday_hours:
                 open_time, close_time = wday_hours.split('-')
+            else:
+                open_time, close_time = None, None  # Handle missing or incorrect format gracefully
 
             is_24h_open = store_consultant.tt_type == "24H" if store_consultant else False
 
@@ -71,15 +70,14 @@ class StoreMasterAPI(APIView):
 
             area_name = store_consultant.team_mgr or ""
             area_branch_employee_name = "N/A"
-            branch_area_surname = None  # Initialize the branchAreaSurname as None
+            branch_area_surname = None
             if "@cumongol.mn" in area_name:
                 area_name_part = area_name.split("@")[0]
                 area_branch_employee_name = " ".join(word.capitalize() for word in area_name_part.split("."))
-                # Query the Area model using the email to get the surname
+
                 area_manager = Area.objects.filter(team_man_email=area_name).first()
                 if area_manager:
                     branch_area_surname = area_manager.team_man_surname
-
 
             store_id_stripped = store_consultant.store_id.lstrip('0') if store_consultant.store_id else None
             store_email_prefix = "cu" if store_consultant.store_type == 0 else "cuf"
@@ -97,7 +95,7 @@ class StoreMasterAPI(APIView):
                 if store_planning.lat and store_planning.lon:
                     lat = store_planning.lat
                     lon = store_planning.lon
-                    break  # Assuming there is only one matching store_planning per store_id
+                    break
 
             area_manager_phone = None
             if store_consultant.team_mgr and area_manager:
@@ -105,7 +103,8 @@ class StoreMasterAPI(APIView):
 
             sc_phone = None
             if store_consultant.sc_name:
-                sc = Consultants.objects.filter(sc_email=store_consultant.sc_name).first()  # Use .first() to get the first matching instance
+                sc = Consultants.objects.filter(
+                    sc_email=store_consultant.sc_name).first()
                 if sc:
                     sc_phone = sc.sc_phone
 
@@ -122,7 +121,7 @@ class StoreMasterAPI(APIView):
                 'branchInChargeSurname': sc_surname,
                 'areaManagerEmail': store_consultant.team_mgr,
                 'areaManagerPhone': area_manager_phone,
-                'branchAreaSurname': branch_area_surname,  # Add the surname to the response
+                'branchAreaSurname': branch_area_surname,
                 'branchEmployees': employees_data,
                 'openTime': open_time,
                 'closeTime': close_time,
