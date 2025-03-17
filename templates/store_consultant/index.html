@@ -1160,7 +1160,7 @@ function pushData() {
     const day = today.getDate();
 
     // Allow button click only on the 1st and 15th of the month
-    if (day !== 1 && day !== 12) {
+    if (day !== 1 && day !== 17) {
         alert('The PUSH button can only be used on the 1st and 15th of each month.');
         return; // Stop further execution
     }
@@ -1198,7 +1198,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Add a tooltip for non-eligible days
 
-        if (day !== 1 && day !== 12) {
+        if (day !== 1 && day !== 17) {
         pushButton.title = "The PUSH button is only available on the 1st and 15th of each month.";
     }
     {#if (day !== 1 && day !== 6 && day !== 31) {#}
