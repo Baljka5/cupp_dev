@@ -3,33 +3,64 @@
 <head>
     <title>BI Embed Test</title>
     <style>
-        .responsive-iframe-container {
-            position: relative;
-            overflow: hidden;
-            padding-top: 56.25%;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .responsive-iframe-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
+        body, html {
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+
+        header, footer {
+            height: 10vh;
+            background-color: #333;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+        }
+
+        .content {
+            display: flex;
+            height: 80vh;
+            padding: 0 10%;
+        }
+
+        .iframe-wrapper {
             width: 100%;
-            height: 90%;
-            border: 0;
+            padding-right: 20%;
+            position: relative;
+        }
+
+        .iframe-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: 4px solid #666;
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
-<div class="responsive-iframe-container">
-    <iframe title="Store BI" width="1140" height="541.25"
-            src="https://app.powerbi.com/reportEmbed?reportId=64c4020a-841f-4e15-bf04-04aa1a663dc4&autoAuth=true&ctid=bde68a4a-a9ba-4b1a-97f5-46f3b9f8f8cc"
-            frameborder="0" allowFullScreen="true"></iframe>
+
+<header>
+    <h1>Store BI Dashboard</h1>
+</header>
+
+<div class="content">
+    <div class="iframe-wrapper">
+        <iframe title="Store BI"
+                src="https://app.powerbi.com/reportEmbed?reportId=64c4020a-841f-4e15-bf04-04aa1a663dc4&autoAuth=true&ctid=bde68a4a-a9ba-4b1a-97f5-46f3b9f8f8cc"
+                frameborder="0" allowFullScreen="true"></iframe>
+    </div>
 </div>
 
-{#    <ul>#}
-{#        {% for user in users %}#}
-{#            <li>{{ user.username }} - Groups: {{ user.groups.all|join:", " }}</li>#}
-{#        {% endfor %}#}
-{#    </ul>#}
+<footer>
+    <p>&copy; 2025 </p>
+</footer>
+
 </body>
 </html>
