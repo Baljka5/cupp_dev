@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>BI Embed Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI Embed Test with Particles.js</title>
     <style>
+        /* Reset styles */
         * {
             margin: 0;
             padding: 0;
@@ -12,28 +15,52 @@
         body, html {
             height: 100%;
             font-family: Arial, sans-serif;
+            {#background-color: !important; /* Ensures the dark blue-gray background */#}
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
 
+        /* Particles.js container */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: #18202a !important; /* Fix: Ensures correct background */
+            z-index: -1;
+        }
+
+        /* Header and Footer */
         header, footer {
-            height: 10vh;
-            background-color: #333;
-            color: white;
+            height: 5vh;
+            background-color: rgb(217, 179, 0);
+            color: black;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0 20px;
+            z-index: 1;
+            position: relative;
+            flex-shrink: 0;
         }
 
         .content {
+            flex-grow: 1;
             display: flex;
             height: 80vh;
-            padding: 0 10%;
+            padding: 0 5%;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
         }
 
         .iframe-wrapper {
             width: 100%;
-            padding-right: 20%;
+            padding-right: 10%;
             position: relative;
+            display: none;
+            height: 100%;
         }
 
         .iframe-wrapper iframe {
@@ -42,16 +69,48 @@
             border: 4px solid #666;
             border-radius: 8px;
         }
+
+        .button-container {
+            text-align: center;
+            margin-top: 2vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        canvas {
+            display: block;
+            vertical-align: bottom;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #222;
+        }
     </style>
 </head>
 <body>
+
+<!-- Particles.js Container -->
+<div id="particles-js"></div>
 
 <header>
     <h1>Store BI Dashboard</h1>
 </header>
 
+<div class="button-container">
+    <button onclick="toggleIframe()">Show Details</button>
+</div>
+
 <div class="content">
-    <div class="iframe-wrapper">
+    <div class="iframe-wrapper" id="iframeWrapper">
         <iframe title="Store BI"
                 src="https://app.powerbi.com/reportEmbed?reportId=64c4020a-841f-4e15-bf04-04aa1a663dc4&autoAuth=true&ctid=bde68a4a-a9ba-4b1a-97f5-46f3b9f8f8cc"
                 frameborder="0" allowFullScreen="true"></iframe>
@@ -59,8 +118,83 @@
 </div>
 
 <footer>
-    <p>&copy; 2025 </p>
+    <p>&copy; 2025</p>
 </footer>
+
+<!-- Particles.js Library -->
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+<script>
+    function toggleIframe() {
+        const wrapper = document.getElementById('iframeWrapper');
+        wrapper.style.display = (wrapper.style.display === 'none' || wrapper.style.display === '') ? 'block' : 'none';
+    }
+
+    // Ensure Particles.js is loaded and initialized
+    document.addEventListener("DOMContentLoaded", function () {
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS("particles-js", {
+                "particles": {
+                    "number": {
+                        "value": 80,
+                        "density": {"enable": true, "value_area": 800}
+                    },
+                    "color": {"value": "#ffffff"},
+                    "shape": {
+                        "type": "circle",
+                        "stroke": {"width": 0, "color": "#000000"},
+                        "polygon": {"nb_sides": 5}
+                    },
+                    "opacity": {
+                        "value": 0.5,
+                        "random": false,
+                        "anim": {"enable": false, "speed": 1, "opacity_min": 0.1, "sync": false}
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true,
+                        "anim": {"enable": false, "speed": 40, "size_min": 0.1, "sync": false}
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#ffffff",
+                        "opacity": 0.4,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 6,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false,
+                        "attract": {"enable": false, "rotateX": 600, "rotateY": 1200}
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {"enable": true, "mode": "repulse"},
+                        "onclick": {"enable": true, "mode": "push"},
+                        "resize": true
+                    },
+                    "modes": {
+                        "grab": {"distance": 400, "line_linked": {"opacity": 1}},
+                        "bubble": {"distance": 400, "size": 40, "duration": 2, "opacity": 8, "speed": 3},
+                        "repulse": {"distance": 200, "duration": 0.4},
+                        "push": {"particles_nb": 4},
+                        "remove": {"particles_nb": 2}
+                    }
+                },
+                "retina_detect": true
+            });
+        } else {
+            console.error("Particles.js failed to load.");
+        }
+    });
+</script>
 
 </body>
 </html>
