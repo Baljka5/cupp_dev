@@ -37,7 +37,7 @@ from cupp.veritech_api.views import fetch_and_save_employee_data, fetch_and_save
 from cupp.dispute import views as leg_views
 from cupp.point.views import get_store_location
 from cupp.zipmanager.views import upload_zip, zip_list, download_latest_zip, downloaded_devices
-# from cupp.bi_embed_api.views import report_view
+from cupp.bi_embed_api.views import report_view
 
 # from cupp.powerBI_api.views import fetch_powerbi_data
 
@@ -67,7 +67,7 @@ urlpatterns = [
 
     path('custom-login-redirect/', custom_login_redirect, name='custom_login_redirect'),
 
-    # path('groups/', report_view, name='powerbi_report'),
+    path('groups/', report_view, name='powerbi_report'),
     path('bi-embed/', point_views.bi_embed, name='bi-embed'),
     path('', point_views.index, name='event_index'),
     # path('register-license/', license_views.MainTableCreateView, name='register_license'),
