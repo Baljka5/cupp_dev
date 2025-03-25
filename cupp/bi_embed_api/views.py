@@ -15,7 +15,7 @@ REPORT_ID = "64c4020a-841f-4e15-bf04-04aa1a663dc4"
 def get_embed_token():
     authority = f"https://login.microsoftonline.com/{TENANT_ID}"
     print(f"auth", authority)
-    scope = ["https://graph.microsoft.com/.default"]
+    scope = ["https://analysis.windows.net/powerbi/api/.default"]
 
     app = msal.ConfidentialClientApplication(
         CLIENT_ID,
