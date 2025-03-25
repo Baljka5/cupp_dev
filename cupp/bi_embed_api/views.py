@@ -1,4 +1,5 @@
 # powerbiapp/views.py
+
 from django.shortcuts import render
 import msal
 import requests
@@ -14,7 +15,6 @@ REPORT_ID = "64c4020a-841f-4e15-bf04-04aa1a663dc4"
 
 def get_embed_token():
     authority = f"https://login.microsoftonline.com/{TENANT_ID}"
-    print(f"auth", authority)
     scope = ["https://analysis.windows.net/powerbi/api/.default"]
 
     app = msal.ConfidentialClientApplication(
@@ -24,15 +24,14 @@ def get_embed_token():
     )
 
     token_response = app.acquire_token_for_client(scopes=scope)
-    print(f"Token", token_response)
+
     if "access_token" not in token_response:
-        raise Exception("❌ Authentication failed:", token_response.get("error_description"))
+        raise Exception("❌ Authentication failed: " + token_response.get("error_description", "No details."))
 
     access_token = token_response["access_token"]
 
     # Power BI Embed Token API
     url = f"https://api.powerbi.com/v1.0/myorg/groups/{WORKSPACE_ID}/reports/{REPORT_ID}/GenerateToken"
-    print(f"URL", url)
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}"
@@ -42,9 +41,9 @@ def get_embed_token():
     }
 
     response = requests.post(url, headers=headers, json=data)
+
     if response.status_code != 200:
-        print("❌ ERROR", response.status_code, response.text)
-    response.raise_for_status()
+        raise Exception(f"❌ Failed to generate embed token: {response.status_code} - {response.text}")
 
     embed_token = response.json().get("token")
     return embed_token
