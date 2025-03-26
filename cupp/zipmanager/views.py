@@ -7,7 +7,7 @@ import socket
 import io
 import base64
 import pandas as pd
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from django.db import models
 from django.db.models import Count
 from django.utils.dateparse import parse_date
@@ -169,16 +169,16 @@ def downloaded_devices(request):
     ) if parsed_date else {'total_downloads': 0, 'success_count': 0, 'failure_count': 0}
 
     # Create a bar chart
-    fig, ax = plt.subplots(figsize=(5, 3))
+    # fig, ax = plt.subplots(figsize=(5, 3))
     categories = ['Uploads', 'Downloads Success', 'Downloads Failed']
     values = [upload_count, download_counts['success_count'], download_counts['failure_count']]
-    ax.bar(categories, values, color=['blue', 'green', 'red'])
-    ax.set_ylabel("Count")
-    ax.set_title(f"Uploads & Downloads on {parsed_date.strftime('%Y-%m-%d')}" if parsed_date else "No Date Selected")
+    # ax.bar(categories, values, color=['blue', 'green', 'red'])
+    # ax.set_ylabel("Count")
+    # ax.set_title(f"Uploads & Downloads on {parsed_date.strftime('%Y-%m-%d')}" if parsed_date else "No Date Selected")
 
     # Convert chart to base64 string
     img_buffer = io.BytesIO()
-    plt.savefig(img_buffer, format="png", bbox_inches="tight")
+    # plt.savefig(img_buffer, format="png", bbox_inches="tight")
     img_buffer.seek(0)
     chart_image = base64.b64encode(img_buffer.getvalue()).decode()
 
