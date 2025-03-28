@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
 
+
     'rest_framework',
 
     'widget_tweaks',
@@ -64,13 +65,15 @@ INSTALLED_APPS = [
     'cupp.license',
     'cupp.event',
     'cupp.store_trainer',
-    'cupp.store_consultant',
+    # 'cupp.store_consultant',
     'cupp.store_planning',
     'cupp.rent',
     'cupp.competitors',
     'cupp.veritech_api',
     'cupp.dispute',
-    'cupp.zipmanager'
+    'cupp.zipmanager',
+    'cupp.bi_embed_api',
+    'cupp.store_consultant.apps.StoreConsultantConfig'
 
 ]
 
