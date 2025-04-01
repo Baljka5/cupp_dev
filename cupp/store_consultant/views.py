@@ -289,7 +289,8 @@ def save_allocations(request):
 
                 # Fetch the consultant object
                 consultant = Consultants.objects.get(id=consultant_id)
-                store_cons = Consultants.objects.get(sc_name=consultant.sc_name)
+                store_cons = consultant
+                # store_cons = Consultants.objects.get(sc_name=consultant.sc_name)
 
                 # Fetch the area, set to None if 'not-allocated'
                 area = Area.objects.get(id=area_id) if area_id != 'not-allocated' else None

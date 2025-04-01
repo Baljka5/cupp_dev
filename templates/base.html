@@ -49,28 +49,37 @@
     <!-- /theme JS files -->
 
     <style>
-        /* Full-screen overlay */
-        #loading-spinner {
+        #loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
-            z-index: 9999; /* High z-index to overlay everything */
+            background-color: rgba(34, 34, 34, 0.8);
+            z-index: 9999;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-family: sans-serif;
         }
 
-        /* The spinner */
+        .spinner-container {
+            text-align: center;
+        }
+
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(0, 0, 0, 0.1);
-            border-top-color: #333;
+            width: 40px;
+            height: 40px;
+            border: 4px solid white;
+            border-top: 4px solid transparent;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        .loading-text {
+            font-size: 16px;
         }
 
         @keyframes spin {
@@ -82,6 +91,13 @@
 </head>
 
 <body class="navbar-top">
+
+<div id="loading-overlay" style="display: none;">
+    <div class="spinner-container">
+        <div class="spinner"></div>
+        <div class="loading-text">Түр хүлээнэ үү...</div>
+    </div>
+</div>
 <!-- Main navbar -->
 <div class="navbar navbar-expand-md navbar-dark bg-purple fixed-top">
     <div class="navbar-brand">
@@ -233,6 +249,21 @@
                         </a>
                     </li>
                 {% endif %}
+                {% is_in_planning_manager as user_in_planning_manager_group %}
+                {% if user_in_planning_manager_group %}
+                    <li class="nav-item">
+                        <a href="{% url 'sc-index' %}" class="navbar-nav-link">
+                            <i class="icon-database-edit2 mr-1"></i>
+                            <span>SC & Store Allocation</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'sc-add-index' %}" class="navbar-nav-link">
+                            <i class="icon-add mr-1"></i>
+                            <span>Add Store Consultant</span>
+                        </a>
+                    </li>
+                {% endif %}
                 {% if user.is_superuser %}
                     <li class="nav-item">
                         <a href="/admin/" class="navbar-nav-link">
@@ -240,15 +271,7 @@
                             <span>Settings</span>
                         </a>
                     </li>
-                    {% is_in_planning_manager as user_in_planning_manager_group %}
-                    {% if user_in_store_planner_group %}
-                        <li class="nav-item">
-                            <a href="{% url 'sc-index' %}" class="navbar-nav-link">
-                                <i class="icon-database-edit2 mr-1"></i>
-                                <span>SC & Store Allocation</span>
-                            </a>
-                        </li>
-                    {% endif %}
+
                 {% endif %}
                 <li class="nav-item">
                     <a href="{% url 'password_change' %}" class="navbar-nav-link">
@@ -265,36 +288,32 @@
             </ul>
         {% endif %}
     </div>
-{#    <div id="loading-spinner" style="display: none;">#}
-{#        <div class="spinner"></div>#}
-{#    </div>#}
+    {#    <div id="loading-spinner" style="display: none;">#}
+    {#        <div class="spinner"></div>#}
+    {#    </div>#}
 </div>
-{#<script>#}
-{#    document.addEventListener('DOMContentLoaded', () => {#}
-{#        const spinner = document.getElementById('loading-spinner');#}
-{##}
-{#        // Show spinner when navigating to a new page#}
-{#        document.querySelectorAll('a').forEach(link => {#}
-{#            link.addEventListener('click', (event) => {#}
-{#                if (link.href && link.target !== '_blank') {#}
-{#                    spinner.style.display = 'flex';#}
-{#                }#}
-{#            });#}
-{#        });#}
-{##}
-{#        // Show spinner on form submission#}
-{#        document.querySelectorAll('form').forEach(form => {#}
-{#            form.addEventListener('submit', () => {#}
-{#                spinner.style.display = 'flex';#}
-{#            });#}
-{#        });#}
-{##}
-{#        // Hide spinner once the page has fully loaded#}
-{#        window.addEventListener('load', () => {#}
-{#            spinner.style.display = 'none';#}
-{#        });#}
-{#    });#}
-{#</script>#}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const overlay = document.getElementById('loading-overlay');
+
+        // Show spinner when navigating away from page
+        document.querySelectorAll('a').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && !href.startsWith('#') && !href.startsWith('javascript:')) {
+                link.addEventListener('click', function (e) {
+                    overlay.style.display = 'flex';
+                });
+            }
+        });
+
+        // Optional: show spinner during form submissions
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function () {
+                overlay.style.display = 'flex';
+            });
+        });
+    });
+</script>
 <!-- /main navbar -->
 
 <!-- Page content -->
