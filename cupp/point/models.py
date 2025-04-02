@@ -297,6 +297,7 @@ class NearbyStore(m.Model):
     nearby_store_id = m.CharField(max_length=10)  # Nearby Store ID
     nearby_store_name = m.CharField(max_length=255)  # Nearby Store Name
     nearby_cluster = m.CharField(max_length=255, null=True, blank=True)  # Nearby Store's Cluster
+    nearby_store_distance_m = m.FloatField('Distance to nearby store (m)', null=True, blank=True)
 
     class Meta:
         unique_together = ('store_id', 'nearby_store_id')  # Prevent duplicate entries
