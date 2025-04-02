@@ -78,14 +78,15 @@ class StoreConsultant(m.Model):
     near_bus_station = m.BooleanField('Автобусны буудалтай ойр байршдаг уу?', blank=True, null=True)
     bus_station_range = m.FloatField('Автобусны буудлын зай', blank=True, null=True, default=0)
     sub_rent1 = m.CharField('Дамжуулдаг түрээсэлдэг төрөл', blank=True, null=True, max_length=50)
-    sub_rent2 = m.CharField('Дамжуулдаг түрээсэлдэг төрөл', blank=True, null=True, max_length=50)
+    sub_rent2 = m.CharField('Дамжуулдаг түрээсэлдэг төрөл2', blank=True, null=True, max_length=50)
     university_range = m.IntegerField('Урсгалд нөлөөлдөг их суруультай эсэх, зай?', blank=True, null=True, default=0)
     high_school_range = m.FloatField('Урсгалд нөлөөлдөг дунд сургуультай эсэх, зай?', blank=True, null=True, default=0)
     garbage_area = m.BooleanField('Тусдаа хогийн цэгтэй эсэх', blank=True, null=True)
     garbage_transport = m.IntegerField('Хогоо сардаа хэд ачуулдаг вэ?', blank=True, null=True, default=0)
     water_tank = m.BooleanField('Зөөврийн устай эсэх', blank=True, null=True)
 
-    use_yn = m.BooleanField('Use yn', blank=True, null=True, default=0)
+    use_yn = m.BooleanField('Use yn', blank=True, null=True, default=1)
+    store_email = m.EmailField('Store email', blank=True, null=True)
 
     created_date = m.DateTimeField('Created date', auto_now_add=True, null=True)
     modified_date = m.DateTimeField('Modified date', auto_now=True, null=True)

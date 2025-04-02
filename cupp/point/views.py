@@ -8,12 +8,16 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+import traceback
+
 
 from .forms import PointForm, PhotoFormset, StorePlanningForm
 from .models import Point, District, City, Type, StorePlanning, NearbyStore
 from .mixins import GroupMixin, StorePlannerMixin
 from django.contrib.auth.models import Group, User
 from django import template
+
+import math
 
 
 # from cupp.store_planning.models import StorePlanning
@@ -287,50 +291,101 @@ def index(request):
     return render(request, 'base.html', {'user': request.user, 'is_event_user': is_event_user})
 
 
+def haversine_distance(lat1, lon1, lat2, lon2):
+    """
+    Calculate the great-circle distance between two points on Earth (in meters).
+    """
+    R = 6371000  # Earth radius in meters
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    d_phi = math.radians(lat2 - lat1)
+    d_lambda = math.radians(lon2 - lon1)
+
+    a = math.sin(d_phi / 2) ** 2 + \
+        math.cos(phi1) * math.cos(phi2) * math.sin(d_lambda / 2) ** 2
+
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    return R * c
+
+
 def get_store_location(request):
     store_id = request.GET.get('store_id', '').strip()
 
     try:
         store = Point.objects.get(store_id=store_id, type='CU')
-        lat, lon = float(store.lat), float(store.lon)
+        lat = float(str(store.lat).replace(',', '').strip())
+        lon = float(str(store.lon).replace(',', '').strip())
 
-        # Fetch cluster from StorePlanning
-        store_cluster = StorePlanning.objects.filter(store_id=store_id).values_list('cluster', flat=True).first()
+        # Get store cluster, allow fallback to None
+        store_cluster = StorePlanning.objects.filter(
+            store_id=store_id
+        ).values_list('cluster', flat=True).first() or ''
 
-        # Define search radius (~0.009 degrees lat/lon per km)
+        # Define ~0.5km radius (0.005 degrees)
         radius = 0.005
 
-        # Find nearby CU branches (excluding itself)
-        nearby_branches = Point.objects.filter(
-            Q(lat__gte=lat - radius, lat__lte=lat + radius) &
-            Q(lon__gte=lon - radius, lon__lte=lon + radius) &
-            ~Q(store_id=store_id) &  # Exclude itself
-            Q(type='CU')  # Only CU type stores
-        ).values('store_id', 'store_name')
+        # Query nearby CU stores
+        nearby_branches_qs = Point.objects.filter(
+            Q(lat__gte=lat - radius, lat__lte=lat + radius),
+            Q(lon__gte=lon - radius, lon__lte=lon + radius),
+            ~Q(store_id=store_id),
+            Q(type='CU')
+        )
 
-        # Store nearby branches in NearbyStore table with cluster info
-        with transaction.atomic():  # Ensures atomic database operations
-            for branch in nearby_branches:
-                nearby_cluster = StorePlanning.objects.filter(store_id=branch['store_id']).values_list('cluster',
-                                                                                                       flat=True).first()
+        nearby_branches_list = []
 
-                NearbyStore.objects.get_or_create(
-                    store_id=store.store_id,
-                    store_name=store.store_name,
-                    cluster=store_cluster,  # Main store's cluster
+        with transaction.atomic():
+            for branch in nearby_branches_qs:
+                try:
+                    nearby_lat = float(branch.lat)
+                    nearby_lon = float(branch.lon)
+                    distance = haversine_distance(lat, lon, nearby_lat, nearby_lon)
 
-                    nearby_store_id=branch['store_id'],
-                    nearby_store_name=branch['store_name'],
-                    nearby_cluster=nearby_cluster  # Nearby store's cluster
-                )
+                    # Get nearby cluster
+                    nearby_cluster = StorePlanning.objects.filter(
+                        store_id=branch.store_id
+                    ).values_list('cluster', flat=True).first() or ''
+
+                    # Create or update NearbyStore
+                    obj, created = NearbyStore.objects.get_or_create(
+                        store_id=store.store_id,
+                        store_name=store.store_name,
+                        cluster=store_cluster,
+                        nearby_store_id=branch.store_id,
+                        nearby_store_name=branch.store_name,
+                        nearby_cluster=nearby_cluster,
+                        defaults={'nearby_store_distance_m': distance}
+                    )
+
+                    if not created and obj.nearby_store_distance_m != distance:
+                        obj.nearby_store_distance_m = distance
+                        obj.save(update_fields=['nearby_store_distance_m'])
+
+                    nearby_branches_list.append({
+                        'store_id': branch.store_id,
+                        'store_name': branch.store_name,
+                        'nearby_store_distance_m': round(distance, 2),
+                        'cluster': nearby_cluster
+                    })
+
+                except Exception as e:
+                    print(f"Error processing nearby branch {branch.store_id}: {e}")
+                    traceback.print_exc()
+                    continue
 
         return JsonResponse({
             'lat': store.lat,
             'lon': store.lon,
-            'nearby_branches': list(nearby_branches)
+            'nearby_branches': nearby_branches_list
         })
+
     except Point.DoesNotExist:
         return JsonResponse({'error': 'CU Store not found'}, status=404)
+
+    except Exception as e:
+        traceback.print_exc()
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @login_required
