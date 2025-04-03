@@ -70,7 +70,7 @@ urlpatterns = [
 
     path('custom-login-redirect/', custom_login_redirect, name='custom_login_redirect'),
 
-    path('bi-login/', login, name='powerbi_login'),  # ⬅ ЭНЭ МАШ ЧУХАЛ
+    path('bi-login/', login, name='powerbi_login'),
     path('getAToken',callback, name='powerbi_callback'),
     path('report/', report_view, name='powerbi_report'),
     # path('groups/', report_view, name='powerbi_report'),
