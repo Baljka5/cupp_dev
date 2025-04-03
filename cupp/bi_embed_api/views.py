@@ -50,7 +50,7 @@ def get_dataset_id(access_token):
     return response.json().get("datasetId")
 
 
-def generate_embed_token(access_token, dataset_id):
+def generate_embed_token(access_token, dataset_id, username=None, rls_role=None):
     url = "https://api.powerbi.com/v1.0/myorg/GenerateToken"
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -63,6 +63,14 @@ def generate_embed_token(access_token, dataset_id):
         "targetWorkspaces": [{"id": WORKSPACE_ID}],
         "accessLevel": "View"
     }
+
+    # RLS identities нэмэх (заавал биш)
+    if username and rls_role:
+        data["identities"] = [{
+            "username": username,
+            "roles": [rls_role],
+            "datasets": [dataset_id]
+        }]
 
     response = requests.post(url, headers=headers, json=data)
     print(response.status_code, response.text)
