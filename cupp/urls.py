@@ -72,7 +72,7 @@ urlpatterns = [
 
     path('bi-login/', login, name='powerbi_login'),  # ⬅ ЭНЭ МАШ ЧУХАЛ
     path('getAToken',callback, name='powerbi_callback'),
-    path('report/', report_view, name='powerbi_report'),
+    path('groups/', report_view, name='powerbi_report'),
     # path('groups/', report_view, name='powerbi_report'),
     path('bi-embed/', point_views.bi_embed, name='bi-embed'),
     path('', point_views.index, name='event_index'),
