@@ -8,7 +8,7 @@ import json
 TENANT_ID = "bde68a4a-a9ba-4b1a-97f5-46f3b9f8f8cc"
 CLIENT_ID = "78e801e0-36f4-4de5-afec-158901d1db90"
 CLIENT_SECRET = "NQn8Q~5gPR1O1jgdF~1ZIpe39ao676CKNwlbubQK"
-REDIRECT_URI = "http://pp.cumongol.mn/groups/getAToken"
+REDIRECT_URI = "http://pp.cumongol.mn/groups"
 SCOPE = ["https://analysis.windows.net/powerbi/api/.default", "openid", "profile", "offline_access"]
 
 WORKSPACE_ID = "b55b6256-075e-4f32-9ab3-6c905a2f6efb"
