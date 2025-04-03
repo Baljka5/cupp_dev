@@ -27,7 +27,7 @@ def build_msal_app(cache=None):
     )
 
 
-def generate_embed_token(access_token, dataset_id, user_email=None, role=None):
+def generate_embed_token(access_token, dataset_id):
     url = "https://api.powerbi.com/v1.0/myorg/GenerateToken"
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -40,14 +40,6 @@ def generate_embed_token(access_token, dataset_id, user_email=None, role=None):
         "targetWorkspaces": [{"id": WORKSPACE_ID}],
         "accessLevel": "View"
     }
-
-    # RLS тохиргоо (хэрэглэгч болон role нэмэх)
-    if user_email and role:
-        data["identities"] = [{
-            "username": user_email,
-            "roles": [role],
-            "datasets": [dataset_id]
-        }]
 
     response = requests.post(url, headers=headers, json=data)
     print("🔒 Embed Token Response:", response.status_code, response.text)
