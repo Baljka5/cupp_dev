@@ -119,17 +119,13 @@ def report_view(request):
     if not access_token:
         return redirect("powerbi_login")
 
-    # Optional: get logged-in user email for RLS if needed
     user_email = request.session.get("id_token_claims", {}).get("preferred_username")
 
-    # Step 3A: Refresh user permissions
-    refresh_user_permissions(access_token)
-
-    # Step 3B: Get dataset ID
     dataset_id = get_dataset_id(access_token)
 
-    # Step 3C: Generate embed token (with optional RLS)
-    embed_token = generate_embed_token(access_token, dataset_id, username=user_email, rls_role="SalesRegion")
+    embed_token = generate_embed_token(
+        access_token, dataset_id, username=user_email, rls_role="SalesRegion"
+    )
 
     context = {
         "embed_token": embed_token,
