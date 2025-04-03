@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Power BI Report</title>
-    <script src="https://cdn.powerbi.com/libs/powerbi-client/2.18.5/powerbi.min.js"></script>
+    <title>Power BI Embedded Report</title>
+    <script src="https://cdn.powerbi.com/libs/powerbi-client/2.19.0/powerbi.min.js"></script>
 </head>
 <body>
-<div id="reportContainer" style="height:800px;"></div>
+<h2>Power BI Report</h2>
+<div id="reportContainer" style="height:90vh;"></div>
+
 <script>
     var embedConfig = {
         type: 'report',
         tokenType: powerbi.models.TokenType.Embed,
-        accessToken: "{{ embed_token }}",
-        embedUrl: "https://app.powerbi.com/reportEmbed?reportId={{ report_id }}&groupId={{ workspace_id }}",
+        accessToken: '{{ embed_token }}',
+        embedUrl: 'https://app.powerbi.com/reportEmbed?reportId={{ report_id }}&groupId={{ workspace_id }}',
         settings: {
             filterPaneEnabled: false,
             navContentPaneEnabled: true
         }
     };
-    powerbi.embed(document.getElementById("reportContainer"), embedConfig);
+
+    var reportContainer = document.getElementById('reportContainer');
+    powerbi.embed(reportContainer, embedConfig);
 </script>
 </body>
 </html>
