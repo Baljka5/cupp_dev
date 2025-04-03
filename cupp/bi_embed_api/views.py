@@ -27,7 +27,7 @@ def build_msal_app(cache=None):
     )
 
 
-def generate_embed_token(access_token, dataset_id):
+def generate_embed_token(access_token, dataset_id, user_email=None, role=None):
     url = "https://api.powerbi.com/v1.0/myorg/GenerateToken"
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -41,8 +41,17 @@ def generate_embed_token(access_token, dataset_id):
         "accessLevel": "View"
     }
 
+    # Хэрэв RLS тохиргоо байгаа бол нэмнэ
+    # if user_email and role:
+    #     data["identities"] = [{
+    #         "username": user_email,
+    #         "roles": [role],
+    #         "datasets": [dataset_id]
+    #     }]
+
     response = requests.post(url, headers=headers, json=data)
     print("🔒 Embed Token Response:", response.status_code, response.text)
+
     if response.status_code != 200:
         raise Exception(f"❌ Failed to generate embed token: {response.status_code} - {response.text}")
 
