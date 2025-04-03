@@ -13,6 +13,7 @@ SCOPE = ["https://analysis.windows.net/powerbi/api/.default", "openid", "profile
 
 WORKSPACE_ID = "b55b6256-075e-4f32-9ab3-6c905a2f6efb"
 REPORT_ID = "64c4020a-841f-4e15-bf04-04aa1a663dc4"
+DATASET_ID = "8727efde-38ca-4a9f-9a0c-dc941621297e"
 
 
 def build_msal_app(cache=None):
@@ -121,10 +122,10 @@ def report_view(request):
 
     user_email = request.session.get("id_token_claims", {}).get("preferred_username")
 
-    dataset_id = get_dataset_id(access_token)
+    # refresh_user_permissions(access_token)
 
     embed_token = generate_embed_token(
-        access_token, dataset_id, username=user_email, rls_role="SalesRegion"
+        access_token, DATASET_ID, username=user_email, rls_role="SalesRegion"
     )
 
     context = {
