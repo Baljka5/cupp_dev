@@ -162,7 +162,7 @@ def update(request, id):
 #
 #     return render(request, 'store_consultant/edit.html', {'form': form, 'model': model})
 
-
+@login_required
 def scIndex(request):
     current_date = datetime.datetime.now()
     current_year = current_date.year
