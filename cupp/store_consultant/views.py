@@ -168,8 +168,8 @@ def scIndex(request):
     current_year = current_date.year
     current_month = current_date.month
 
-    # Only show current year and the next two years
-    next_three_years = [current_year + i for i in range(3)]
+    next_three_years = [current_year]
+    # next_three_years = [current_year + i for i in range(3)]
 
     # Define months
     months = [
@@ -187,11 +187,14 @@ def scIndex(request):
         {'value': 'DEC', 'name': 'December'},
     ]
 
-    remaining_months = [month for month in months if months.index(month) + 1 >= current_month]
+    current_month_obj = months[current_month - 1]
+    remaining_months = [current_month_obj]
+    # remaining_months = [month for month in months if months.index(month) + 1 >= current_month]
     # Fetch the last saved allocation's year and month
     last_allocation = AllocationTemp.objects.order_by('-created_date').first()
     last_year = last_allocation.year if last_allocation else current_year
-    last_month = last_allocation.month if last_allocation else 'jan'
+    last_month = last_allocation.month if last_allocation else current_month_obj['value']
+    # last_month = last_allocation.month if last_allocation else 'jan'
     # Fetch areas, consultants, and store consultants with use_yn = 1
     # areas = Area.objects.all()
     areas = Area.objects.filter(is_active=True)
