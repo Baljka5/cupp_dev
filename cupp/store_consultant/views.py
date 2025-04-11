@@ -193,7 +193,8 @@ def scIndex(request):
     last_year = last_allocation.year if last_allocation else current_year
     last_month = last_allocation.month if last_allocation else 'jan'
     # Fetch areas, consultants, and store consultants with use_yn = 1
-    areas = Area.objects.all()
+    # areas = Area.objects.all()
+    areas = Area.objects.filter(is_active=True)
     consultants = Consultants.objects.annotate(
         store_count=Count('store_allocations_temp')  # Assuming the related name is correctly set
     )

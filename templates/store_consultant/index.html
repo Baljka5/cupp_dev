@@ -54,6 +54,7 @@
             </div>
             <div class="team-row">
                 {% for area in areas %}
+                {% if area.is_active %}
                     <div class="team">
                         <div class="team-header-container">
 
@@ -87,6 +88,7 @@
                             </div>
                         </div>
                     </div>
+                    {% endif %}
                 {% endfor %}
             </div>
 

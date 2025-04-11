@@ -112,6 +112,7 @@ class Area(m.Model):
     team_no = m.CharField('Area No', max_length=10, blank=True, null=True)
     team_man_name = m.CharField('Area manager name', max_length=50, blank=True, null=True)
     team_man_surname = m.CharField('Area manager surname', max_length=50, blank=True, null=True)
+    is_active = m.BooleanField('Area active', blank=True, null=True, default=True)
     team_man_email = m.EmailField('Area manager email address', blank=True, null=True)
     team_man_phone = m.IntegerField('Area manager phone number', blank=True, null=True, default=0)
     team_man_sex = m.BooleanField('Area manager gender', blank=True, null=True)
