@@ -5,9 +5,9 @@ from .models import Consultants
 print("✅ signal.py loaded")
 
 
-@receiver(post_save, sender='auth.User')  # <-- string ашиглаж delayed load хийх
+@receiver(post_save, sender='auth.User')
 def create_or_update_consultant_if_in_group(sender, instance, **kwargs):
-    from django.contrib.auth.models import Group  # <-- import дотогш нь оруул
+    from django.contrib.auth.models import Group
     if instance.groups.filter(name="Store Consultant").exists():
         obj, created = Consultants.objects.update_or_create(
             sc_email=instance.email,
@@ -21,10 +21,10 @@ def create_or_update_consultant_if_in_group(sender, instance, **kwargs):
         print(f"🚀 Consultant {action} for: {instance.email}")
 
 
-@receiver(m2m_changed, sender='auth.User_groups')  # <-- string again
+@receiver(m2m_changed, sender='auth.User_groups')
 def handle_user_group_change(sender, instance, action, pk_set, **kwargs):
     if action == "post_add":
-        from django.contrib.auth.models import Group  # <-- import дотогш нь оруул
+        from django.contrib.auth.models import Group
         store_consultant_group = Group.objects.filter(name="Store Consultant").first()
         if store_consultant_group and store_consultant_group.pk in pk_set:
             obj, created = Consultants.objects.update_or_create(

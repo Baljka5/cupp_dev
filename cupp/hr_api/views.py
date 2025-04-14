@@ -9,7 +9,7 @@ from cupp.store_consultant.models import (
 )
 from .serializers import (
     StorePlanningSerializer, StoreTrainerSerializer, StoreConsultantSerializer,
-    SCAllocationSerializer, ConsultantSerializer, AreaSerializer
+    SCAllocationSerializer,
 )
 
 
@@ -36,27 +36,27 @@ class StoreCombinedInfoView(APIView):
         # 5. Consultants (from allocations)
         consultant_ids = sc_allocations.values_list('consultant_id', flat=True).distinct()
         consultants = Consultants.objects.filter(id__in=consultant_ids)
-        data['consultants'] = ConsultantSerializer(consultants, many=True).data
+        # data['consultants'] = ConsultantSerializer(consultants, many=True).data
 
         # 6. Allocation (from consultant_id)
         allocations = Allocation.objects.filter(consultant_id__in=consultant_ids)
-        data['allocations'] = [
-            {
-                "id": alloc.id,
-                "storeID": alloc.storeID,
-                "store_name": alloc.store_name,
-                "store_cons": alloc.store_cons,
-                "team_no": alloc.team_no,
-                "year": alloc.year,
-                "month": alloc.month,
-                "area_id": alloc.area_id
-            }
-            for alloc in allocations
-        ]
+        # data['allocations'] = [
+        #     {
+        #         "id": alloc.id,
+        #         "storeID": alloc.storeID,
+        #         "store_name": alloc.store_name,
+        #         "store_cons": alloc.store_cons,
+        #         "team_no": alloc.team_no,
+        #         "year": alloc.year,
+        #         "month": alloc.month,
+        #         "area_id": alloc.area_id
+        #     }
+        #     for alloc in allocations
+        # ]
 
         # 7. Area (from allocation.area_id)
         area_ids = allocations.values_list('area_id', flat=True).distinct()
         areas = Area.objects.filter(id__in=area_ids)
-        data['areas'] = AreaSerializer(areas, many=True).data
+        # data['areas'] = AreaSerializer(areas, many=True).data
 
         return Response(data, status=status.HTTP_200_OK)
