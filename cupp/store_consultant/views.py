@@ -198,8 +198,8 @@ def scIndex(request):
     # Fetch areas, consultants, and store consultants with use_yn = 1
     # areas = Area.objects.all()
     areas = Area.objects.filter(is_active=True)
-    consultants = Consultants.objects.annotate(
-        store_count=Count('store_allocations_temp')  # Assuming the related name is correctly set
+    consultants = Consultants.objects.filter(is_active=True).annotate(
+        store_count=Count('store_allocations_temp')
     )
     store_consultants = StoreConsultant.objects.filter(use_yn=1)  # Only include active stores
     store_id_and_name = store_consultants.values('store_id', 'store_name')

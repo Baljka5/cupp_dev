@@ -148,6 +148,7 @@ class Consultants(m.Model):
     sc_name = m.CharField('Store name of consultants', max_length=50, blank=True, null=True)
     sc_surname = m.CharField('Surname of store consultants', max_length=50, blank=True, null=True)
     sc_email = m.EmailField('Email address of store consultants', blank=True, null=True)
+    is_active = m.BooleanField('SC active', blank=True, null=True, default=True)
     sc_phone = m.IntegerField('Phone number of store consultants', blank=True, null=True)
     sc_sex = m.BooleanField('Gender of store consultant', blank=True, null=True)
     sc_birthdt = m.DateField('Birth date of store consultant', blank=True, null=True)
