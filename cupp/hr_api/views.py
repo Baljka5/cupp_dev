@@ -13,6 +13,36 @@ from .serializers import (
 )
 
 
+class StoreListCombinedInfoView(APIView):
+    def get(self, request):
+        data = []
+
+        store_ids = StoreConsultant.objects.values_list('store_id', flat=True).distinct()
+
+        for store_id in store_ids:
+            entry = {}
+
+            # 1. StorePlanning
+            planning = StorePlanning.objects.filter(store_id=store_id).first()
+            entry['store_planning'] = StorePlanningSerializer(planning).data if planning else None
+
+            # 2. StoreTrainer
+            trainer = StoreTrainer.objects.filter(store_id=store_id).first()
+            entry['store_trainer'] = StoreTrainerSerializer(trainer).data if trainer else None
+
+            # 3. StoreConsultant
+            consultant = StoreConsultant.objects.filter(store_id=store_id).first()
+            entry['store_consultant'] = StoreConsultantSerializer(consultant).data if consultant else None
+
+            # 4. SC_Store_Allocation
+            sc_allocations = SC_Store_Allocation.objects.filter(store__store_id=store_id)
+            entry['sc_store_allocations'] = SCAllocationSerializer(sc_allocations, many=True).data
+
+            data.append(entry)
+
+        return Response(data, status=status.HTTP_200_OK)
+
+
 class StoreCombinedInfoView(APIView):
     def get(self, request, store_id):
         data = {}
