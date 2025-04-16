@@ -1,6 +1,7 @@
 import json
 import os
 import datetime
+from django.views.decorators.http import require_GET
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -710,6 +711,49 @@ def clear_allocations(request):
         except Exception as e:
             return JsonResponse({'status': 'failed', 'message': str(e)}, status=500)
     return JsonResponse({'status': 'failed', 'message': 'Invalid request method.'}, status=400)
+
+
+@require_GET
+def search_store_allocation(request):
+    store_id = request.GET.get('store_id', '').strip()
+    if not store_id:
+        return JsonResponse({'status': 'failed', 'message': 'No store ID provided'}, status=400)
+
+    try:
+        allocation = SC_Store_AllocationTemp.objects.select_related('store', 'consultant').filter(
+            store__store_id=store_id).first()
+
+        if not allocation:
+            return JsonResponse({
+                'status': 'failed',
+                'message': f'Store ID {store_id} not found in SC_Store_AllocationTemp.'
+            }, status=404)
+
+        consultant_id = allocation.consultant_id
+
+        # AllocationTemp бичлэгүүд
+        allocation_temps = AllocationTemp.objects.filter(consultant_id=consultant_id).exclude(area_id__isnull=True)
+
+        area_ids = allocation_temps.values_list('area_id', flat=True).distinct()
+        areas = Area.objects.filter(id__in=area_ids).values('team_no', 'team_man_name')
+
+        return JsonResponse({
+            'status': 'success',
+            'data': {
+                'store_no': allocation.store_no,
+                'store_name': allocation.store_name,
+                'sc_name': allocation.sc_name,
+                'teams': list(areas)  # ← frontend-д тохируулах
+            }
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'status': 'failed',
+            'message': 'Server error occurred while processing your request.'
+        }, status=500)
 
 
 def populate_historical_allocations():

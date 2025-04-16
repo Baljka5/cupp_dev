@@ -26,7 +26,16 @@
                 </select>
             </div>
 
+            <div style="margin: 10px 0; padding: 10px; background: #f4f4f4; border-radius: 8px;">
+            <label for="search-store-id">Search by Store ID:</label>
+            <input type="text" id="search-store-id" placeholder="Enter Store ID..." style="padding: 5px; border-radius: 4px;">
+            <button onclick="searchStore()" style="padding: 6px 12px; border: none; border-radius: 5px; background-color: #673ab7; color: white;">Search</button>
         </div>
+        <div id="search-result" style="margin-top: 10px; padding: 10px; background-color: #e2e2e2; border-radius: 8px;"></div>
+
+
+        </div>
+
 
         <div class="clear-sc-allocation-container" style="position: absolute; top: 20px; right: 20px;">
             <button id="clearSCAllocationBtn" onclick="clearSCAllocations()" style="
@@ -715,6 +724,47 @@
             const selectedTeam = document.getElementById(`team -${teamId}`);
             selectedTeam.classList.add('highlighted');
         }
+
+        function searchStore() {
+    const storeId = document.getElementById('search-store-id').value.trim();
+    if (!storeId) {
+        alert('Please enter a Store ID.');
+        return;
+    }
+
+    fetch(`/search-store-allocation/?store_id=${storeId}`)
+        .then(response => response.json())
+        .then(data => {
+            const resultContainer = document.getElementById('search-result');
+            if (data.status === 'success') {
+    const result = data.data;
+    let teamsHtml = '';
+    if (result.teams.length > 0) {
+        teamsHtml = '<li><strong>Teams:</strong><ul>';
+        result.teams.forEach(team => {
+            teamsHtml += `<li>${team.team_no} - ${team.team_man_name || 'N/A'}</li>`;
+        });
+        teamsHtml += '</ul></li>';
+    }
+
+    resultContainer.innerHTML = `
+        <strong>Search Result:</strong><br>
+        <ul>
+            <li><strong>Store No:</strong> ${result.store_no}</li>
+            <li><strong>Store Name:</strong> ${result.store_name}</li>
+            <li><strong>SC Name:</strong> ${result.sc_name}</li>
+            ${teamsHtml}
+        </ul>
+    `;
+} else {
+                resultContainer.innerHTML = `<span style="color:red;">${data.message}</span>`;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('search-result').innerHTML = `<span style="color:red;">Error occurred while searching.</span>`;
+        });
+}
 
 
         function showTeamDetails(teamId, teamNo, event) {

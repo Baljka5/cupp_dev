@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 import traceback
 
-
 from .forms import PointForm, PhotoFormset, StorePlanningForm
 from .models import Point, District, City, Type, StorePlanning, NearbyStore
 from .mixins import GroupMixin, StorePlannerMixin
@@ -314,70 +313,71 @@ def get_store_location(request):
 
     try:
         store = Point.objects.get(store_id=store_id, type='CU')
-        lat = float(str(store.lat).replace(',', '').strip())
-        lon = float(str(store.lon).replace(',', '').strip())
+        lat = float(store.lat)
+        lon = float(store.lon)
 
-        # Get store cluster, allow fallback to None
         store_cluster = StorePlanning.objects.filter(
             store_id=store_id
         ).values_list('cluster', flat=True).first() or ''
 
-        # Define ~0.5km radius (0.005 degrees)
-        radius = 0.005
+        radius = 0.002  # 200 meters
 
-        # Query nearby CU stores
-        nearby_branches_qs = Point.objects.filter(
-            Q(lat__gte=lat - radius, lat__lte=lat + radius),
-            Q(lon__gte=lon - radius, lon__lte=lon + radius),
-            ~Q(store_id=store_id),
-            Q(type='CU')
-        )
+        candidates = Point.objects.filter(
+            lat__range=(lat - radius, lat + radius),
+            lon__range=(lon - radius, lon + radius),
+            type='CU'
+        ).exclude(store_id=store_id)
 
-        nearby_branches_list = []
+        nearby_branches = []
+
+        for branch in candidates:
+            try:
+                b_lat = float(branch.lat)
+                b_lon = float(branch.lon)
+                dist = haversine_distance(lat, lon, b_lat, b_lon)
+
+                cluster = StorePlanning.objects.filter(
+                    store_id=branch.store_id
+                ).values_list('cluster', flat=True).first() or ''
+
+                nearby_branches.append({
+                    'store_id': branch.store_id,
+                    'store_name': branch.store_name or '',
+                    'nearby_store_distance_m': round(dist, 2),
+                    'cluster': cluster,
+                    'lat': b_lat,
+                    'lon': b_lon
+                })
+
+            except Exception as e:
+                print(f"Branch calc error: {e}")
+                traceback.print_exc()
+                continue
+
+        # Sort and keep top 5 nearest
+        nearby_branches.sort(key=lambda x: x['nearby_store_distance_m'])
+        nearby_branches = nearby_branches[:5]
 
         with transaction.atomic():
-            for branch in nearby_branches_qs:
-                try:
-                    nearby_lat = float(branch.lat)
-                    nearby_lon = float(branch.lon)
-                    distance = haversine_distance(lat, lon, nearby_lat, nearby_lon)
-
-                    # Get nearby cluster
-                    nearby_cluster = StorePlanning.objects.filter(
-                        store_id=branch.store_id
-                    ).values_list('cluster', flat=True).first() or ''
-
-                    # Create or update NearbyStore
-                    obj, created = NearbyStore.objects.get_or_create(
+            for branch in nearby_branches:
+                # Ensure required non-null fields are set
+                if branch['store_name']:
+                    NearbyStore.objects.update_or_create(
                         store_id=store.store_id,
-                        store_name=store.store_name,
-                        cluster=store_cluster,
-                        nearby_store_id=branch.store_id,
-                        nearby_store_name=branch.store_name,
-                        nearby_cluster=nearby_cluster,
-                        defaults={'nearby_store_distance_m': distance}
+                        nearby_store_id=branch['store_id'],
+                        defaults={
+                            'store_name': store.store_name or '',
+                            'cluster': store_cluster,
+                            'nearby_store_name': branch['store_name'],
+                            'nearby_cluster': branch['cluster'],
+                            'nearby_store_distance_m': branch['nearby_store_distance_m']
+                        }
                     )
-
-                    if not created and obj.nearby_store_distance_m != distance:
-                        obj.nearby_store_distance_m = distance
-                        obj.save(update_fields=['nearby_store_distance_m'])
-
-                    nearby_branches_list.append({
-                        'store_id': branch.store_id,
-                        'store_name': branch.store_name,
-                        'nearby_store_distance_m': round(distance, 2),
-                        'cluster': nearby_cluster
-                    })
-
-                except Exception as e:
-                    print(f"Error processing nearby branch {branch.store_id}: {e}")
-                    traceback.print_exc()
-                    continue
 
         return JsonResponse({
             'lat': store.lat,
             'lon': store.lon,
-            'nearby_branches': nearby_branches_list
+            'nearby_branches': nearby_branches
         })
 
     except Point.DoesNotExist:

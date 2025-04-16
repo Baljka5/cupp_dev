@@ -71,7 +71,7 @@ urlpatterns = [
     path('custom-login-redirect/', custom_login_redirect, name='custom_login_redirect'),
 
     path('bi-login/', login, name='powerbi_login'),
-    path('getAToken',callback, name='powerbi_callback'),
+    path('getAToken', callback, name='powerbi_callback'),
     path('report/', report_view, name='powerbi_report'),
     # path('groups/', report_view, name='powerbi_report'),
     path('bi-embed/', point_views.bi_embed, name='bi-embed'),
@@ -99,13 +99,14 @@ urlpatterns = [
     path('get-scs-by-team/<int:team_id>/', sc_views.get_scs_by_team, name='get_scs_by_team'),
     path('clear-allocations/', sc_views.clear_allocations, name='clear_allocations'),
     path('push-data/', sc_views.push_data, name='push_data'),
+    path('search-store-allocation/', sc_views.search_store_allocation, name='search_store_allocation'),
 
     # path('sc-add-new/', sc_views.sc_add_new, name='sc-add-new'),
     path('sc-add-index/', sc_views.sc_add_index, name='sc-add-index'),
     # path('sc-add-edit/<int:id>/', sc_views.sc_add_edit, name='sc-add-edit'),
     # path('sc-add-delete/<int:id>/', sc_views.sc_add_delete, name='sc-add-delete'),
 
-    path('save-consultant-stores/', sc_views.save_consultant_stores, name='save-consultant-stores'),
+    path('search-store-allocation/', sc_views.search_store_allocation, name='search_store_allocation'),
 
     path('log-index/', event_views.index, name='event_index'),
     path('log-create', event_views.event_addnew, name='event-create'),
