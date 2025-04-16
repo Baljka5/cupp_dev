@@ -106,7 +106,7 @@ urlpatterns = [
     # path('sc-add-edit/<int:id>/', sc_views.sc_add_edit, name='sc-add-edit'),
     # path('sc-add-delete/<int:id>/', sc_views.sc_add_delete, name='sc-add-delete'),
 
-    path('search-store-allocation/', sc_views.search_store_allocation, name='search_store_allocation'),
+    path('save-consultant-stores/', sc_views.save_consultant_stores, name='save-consultant-stores'),
 
     path('log-index/', event_views.index, name='event_index'),
     path('log-create', event_views.event_addnew, name='event-create'),
