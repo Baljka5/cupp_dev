@@ -2,14 +2,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from cupp.point.models import StorePlanning
+from cupp.point.models import StorePlanning, City, District
 from cupp.store_trainer.models import StoreTrainer
 from cupp.store_consultant.models import (
     StoreConsultant, SC_Store_Allocation, Consultants, Allocation, Area
 )
 from .serializers import (
     StorePlanningSerializer, StoreTrainerSerializer, StoreConsultantSerializer,
-    SCAllocationSerializer,
+    SCAllocationSerializer, CitySerializer, DistrictSerializer
 )
 
 
@@ -88,5 +88,17 @@ class StoreCombinedInfoView(APIView):
         area_ids = allocations.values_list('area_id', flat=True).distinct()
         areas = Area.objects.filter(id__in=area_ids)
         # data['areas'] = AreaSerializer(areas, many=True).data
+
+        return Response(data, status=status.HTTP_200_OK)
+
+class StoreAddressInfoView(APIView):
+    def get(self, request):
+        cities = City.objects.all()
+        districts = District.objects.select_related('city').all()
+
+        data = {
+            "cities": CitySerializer(cities, many=True).data,
+            "districts": DistrictSerializer(districts, many=True).data
+        }
 
         return Response(data, status=status.HTTP_200_OK)

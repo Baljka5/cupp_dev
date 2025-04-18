@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from cupp.point.models import StorePlanning
+from cupp.point.models import StorePlanning, City, District
 from cupp.store_trainer.models import StoreTrainer
 from cupp.store_consultant.models import StoreConsultant, Consultants, Area, SC_Store_Allocation, Allocation
 
@@ -108,3 +108,15 @@ class SCAllocationSerializer(serializers.ModelSerializer):
     def get_area_manager_email(self, obj):
         allocation = self.get_allocation(obj)
         return allocation.area.team_man_email if allocation and allocation.area else None
+
+
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ['id', 'city_code', 'city_name']
+
+
+class DistrictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = District
+        fields = ['id', 'district_name', 'city']
