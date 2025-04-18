@@ -290,14 +290,16 @@ class StorePlanning(m.Model):
 
 
 class NearbyStore(m.Model):
-    store_id = m.CharField(max_length=10, db_index=True)  # Store ID from Point
-    store_name = m.CharField(max_length=255)  # Store Name from Point
-    cluster = m.CharField(max_length=255, null=True, blank=True)  # Store's Cluster
+    store_id = m.CharField(max_length=10, db_index=True)
+    store_name = m.CharField(max_length=255)
+    cluster = m.CharField(max_length=255, null=True, blank=True)
 
-    nearby_store_id = m.CharField(max_length=10)  # Nearby Store ID
-    nearby_store_name = m.CharField(max_length=255)  # Nearby Store Name
-    nearby_cluster = m.CharField(max_length=255, null=True, blank=True)  # Nearby Store's Cluster
+    nearby_store_id = m.CharField(max_length=10)
+    nearby_store_name = m.CharField(max_length=255)
+    nearby_cluster = m.CharField(max_length=255, null=True, blank=True)
     nearby_store_distance_m = m.FloatField('Distance to nearby store (m)', null=True, blank=True)
+    distance_500m = m.FloatField('500 Distance to nearby store (m)', null=True, blank=True)
+    distance_1000m = m.FloatField('1000 Distance to nearby store (m)', null=True, blank=True)
 
     class Meta:
         unique_together = ('store_id', 'nearby_store_id')  # Prevent duplicate entries

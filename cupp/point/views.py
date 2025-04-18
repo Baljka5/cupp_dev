@@ -320,7 +320,7 @@ def get_store_location(request):
             store_id=store_id
         ).values_list('cluster', flat=True).first() or ''
 
-        radius = 0.002  # 200 meters
+        radius = 0.01  # ~1000 meters
 
         candidates = Point.objects.filter(
             lat__range=(lat - radius, lat + radius),
@@ -328,7 +328,9 @@ def get_store_location(request):
             type='CU'
         ).exclude(store_id=store_id)
 
-        nearby_branches = []
+        nearby_200 = []
+        nearby_500 = []
+        nearby_1000 = []
 
         for branch in candidates:
             try:
@@ -340,27 +342,38 @@ def get_store_location(request):
                     store_id=branch.store_id
                 ).values_list('cluster', flat=True).first() or ''
 
-                nearby_branches.append({
+                item = {
                     'store_id': branch.store_id,
                     'store_name': branch.store_name or '',
                     'nearby_store_distance_m': round(dist, 2),
                     'cluster': cluster,
                     'lat': b_lat,
                     'lon': b_lon
-                })
+                }
+
+                if dist <= 200:
+                    nearby_200.append(item)
+                elif dist <= 500:
+                    nearby_500.append(item)
+                elif dist <= 1000:
+                    nearby_1000.append(item)
 
             except Exception as e:
                 print(f"Branch calc error: {e}")
                 traceback.print_exc()
                 continue
 
-        # Sort and keep top 5 nearest
-        nearby_branches.sort(key=lambda x: x['nearby_store_distance_m'])
-        nearby_branches = nearby_branches[:5]
+        # Sort and limit each group to 5
+        nearby_200.sort(key=lambda x: x['nearby_store_distance_m'])
+        nearby_500.sort(key=lambda x: x['nearby_store_distance_m'])
+        nearby_1000.sort(key=lambda x: x['nearby_store_distance_m'])
+
+        nearby_200 = nearby_200[:5]
+        nearby_500 = nearby_500[:5]
+        nearby_1000 = nearby_1000[:5]
 
         with transaction.atomic():
-            for branch in nearby_branches:
-                # Ensure required non-null fields are set
+            for branch in nearby_200:
                 if branch['store_name']:
                     NearbyStore.objects.update_or_create(
                         store_id=store.store_id,
@@ -370,14 +383,48 @@ def get_store_location(request):
                             'cluster': store_cluster,
                             'nearby_store_name': branch['store_name'],
                             'nearby_cluster': branch['cluster'],
-                            'nearby_store_distance_m': branch['nearby_store_distance_m']
+                            'nearby_store_distance_m': branch['nearby_store_distance_m'],
+                            'distance_500m': None,
+                            'distance_1000m': None
+                        }
+                    )
+
+            for branch in nearby_500:
+                if branch['store_name']:
+                    NearbyStore.objects.update_or_create(
+                        store_id=store.store_id,
+                        nearby_store_id=branch['store_id'],
+                        defaults={
+                            'store_name': store.store_name or '',
+                            'cluster': store_cluster,
+                            'nearby_store_name': branch['store_name'],
+                            'nearby_cluster': branch['cluster'],
+                            'nearby_store_distance_m': None,
+                            'distance_500m': branch['nearby_store_distance_m'],
+                            'distance_1000m': None
+                        }
+                    )
+
+            for branch in nearby_1000:
+                if branch['store_name']:
+                    NearbyStore.objects.update_or_create(
+                        store_id=store.store_id,
+                        nearby_store_id=branch['store_id'],
+                        defaults={
+                            'store_name': store.store_name or '',
+                            'cluster': store_cluster,
+                            'nearby_store_name': branch['store_name'],
+                            'nearby_cluster': branch['cluster'],
+                            'nearby_store_distance_m': None,
+                            'distance_500m': None,
+                            'distance_1000m': branch['nearby_store_distance_m']
                         }
                     )
 
         return JsonResponse({
             'lat': store.lat,
             'lon': store.lon,
-            'nearby_branches': nearby_branches
+            'nearby_branches': nearby_200 + nearby_500 + nearby_1000
         })
 
     except Point.DoesNotExist:

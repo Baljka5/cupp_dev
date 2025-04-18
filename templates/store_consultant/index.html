@@ -151,7 +151,7 @@
         </div>
         <div id="loading-spinner" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; height: 100%; width: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1050;">
     <div class="spinner" style="border: 16px solid #f3f3f3; /* Light grey */
-                                 border-top: 16px solid #3498db; /* Blue */
+                                 border-top: 16px solid #673ab7; /* Blue */
                                  border-radius: 50%;
                                  width: 120px;
                                  height: 120px;
@@ -1021,44 +1021,47 @@
         }
 
 
-function saveConsultantStores(overwrite = false) {
-    const storeAllocations = [];
-    const removedStores = [];
+        function saveConsultantStores(overwrite = false) {
+            const spinner = document.getElementById('loading-spinner')
+            spinner.style.display = 'flex'
+            const storeAllocations = [];
+            const removedStores = [];
 
-    document.querySelectorAll('.sc-container').forEach(container => {
-        const scElement = container.querySelector('.sc');
-        const storeSelect = container.querySelector('.store-select');
+            document.querySelectorAll('.sc-container').forEach(container => {
+                const scElement = container.querySelector('.sc');
+                const storeSelect = container.querySelector('.store-select');
 
-        if (scElement && storeSelect) {
-            const scId = scElement.dataset.consultantId;
-            const newStoreIds = Array.from(storeSelect.selectedOptions).map(opt => opt.value);
+                if (scElement && storeSelect) {
+                    const scId = scElement.dataset.consultantId;
+                    const newStoreIds = Array.from(storeSelect.selectedOptions).map(opt => opt.value);
 
-            // Get the previous stored allocations for comparison
-            const previousStoreIds = (scElement.dataset.previousStores || "").split(',').filter(Boolean);
+                    // Get the previous stored allocations for comparison
+                    const previousStoreIds = (scElement.dataset.previousStores || "").split(',').filter(Boolean);
 
-            // Stores to add (newly selected stores that were not previously allocated)
-            const storesToAdd = newStoreIds.filter(storeId => !previousStoreIds.includes(storeId));
+                    // Stores to add (newly selected stores that were not previously allocated)
+                    const storesToAdd = newStoreIds.filter(storeId => !previousStoreIds.includes(storeId));
 
-            // Stores to remove (previously allocated but now deselected stores)
-            const storesToRemove = previousStoreIds.filter(storeId => !newStoreIds.includes(storeId));
+                    // Stores to remove (previously allocated but now deselected stores)
+                    const storesToRemove = previousStoreIds.filter(storeId => !newStoreIds.includes(storeId));
 
-            if (storesToAdd.length > 0) {
-                storeAllocations.push({
-                    consultantId: scId,
-                    storeIds: storesToAdd
-                });
-            }
+                    if (storesToAdd.length > 0) {
+                        storeAllocations.push({
+                            consultantId: scId,
+                            storeIds: storesToAdd
+                        });
+                    }
 
-            if (storesToRemove.length > 0) {
-                removedStores.push({
-                    consultantId: scId,
-                    storeIds: storesToRemove
-                });
-            }
-        }
-    });
+                    if (storesToRemove.length > 0) {
+                        removedStores.push({
+                            consultantId: scId,
+                            storeIds: storesToRemove
+                        });
+                    }
+                }
+            });
 
     if (storeAllocations.length === 0 && removedStores.length === 0) {
+        spinner.style.display = 'none';
         alert('No changes detected to save.');
         return;
     }
@@ -1073,6 +1076,7 @@ function saveConsultantStores(overwrite = false) {
     })
         .then(response => response.json())
         .then(data => {
+            spinner.style.display = 'none';
             if (data.status === 'warning') {
                 const warnings = data.warnings;
                 const confirmationMessages = warnings.map(warning =>
@@ -1091,6 +1095,7 @@ function saveConsultantStores(overwrite = false) {
             }
         })
         .catch(error => {
+            spinner.style.display = 'none';
             console.error('Error during fetch:', error);
             alert('Failed to save the store allocations. Please try again.');
         });
