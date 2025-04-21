@@ -72,16 +72,14 @@ class SCAllocationSerializer(serializers.ModelSerializer):
         if not hasattr(self, '_allocation_cache'):
             self._allocation_cache = {}
 
-        # Key нь sc_name байх
-        key = obj.sc_name.strip().lower() if obj.sc_name else ""
+        key = obj.consultant_id
 
         if key not in self._allocation_cache:
             self._allocation_cache[key] = Allocation.objects.filter(
-                store_cons__iexact=obj.sc_name.strip()  # store_cons vs sc_name
+                consultant_id=key
             ).select_related('area').first()
 
         return self._allocation_cache[key]
-
     def get_year(self, obj):
         allocation = self.get_allocation(obj)
         return allocation.year if allocation else None
