@@ -170,8 +170,23 @@ class Consultants(m.Model):
         return self.sc_name
 
     def save(self, *args, **kwargs):
-        if not self.pk and not self.created_by:
+        is_new = self.pk is None
+        if not self.pk:
             self.created_by = self.modified_by
+
+        # Get original value from database
+        if self.pk:
+            try:
+                original = Consultants.objects.get(pk=self.pk)
+                if original.is_active and not self.is_active:
+                    # Consultant is being deactivated — remove allocations
+                    # SC_Store_Allocation.objects.filter(consultant=self).delete()
+                    SC_Store_AllocationTemp.objects.filter(consultant=self).delete()
+                    # Allocation.objects.filter(consultant=self).delete()
+                    AllocationTemp.objects.filter(consultant=self).delete()
+            except Consultants.DoesNotExist:
+                pass
+
         super(Consultants, self).save(*args, **kwargs)
 
     class Meta:
