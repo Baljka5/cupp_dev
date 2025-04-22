@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from cupp.point.models import StorePlanning, City, District
 from cupp.store_trainer.models import StoreTrainer
-from cupp.store_consultant.models import StoreConsultant, Consultants, Area, SC_Store_Allocation, Allocation
+from cupp.store_consultant.models import StoreConsultant, Consultants, Area, SC_Store_AllocationTemp, AllocationTemp
 
 
 class StorePlanningSerializer(serializers.ModelSerializer):
@@ -52,7 +52,7 @@ class SCAllocationSerializer(serializers.ModelSerializer):
     area_manager_email = serializers.SerializerMethodField()
 
     class Meta:
-        model = SC_Store_Allocation
+        model = SC_Store_AllocationTemp
         fields = [
             'id',
             'store_name',
@@ -75,7 +75,7 @@ class SCAllocationSerializer(serializers.ModelSerializer):
         key = obj.consultant_id
 
         if key not in self._allocation_cache:
-            self._allocation_cache[key] = Allocation.objects.filter(
+            self._allocation_cache[key] = AllocationTemp.objects.filter(
                 consultant_id=key
             ).select_related('area').first()
 

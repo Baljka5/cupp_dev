@@ -5,7 +5,7 @@ from rest_framework import status
 from cupp.point.models import StorePlanning, City, District
 from cupp.store_trainer.models import StoreTrainer
 from cupp.store_consultant.models import (
-    StoreConsultant, SC_Store_Allocation, Consultants, Allocation, Area
+    StoreConsultant, SC_Store_AllocationTemp, Consultants, AllocationTemp, Area
 )
 from .serializers import (
     StorePlanningSerializer, StoreTrainerSerializer, StoreConsultantSerializer,
@@ -35,7 +35,7 @@ class StoreListCombinedInfoView(APIView):
             entry['store_consultant'] = StoreConsultantSerializer(consultant).data if consultant else None
 
             # 4. SC_Store_Allocation
-            sc_allocations = SC_Store_Allocation.objects.filter(store__store_id=store_id)
+            sc_allocations = SC_Store_AllocationTemp.objects.filter(store__store_id=store_id)
             entry['sc_store_allocations'] = SCAllocationSerializer(sc_allocations, many=True).data
 
             data.append(entry)
@@ -60,7 +60,7 @@ class StoreCombinedInfoView(APIView):
         data['store_consultant'] = StoreConsultantSerializer(consultant).data if consultant else None
 
         # 4. SC_Store_Allocation
-        sc_allocations = SC_Store_Allocation.objects.filter(store__store_id=store_id)
+        sc_allocations = SC_Store_AllocationTemp.objects.filter(store__store_id=store_id)
         data['sc_store_allocations'] = SCAllocationSerializer(sc_allocations, many=True).data
 
         # 5. Consultants (from allocations)
@@ -69,7 +69,7 @@ class StoreCombinedInfoView(APIView):
         # data['consultants'] = ConsultantSerializer(consultants, many=True).data
 
         # 6. Allocation (from consultant_id)
-        allocations = Allocation.objects.filter(consultant_id__in=consultant_ids)
+        allocations = AllocationTemp.objects.filter(consultant_id__in=consultant_ids)
         # data['allocations'] = [
         #     {
         #         "id": alloc.id,
