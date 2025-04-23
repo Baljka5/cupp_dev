@@ -28,7 +28,7 @@ class StoreConsultantSerializer(serializers.ModelSerializer):
             'store_id', 'store_name', 'team_mgr', 'sc_name', 'sm_num', 'am_num',
             'tt_type', 'wday_hours', 'wend_hours', 'alc_reason', 'ciga_reason', 'sm_name', 'sm_phone', 'created_date',
             'out_city_flow', 'in_out_flow', 'near_bus_station', 'bus_station_range',
-            'university_range', 'high_school_range'
+            'university_range', 'high_school_range', 'use_yn', 'store_type', 'store_email', 'ost_dt'
         ]
 
 

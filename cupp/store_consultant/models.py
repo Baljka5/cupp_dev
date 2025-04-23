@@ -88,6 +88,8 @@ class StoreConsultant(m.Model):
     use_yn = m.BooleanField('Use yn', blank=True, null=True, default=1)
     store_email = m.EmailField('Store email', blank=True, null=True)
 
+    ost_dt = m.CharField('Date', blank=True, null=True, max_length=10)
+
     created_date = m.DateTimeField('Created date', auto_now_add=True, null=True)
     modified_date = m.DateTimeField('Modified date', auto_now=True, null=True)
     created_by = m.ForeignKey(User, verbose_name='Created by', related_name='store_consultant_created',
