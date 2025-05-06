@@ -316,9 +316,14 @@ def get_store_location(request):
         lat = float(store.lat)
         lon = float(store.lon)
 
-        store_cluster = StorePlanning.objects.filter(
-            store_id=store_id
-        ).values_list('cluster', flat=True).first() or ''
+        store_planning = StorePlanning.objects.filter(store_id=store_id).first()
+        store_cluster = store_planning.cluster if store_planning else ''
+
+        prov_name = store_planning.addr1_prov.city_name if store_planning and store_planning.addr1_prov else ''
+        dist_name = store_planning.addr2_dist.district_name if store_planning and store_planning.addr2_dist else ''
+        address_det = store_planning.address_det if store_planning else ''
+        address_simple = store_planning.address_simple if store_planning else ''
+        addr3_khr = store_planning.addr3_khr if store_planning else ''
 
         radius = 0.01  # ~1000 meters
 
@@ -363,7 +368,6 @@ def get_store_location(request):
                 traceback.print_exc()
                 continue
 
-        # Sort and limit each group to 5
         nearby_200.sort(key=lambda x: x['nearby_store_distance_m'])
         nearby_500.sort(key=lambda x: x['nearby_store_distance_m'])
         nearby_1000.sort(key=lambda x: x['nearby_store_distance_m'])
@@ -385,7 +389,12 @@ def get_store_location(request):
                             'nearby_cluster': branch['cluster'],
                             'nearby_store_distance_m': branch['nearby_store_distance_m'],
                             'distance_500m': None,
-                            'distance_1000m': None
+                            'distance_1000m': None,
+                            'address_det': address_det,
+                            'address_simple': address_simple,
+                            'addr3_khr': addr3_khr,
+                            'prov_name': prov_name,
+                            'dist_name': dist_name,
                         }
                     )
 
@@ -401,7 +410,12 @@ def get_store_location(request):
                             'nearby_cluster': branch['cluster'],
                             'nearby_store_distance_m': None,
                             'distance_500m': branch['nearby_store_distance_m'],
-                            'distance_1000m': None
+                            'distance_1000m': None,
+                            'address_det': address_det,
+                            'address_simple': address_simple,
+                            'addr3_khr': addr3_khr,
+                            'prov_name': prov_name,
+                            'dist_name': dist_name,
                         }
                     )
 
@@ -417,7 +431,12 @@ def get_store_location(request):
                             'nearby_cluster': branch['cluster'],
                             'nearby_store_distance_m': None,
                             'distance_500m': None,
-                            'distance_1000m': branch['nearby_store_distance_m']
+                            'distance_1000m': branch['nearby_store_distance_m'],
+                            'address_det': address_det,
+                            'address_simple': address_simple,
+                            'addr3_khr': addr3_khr,
+                            'prov_name': prov_name,
+                            'dist_name': dist_name,
                         }
                     )
 

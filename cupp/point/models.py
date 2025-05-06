@@ -301,6 +301,12 @@ class NearbyStore(m.Model):
     distance_500m = m.FloatField('500 Distance to nearby store (m)', null=True, blank=True)
     distance_1000m = m.FloatField('1000 Distance to nearby store (m)', null=True, blank=True)
 
+    address_det = m.CharField('Address detail', max_length=500, blank=True, null=True)
+    address_simple = m.CharField('Address simple', max_length=255, blank=True, null=True)
+    addr3_khr = m.CharField('Khoroo', max_length=50, blank=True, null=True)
+    prov_name = m.CharField('Province (City) name', max_length=50, blank=True, null=True)
+    dist_name = m.CharField('District name', max_length=50, blank=True, null=True)
+
     class Meta:
         unique_together = ('store_id', 'nearby_store_id')  # Prevent duplicate entries
 
