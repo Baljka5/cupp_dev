@@ -309,12 +309,20 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
 
 def get_store_location(request):
+    from django.db import transaction
+
+    UB_CENTER_LAT = 47.9185
+    UB_CENTER_LON = 106.9176
+
     store_id = request.GET.get('store_id', '').strip()
 
     try:
         store = Point.objects.get(store_id=store_id, type='CU')
         lat = float(store.lat)
         lon = float(store.lon)
+
+        # ✅ УБ төвөөс тухайн store_id салбар хүртэлх зай
+        origin_ub_distance = haversine_distance(UB_CENTER_LAT, UB_CENTER_LON, lat, lon)
 
         store_planning = StorePlanning.objects.filter(store_id=store_id).first()
         store_cluster = store_planning.cluster if store_planning else ''
@@ -342,6 +350,7 @@ def get_store_location(request):
                 b_lat = float(branch.lat)
                 b_lon = float(branch.lon)
                 dist = haversine_distance(lat, lon, b_lat, b_lon)
+                ub_distance = haversine_distance(UB_CENTER_LAT, UB_CENTER_LON, b_lat, b_lon)
 
                 cluster = StorePlanning.objects.filter(
                     store_id=branch.store_id
@@ -351,6 +360,7 @@ def get_store_location(request):
                     'store_id': branch.store_id,
                     'store_name': branch.store_name or '',
                     'nearby_store_distance_m': round(dist, 2),
+                    'nearby_store_ub_center_distance_m': round(ub_distance, 2),
                     'cluster': cluster,
                     'lat': b_lat,
                     'lon': b_lon
@@ -377,73 +387,42 @@ def get_store_location(request):
         nearby_1000 = nearby_1000[:5]
 
         with transaction.atomic():
-            for branch in nearby_200:
-                if branch['store_name']:
-                    NearbyStore.objects.update_or_create(
-                        store_id=store.store_id,
-                        nearby_store_id=branch['store_id'],
-                        defaults={
-                            'store_name': store.store_name or '',
-                            'cluster': store_cluster,
-                            'nearby_store_name': branch['store_name'],
-                            'nearby_cluster': branch['cluster'],
-                            'nearby_store_distance_m': branch['nearby_store_distance_m'],
-                            'distance_500m': None,
-                            'distance_1000m': None,
-                            'address_det': address_det,
-                            'address_simple': address_simple,
-                            'addr3_khr': addr3_khr,
-                            'prov_name': prov_name,
-                            'dist_name': dist_name,
-                        }
-                    )
-
-            for branch in nearby_500:
-                if branch['store_name']:
-                    NearbyStore.objects.update_or_create(
-                        store_id=store.store_id,
-                        nearby_store_id=branch['store_id'],
-                        defaults={
-                            'store_name': store.store_name or '',
-                            'cluster': store_cluster,
-                            'nearby_store_name': branch['store_name'],
-                            'nearby_cluster': branch['cluster'],
-                            'nearby_store_distance_m': None,
-                            'distance_500m': branch['nearby_store_distance_m'],
-                            'distance_1000m': None,
-                            'address_det': address_det,
-                            'address_simple': address_simple,
-                            'addr3_khr': addr3_khr,
-                            'prov_name': prov_name,
-                            'dist_name': dist_name,
-                        }
-                    )
-
-            for branch in nearby_1000:
-                if branch['store_name']:
-                    NearbyStore.objects.update_or_create(
-                        store_id=store.store_id,
-                        nearby_store_id=branch['store_id'],
-                        defaults={
-                            'store_name': store.store_name or '',
-                            'cluster': store_cluster,
-                            'nearby_store_name': branch['store_name'],
-                            'nearby_cluster': branch['cluster'],
-                            'nearby_store_distance_m': None,
-                            'distance_500m': None,
-                            'distance_1000m': branch['nearby_store_distance_m'],
-                            'address_det': address_det,
-                            'address_simple': address_simple,
-                            'addr3_khr': addr3_khr,
-                            'prov_name': prov_name,
-                            'dist_name': dist_name,
-                        }
-                    )
+            for group, dist_field in [
+                (nearby_200, 'nearby_store_distance_m'),
+                (nearby_500, 'distance_500m'),
+                (nearby_1000, 'distance_1000m')
+            ]:
+                for branch in group:
+                    if branch['store_name']:
+                        NearbyStore.objects.update_or_create(
+                            store_id=store.store_id,
+                            nearby_store_id=branch['store_id'],
+                            defaults={
+                                'store_name': store.store_name or '',
+                                'cluster': store_cluster,
+                                'nearby_store_name': branch['store_name'],
+                                'nearby_cluster': branch['cluster'],
+                                'nearby_store_distance_m': branch[
+                                    'nearby_store_distance_m'] if dist_field == 'nearby_store_distance_m' else None,
+                                'distance_500m': branch[
+                                    'nearby_store_distance_m'] if dist_field == 'distance_500m' else None,
+                                'distance_1000m': branch[
+                                    'nearby_store_distance_m'] if dist_field == 'distance_1000m' else None,
+                                'nearby_store_ub_center_distance_m': branch['nearby_store_ub_center_distance_m'],
+                                'store_ub_center_distance_m': round(origin_ub_distance, 2),
+                                'address_det': address_det,
+                                'address_simple': address_simple,
+                                'addr3_khr': addr3_khr,
+                                'prov_name': prov_name,
+                                'dist_name': dist_name,
+                            }
+                        )
 
         return JsonResponse({
             'lat': store.lat,
             'lon': store.lon,
-            'nearby_branches': nearby_200 + nearby_500 + nearby_1000
+            'nearby_branches': nearby_200 + nearby_500 + nearby_1000,
+            'origin_ub_distance': round(origin_ub_distance, 2)
         })
 
     except Point.DoesNotExist:
