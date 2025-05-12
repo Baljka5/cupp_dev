@@ -74,7 +74,7 @@ INSTALLED_APPS = [
     'cupp.zipmanager',
     'cupp.bi_embed_api',
     'cupp.store_consultant.apps.StoreConsultantConfig',
-    'cupp.bi_report'
+#     'cupp.bi_report'
 ]
 
 CUSTOM_API_KEY = 'f9c39b28-7a4b-4c33-90a8-5eec8ac58231'
