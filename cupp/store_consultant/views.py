@@ -163,16 +163,15 @@ def update(request, id):
 #
 #     return render(request, 'store_consultant/edit.html', {'form': form, 'model': model})
 
+
 @login_required
 def scIndex(request):
     current_date = datetime.datetime.now()
     current_year = current_date.year
     current_month = current_date.month
 
-    next_three_years = [current_year]
-    # next_three_years = [current_year + i for i in range(3)]
+    next_three_years = [current_year]  # Хэрвээ цаашид нэмэх бол: + i for i in range(3)
 
-    # Define months
     months = [
         {'value': 'JAN', 'name': 'January'},
         {'value': 'FEB', 'name': 'February'},
@@ -189,21 +188,38 @@ def scIndex(request):
     ]
 
     current_month_obj = months[current_month - 1]
-    remaining_months = [current_month_obj]
-    # remaining_months = [month for month in months if months.index(month) + 1 >= current_month]
-    # Fetch the last saved allocation's year and month
+    remaining_months = [current_month_obj]  # Хэрвээ 3 сарыг харуулах бол filter хийж болно
+
+    # Хамгийн сүүлийн хуваарилалт
     last_allocation = AllocationTemp.objects.order_by('-created_date').first()
     last_year = last_allocation.year if last_allocation else current_year
     last_month = last_allocation.month if last_allocation else current_month_obj['value']
-    # last_month = last_allocation.month if last_allocation else 'jan'
-    # Fetch areas, consultants, and store consultants with use_yn = 1
-    # areas = Area.objects.all()
+
+    # Active areas
     areas = Area.objects.filter(is_active=True)
+
+    # SC тоо, Store тоог тус бүр area-р нь тоолох
+    area_store_counts = {}
+    for area in areas:
+        scs = Consultants.objects.filter(allocationtemp__area=area).distinct()
+        sc_count = scs.count()
+        store_count = SC_Store_AllocationTemp.objects.filter(
+            consultant__in=scs
+        ).values('store_id').distinct().count()  # Давхардалгүй store тоолох
+        area_store_counts[area.id] = {
+            'sc_count': sc_count,
+            'store_count': store_count
+        }
+
+    # SC бүрийн store тоог тоолох
     consultants = Consultants.objects.filter(is_active=True).annotate(
         store_count=Count('store_allocations_temp')
     )
-    store_consultants = StoreConsultant.objects.filter(use_yn=1)  # Only include active stores
+
+    # store_id, store_name-уудыг авах
+    store_consultants = StoreConsultant.objects.filter(use_yn=1)
     store_id_and_name = store_consultants.values('store_id', 'store_name')
+
     context = {
         'areas': areas,
         'consultants': consultants,
@@ -213,7 +229,9 @@ def scIndex(request):
         'months': remaining_months,
         'last_year': last_year,
         'last_month': last_month,
+        'area_store_counts': area_store_counts
     }
+
     return render(request, 'store_consultant/index.html', context)
 
 

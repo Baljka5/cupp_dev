@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load event_tags %}
 {% load widget_tweaks %}
+{% load custom_tags %}
 
 {% block header %}
 {% endblock %}
@@ -31,8 +32,9 @@
             <input type="text" id="search-store-id" placeholder="Enter Store ID..." style="padding: 5px; border-radius: 4px;">
             <button onclick="searchStore()" style="padding: 6px 12px; border: none; border-radius: 5px; background-color: #673ab7; color: white;">Search</button>
         </div>
-        <div id="search-result" style="margin-top: 10px; padding: 10px; background-color: #e2e2e2; border-radius: 8px;"></div>
-
+<div style="display: flex; align-items: center; justify-content: center; margin-top: 10px;">
+    <div id="search-result" style="display: none; padding: 10px; background-color: #e2e2e2; border-radius: 8px; min-width: 400px; text-align: center;"></div>
+</div>
 
         </div>
 
@@ -81,7 +83,16 @@
                                     {#            </ul>#}
                                     {#        </div>#}
                                 </div>
-                                {{ area.team_no }}<span class="sc-count">{{ storeCount }}</span>
+{% with counts=area_store_counts|dictkey:area.id %}
+    {{ area.team_no }}
+    <span class="sc-count" data-store-count="{{ counts.store_count|default:0 }}">
+        {% if counts %}
+            {{ counts.sc_count }} / {{ counts.store_count }}
+        {% else %}
+            0 / 0
+        {% endif %}
+    </span>
+{% endwith %}
                             </div>
 
                             <!-- Show the Team Manager's name on hover -->
@@ -711,6 +722,7 @@
         }
 
 
+
     </style>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet"/>
@@ -736,6 +748,7 @@
         .then(response => response.json())
         .then(data => {
             const resultContainer = document.getElementById('search-result');
+            resultContainer.style.display = 'block';
             if (data.status === 'success') {
     const result = data.data;
     let teamsHtml = '';
@@ -747,15 +760,11 @@
         teamsHtml += '</ul></li>';
     }
 
-    resultContainer.innerHTML = `
-        <strong>Search Result:</strong><br>
-        <ul>
-            <li><strong>Store No:</strong> ${result.store_no}</li>
-            <li><strong>Store Name:</strong> ${result.store_name}</li>
-            <li><strong>SC Name:</strong> ${result.sc_name}</li>
-            ${teamsHtml}
-        </ul>
-    `;
+resultContainer.innerHTML = `
+
+    <strong>SC Name:</strong> ${result.sc_name}
+    <strong>Team:</strong> ${result.teams.map(team => `${team.team_no} - ${team.team_man_name || 'N/A'}`).join(', ')}
+`;
 } else {
                 resultContainer.innerHTML = `<span style="color:red;">${data.message}</span>`;
             }
@@ -765,7 +774,11 @@
             document.getElementById('search-result').innerHTML = `<span style="color:red;">Error occurred while searching.</span>`;
         });
 }
-
+    document.getElementById('search-store-id').addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            searchStore();
+        }
+    });
 
         function showTeamDetails(teamId, teamNo, event) {
             event.stopPropagation();
@@ -1145,12 +1158,16 @@
         }
 
 
-        function updateScCounts() {
-            document.querySelectorAll('.team').forEach(team => {
-                const count = team.querySelectorAll('.sc').length;
-                team.querySelector('.sc-count').textContent = count;
-            });
+function updateScCounts() {
+    document.querySelectorAll('.team').forEach(team => {
+        const scCount = team.querySelectorAll('.sc').length;
+        const scCountEl = team.querySelector('.sc-count');
+        const storeCount = scCountEl?.dataset.storeCount || 0;
+        if (scCountEl) {
+            scCountEl.textContent = `${scCount} / ${storeCount}`;
         }
+    });
+}
 
 
         function clearSCAllocations() {
