@@ -11,9 +11,15 @@ from .serializers import (
     StorePlanningSerializer, StoreTrainerSerializer, StoreConsultantSerializer,
     SCAllocationSerializer, CitySerializer, DistrictSerializer
 )
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.authentication import SessionAuthentication
+from .authentication import APIKeyAuthentication
 
 
 class StoreListCombinedInfoView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
     def get(self, request):
         data = []
 
@@ -44,6 +50,8 @@ class StoreListCombinedInfoView(APIView):
 
 
 class StoreCombinedInfoView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
     def get(self, request, store_id):
         data = {}
 
@@ -91,7 +99,10 @@ class StoreCombinedInfoView(APIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
+
 class StoreAddressInfoView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
     def get(self, request):
         cities = City.objects.all()
         districts = District.objects.select_related('city').all()
