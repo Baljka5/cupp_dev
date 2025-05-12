@@ -170,7 +170,7 @@ def scIndex(request):
     current_year = current_date.year
     current_month = current_date.month
 
-    next_three_years = [current_year]  # Хэрвээ цаашид нэмэх бол: + i for i in range(3)
+    next_three_years = [current_year]
 
     months = [
         {'value': 'JAN', 'name': 'January'},
@@ -188,15 +188,25 @@ def scIndex(request):
     ]
 
     current_month_obj = months[current_month - 1]
-    remaining_months = [current_month_obj]  # Хэрвээ 3 сарыг харуулах бол filter хийж болно
+    remaining_months = [current_month_obj]
 
     # Хамгийн сүүлийн хуваарилалт
     last_allocation = AllocationTemp.objects.order_by('-created_date').first()
     last_year = last_allocation.year if last_allocation else current_year
     last_month = last_allocation.month if last_allocation else current_month_obj['value']
 
-    # Active areas
-    areas = Area.objects.filter(is_active=True)
+    # 🧠 team_no -> "TEAM 1", "TEAM 2" гэх мэт CharField гэж үзээд тоон дарааллаар эрэмбэлнэ
+    def extract_team_number(team_str):
+        try:
+            return int(team_str.strip().replace("TEAM", "").strip())
+        except:
+            return 9999  # fallback
+
+    # Active areas sorted by team_no number
+    areas = sorted(
+        Area.objects.filter(is_active=True),
+        key=lambda area: extract_team_number(area.team_no)
+    )
 
     # SC тоо, Store тоог тус бүр area-р нь тоолох
     area_store_counts = {}
@@ -205,7 +215,7 @@ def scIndex(request):
         sc_count = scs.count()
         store_count = SC_Store_AllocationTemp.objects.filter(
             consultant__in=scs
-        ).values('store_id').distinct().count()  # Давхардалгүй store тоолох
+        ).values('store_id').distinct().count()
         area_store_counts[area.id] = {
             'sc_count': sc_count,
             'store_count': store_count
