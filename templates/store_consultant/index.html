@@ -28,7 +28,7 @@
             </div>
 
 <div class="search-wrapper">
-    <label for="search-store-id">Search by Store ID:</label>
+
     <input type="text" id="search-store-id" placeholder="Enter Store ID...">
     <button onclick="searchStore()">Search</button>
     <div id="search-result"></div>
@@ -168,6 +168,8 @@
     </div>
 </div>
 
+
+
 <style>
     @keyframes spin {
         0% { transform: rotate(0deg); }
@@ -175,6 +177,15 @@
     }
 </style>
     </div>
+
+    <div id="pushModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closePushModal()">&times;</span>
+        <h3>PUSH Идэвхтэй</h3>
+        <p>Өнөөдөр хуваарилалт PUSH хийх боломжтой өдөр байна.</p>
+        <button onclick="closePushModal()">Хаах</button>
+    </div>
+</div>
     <style>
         .team-header-container {
     position: relative;
@@ -751,6 +762,57 @@
     display: none;
 
 }
+.modal {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 400px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .modal-content h3 {
+        margin-top: 0;
+        color: #4CAF50;
+    }
+
+    .modal-content button {
+        margin-top: 15px;
+        padding: 8px 20px;
+        background-color: #673ab7;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        cursor: pointer;
+    }
+
+    .close-modal:hover {
+        color: red;
+    }
 
 
 
@@ -793,8 +855,8 @@
 
 resultContainer.innerHTML = `
 
-    <strong>SC Name:</strong> ${result.sc_name}
-    <strong>Team:</strong> ${result.teams.map(team => `${team.team_no} - ${team.team_man_name || 'N/A'}`).join(', ')}
+     ${result.sc_name} |
+    ${result.teams.map(team => `${team.team_no} - ${team.team_man_name || 'N/A'}`).join(', ')}
 `;
 } else {
                 resultContainer.innerHTML = `<span style="color:red;">${data.message}</span>`;
@@ -1260,18 +1322,62 @@ function updateScCounts() {
                 $(select).select2();
             });
         }
-function pushData() {
-    const today = new Date();
-    const day = today.getDate();
 
-    // Allow button click only on the 1st and 15th of the month
-    if (day !== 1 && day !== 5) {
-        alert('The PUSH button can only be used on the 1st and 15th of each month.');
-        return; // Stop further execution
+function isValidPushDate() {
+    const today = new Date();
+    const targetDates = [1, 15];
+
+    // Ажлын өдөр мөн эсэхийг шалгах (Mon–Fri)
+    const isWorkingDay = (date) => {
+        const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+        return day >= 1 && day <= 5;
+    };
+
+    // Тухайн сарын 1, 15-ны өдрүүдийн ойр 1 дэх өдрүүдийг олно
+    const getClosestMonday = (targetDay) => {
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+
+        const targetDate = new Date(currentYear, currentMonth, targetDay);
+
+        let closestMonday = null;
+        let minDiff = Infinity;
+
+        for (let offset = -7; offset <= 7; offset++) {
+            const candidate = new Date(targetDate);
+            candidate.setDate(candidate.getDate() + offset);
+
+            if (candidate.getDay() === 1 && isWorkingDay(candidate)) {
+                const diff = Math.abs(today - candidate);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestMonday = candidate;
+                }
+            }
+        }
+
+        return closestMonday;
+    };
+
+    const closestMonday1 = getClosestMonday(1);
+    const closestMonday15 = getClosestMonday(15);
+
+    const todayStr = today.toDateString();
+
+    return (
+        (closestMonday1 && todayStr === closestMonday1.toDateString()) ||
+        (closestMonday15 && todayStr === closestMonday15.toDateString())
+    );
+}
+
+function pushData() {
+    if (!isValidPushDate()) {
+        alert('The PUSH button is only active on the nearest Monday to the 1st or 15th working day.');
+        return;
     }
 
     const spinner = document.getElementById('loading-spinner');
-    spinner.style.display = 'flex'; // Show the loading spinner
+    spinner.style.display = 'flex';
 
     fetch('/push-data/', {
         method: 'POST',
@@ -1282,33 +1388,53 @@ function pushData() {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.status === 'success') {
-            alert('Data pushed successfully!');
-        } else {
-            alert('Failed to push data.');
-        }
-        spinner.style.display = 'none'; // Hide the spinner after processing
+        alert(data.status === 'success' ? 'Data pushed successfully!' : 'Failed to push data.');
+        spinner.style.display = 'none';
     })
     .catch(error => {
         console.error('Error:', error);
         alert('An error occurred while trying to push data.');
-        spinner.style.display = 'none'; // Hide the spinner if there's an error
+        spinner.style.display = 'none';
     });
 }
 
+
 document.addEventListener('DOMContentLoaded', function () {
-    const today = new Date();
-    const day = today.getDate();
     const pushButton = document.getElementById('pushBtn');
 
-    // Add a tooltip for non-eligible days
-
-        if (day !== 1 && day !== 5) {
-        pushButton.title = "The PUSH button is only available on the 1st and 15th of each month.";
+    if (!isValidPushDate()) {
+        pushButton.disabled = true;
+        pushButton.title = "PUSH is only enabled on the nearest Monday of 1st or 15th (working day).";
+    } else {
+        pushButton.disabled = false;
+        pushButton.title = "Ready to push data";
     }
-    {#if (day !== 1 && day !== 6 && day !== 31) {#}
-    {#    pushButton.title = "The PUSH button is only available on the 1st and 15th of each month.";}#}
 });
+
+        function closePushModal() {
+    document.getElementById('pushModal').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const pushButton = document.getElementById('pushBtn');
+
+    if (isValidPushDate()) {
+        pushButton.disabled = false;
+        pushButton.title = "Ready to push data";
+
+        // Modal харуулах
+        const pushModal = document.getElementById('pushModal');
+        if (pushModal) {
+            pushModal.style.display = 'flex';
+        }
+
+    } else {
+        pushButton.disabled = true;
+        pushButton.title = "PUSH is only enabled on the nearest Monday of 1st or 15th (working day).";
+    }
+});
+
+
 
 
         $(document).ready(function () {
