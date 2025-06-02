@@ -1325,7 +1325,7 @@ function updateScCounts() {
 
 function isValidPushDate() {
     const today = new Date();
-    const targetDates = [1, 22];
+    const targetDates = [1, 2];
 
     // Ажлын өдөр мөн эсэхийг шалгах (Mon–Fri)
     const isWorkingDay = (date) => {
@@ -1347,7 +1347,7 @@ function isValidPushDate() {
             const candidate = new Date(targetDate);
             candidate.setDate(candidate.getDate() + offset);
 
-            if (candidate.getDay() === 2 && isWorkingDay(candidate)) {
+            if (candidate.getDay() === 1 && isWorkingDay(candidate)) {
                 const diff = Math.abs(today - candidate);
                 if (diff < minDiff) {
                     minDiff = diff;
