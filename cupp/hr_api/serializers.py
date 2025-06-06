@@ -9,7 +9,7 @@ class StorePlanningSerializer(serializers.ModelSerializer):
     class Meta:
         model = StorePlanning
         fields = [
-            'grade', 'address', 'cluster', 'addr1_prov', 'addr2_dist', 'addr3_khr', 'address', 'near_school',
+            'grade', 'address_det', 'cluster', 'addr1_prov', 'addr2_dist', 'addr3_khr', 'address', 'near_school',
             'address_simple', 'lat', 'lon'
         ]
 
