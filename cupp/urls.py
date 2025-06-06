@@ -51,7 +51,7 @@ urlpatterns = [
     path('api/store-info/', StoreListCombinedInfoView.as_view()),
     path('api/store-info/<str:store_id>/', StoreCombinedInfoView.as_view(), name='store-combined-info'),
     path('api/store-info/address', StoreAddressInfoView.as_view(), name='store-address-info'),
-    path('api/emp-info', VeritechGeneralView.as_view(), name='emp-info'),
+    path('api/emp-info/', VeritechGeneralView.as_view()),
 
     path('list/', zip_list, name='zip_list'),
     path('upload/', upload_zip, name='upload_zip'),
