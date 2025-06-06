@@ -1,15 +1,18 @@
+from numpy import record
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from sentry_sdk.serializer import serialize
 
 from cupp.point.models import StorePlanning, City, District
+from cupp.veritech_api.models import General
 from cupp.store_trainer.models import StoreTrainer
 from cupp.store_consultant.models import (
     StoreConsultant, SC_Store_AllocationTemp, Consultants, AllocationTemp, Area
 )
 from .serializers import (
     StorePlanningSerializer, StoreTrainerSerializer, StoreConsultantSerializer,
-    SCAllocationSerializer, CitySerializer, DistrictSerializer
+    SCAllocationSerializer, CitySerializer, DistrictSerializer, VeritechGeneralSerializer
 )
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.authentication import SessionAuthentication
@@ -52,6 +55,7 @@ class StoreListCombinedInfoView(APIView):
 class StoreCombinedInfoView(APIView):
     authentication_classes = [APIKeyAuthentication]
     permission_classes = []
+
     def get(self, request, store_id):
         data = {}
 
@@ -103,6 +107,7 @@ class StoreCombinedInfoView(APIView):
 class StoreAddressInfoView(APIView):
     authentication_classes = [APIKeyAuthentication]
     permission_classes = []
+
     def get(self, request):
         cities = City.objects.all()
         districts = District.objects.select_related('city').all()
@@ -113,3 +118,13 @@ class StoreAddressInfoView(APIView):
         }
 
         return Response(data, status=status.HTTP_200_OK)
+
+
+class VeritechGeneralView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def get(self, request):
+        records = General.objects.all()
+        serializer = VeritechGeneralSerializer(records, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

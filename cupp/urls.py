@@ -38,7 +38,8 @@ from cupp.dispute import views as leg_views
 from cupp.point.views import get_store_location
 from cupp.zipmanager.views import upload_zip, zip_list, download_latest_zip, downloaded_devices
 from cupp.bi_embed_api.views import report_view, login, callback
-from cupp.hr_api.views import StoreCombinedInfoView, StoreListCombinedInfoView, StoreAddressInfoView
+from cupp.hr_api.views import StoreCombinedInfoView, StoreListCombinedInfoView, StoreAddressInfoView, \
+    VeritechGeneralView
 
 # from cupp.powerBI_api.views import fetch_powerbi_data
 
@@ -50,6 +51,7 @@ urlpatterns = [
     path('api/store-info/', StoreListCombinedInfoView.as_view()),
     path('api/store-info/<str:store_id>/', StoreCombinedInfoView.as_view(), name='store-combined-info'),
     path('api/store-info/address', StoreAddressInfoView.as_view(), name='store-address-info'),
+    path('api/emp-info', VeritechGeneralView.as_view(), name='emp-info'),
 
     path('list/', zip_list, name='zip_list'),
     path('upload/', upload_zip, name='upload_zip'),

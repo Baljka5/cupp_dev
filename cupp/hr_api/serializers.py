@@ -2,6 +2,7 @@ from rest_framework import serializers
 from cupp.point.models import StorePlanning, City, District
 from cupp.store_trainer.models import StoreTrainer
 from cupp.store_consultant.models import StoreConsultant, Consultants, Area, SC_Store_AllocationTemp, AllocationTemp
+from cupp.veritech_api.models import General
 
 
 class StorePlanningSerializer(serializers.ModelSerializer):
@@ -80,6 +81,7 @@ class SCAllocationSerializer(serializers.ModelSerializer):
             ).select_related('area').first()
 
         return self._allocation_cache[key]
+
     def get_year(self, obj):
         allocation = self.get_allocation(obj)
         return allocation.year if allocation else None
@@ -118,3 +120,9 @@ class DistrictSerializer(serializers.ModelSerializer):
     class Meta:
         model = District
         fields = ['id', 'district_name', 'city']
+
+
+class VeritechGeneralSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = General
+        fields = ['employeecode', 'gender', 'firstname', 'lastname', 'postaddress']
