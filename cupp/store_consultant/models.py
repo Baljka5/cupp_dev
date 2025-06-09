@@ -89,6 +89,7 @@ class StoreConsultant(m.Model):
     store_email = m.EmailField('Store email', blank=True, null=True)
 
     ost_dt = m.CharField('Date', blank=True, null=True, max_length=10)
+    is_locked = m.BooleanField('Is Locked', default=False, null=True)
 
     created_date = m.DateTimeField('Created date', auto_now_add=True, null=True)
     modified_date = m.DateTimeField('Modified date', auto_now=True, null=True)
@@ -337,3 +338,11 @@ class HisAllocation(m.Model):
         db_table = 'his_allocation'
         verbose_name = 'Historical Allocation'
         verbose_name_plural = 'Historical Allocations'
+
+
+class PushStatus(m.Model):
+    is_enabled = m.BooleanField(default=False)
+    updated_at = m.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"PUSH Enabled: {self.is_enabled} - {self.updated_at}"

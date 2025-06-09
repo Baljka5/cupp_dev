@@ -7,7 +7,7 @@ from django.core.validators import RegexValidator
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.db import models as m, transaction
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group, Permission
 from django.conf import settings
 from uuid import uuid4
 from cupp.constants import CHOICES_POINT_TYPE, CHOICES_POINT_GRADE
@@ -314,3 +314,18 @@ class NearbyStore(m.Model):
 
     def __str__(self):
         return f"{self.store_name} ({self.store_id}) -> {self.nearby_store_name} ({self.nearby_store_id})"
+
+
+class UserPermission(m.Model):
+    user = m.ForeignKey(User, on_delete=m.CASCADE)
+    permission = m.ForeignKey(Permission, on_delete=m.CASCADE)
+    group = m.ForeignKey(Group, null=True, blank=True, on_delete=m.SET_NULL)
+    codename = m.CharField(max_length=100, null=True, blank=True)
+    name = m.CharField(max_length=255, null=True, blank=True)
+    content_type = m.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('user', 'permission', 'group')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.permission.codename} - {self.group.name if self.group else 'No Group'}"

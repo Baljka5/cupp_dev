@@ -136,8 +136,11 @@
                                         {% if user.is_superuser or user_in_store_consultant_group %}
                                             {% if not user_in_sc_direct_group or user_in_area_group %}
                                                 <td>
-                                                    <a href="{% url 'sc-edit' model.id %}"
-                                                       class="btn btn-primary">Edit</a>
+                                                    {% if model.is_locked %}
+                                                        <button class="btn btn-secondary" disabled>Locked</button>
+                                                    {% else %}
+                                                        <a href="{% url 'sc-edit' model.id %}" class="btn btn-primary">Edit</a>
+                                                    {% endif %}
                                                 </td>
                                             {% endif %}
                                         {% endif %}

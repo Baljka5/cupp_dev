@@ -166,13 +166,13 @@
                     <li>
                         <a href="{% url 'comp_index' %}" class="navbar-nav-link">
                             <i class="icon-warning mr-1"></i>
-                            <span>Competitors</span>
+                            <span>Comp</span>
                         </a>
                     </li>
                     <li>
                         <a href="{% url 'store-index' %}" class="navbar-nav-link">
                             <i class="icon-store mr-1"></i>
-                            <span>Store Consultant</span>
+                            <span>SC</span>
                         </a>
                     </li>
                 {% endif %}
@@ -182,7 +182,7 @@
                     <li>
                         <a href="{% url 'st-index' %}" class="navbar-nav-link">
                             <i class="icon-store2 mr-1"></i>
-                            <span>Store Trainer</span>
+                            <span>ST</span>
                         </a>
                     </li>
                 {% endif %}
@@ -204,7 +204,7 @@
                     <li>
                         <a href="{% url 'event_index' %}" class="navbar-nav-link">
                             <i class="icon-calendar mr-1"></i>
-                            <span>Daily Log</span>
+                            <span>DL</span>
                         </a>
                     </li>
                 {% endif %}
@@ -214,13 +214,13 @@
                     <li class="nav-item">
                         <a href="{% url 'index' %}" class="navbar-nav-link">
                             <i class="icon-add mr-1"></i>
-                            <span>License</span>
+                            <span>Lic</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="{% url 'leg-index' %}" class="navbar-nav-link">
                             <i class="icon-add mr-1"></i>
-                            <span>Dispute</span>
+                            <span>Disp</span>
                         </a>
                     </li>
                 {% elif user_in_license_group %}
@@ -228,7 +228,7 @@
                     <li class="nav-item">
                         <a href="{% url 'index' %}" class="navbar-nav-link">
                             <i class="icon-add mr-1"></i>
-                            <span>License</span>
+                            <span>Lic</span>
                         </a>
                     </li>
                 {% endif %}
@@ -245,7 +245,7 @@
                     <li class="nav-item">
                         <a href="{% url 'point_create' %}" class="navbar-nav-link">
                             <i class="icon-plus22 mr-1"></i>
-                            <span>Add Point</span>
+                            <span>AP</span>
                         </a>
                     </li>
                 {% endif %}
@@ -254,13 +254,13 @@
                     <li class="nav-item">
                         <a href="{% url 'sc-index' %}" class="navbar-nav-link">
                             <i class="icon-database-edit2 mr-1"></i>
-                            <span>SC & Store Allocation</span>
+                            <span>Allocation</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="{% url 'sc-add-index' %}" class="navbar-nav-link">
                             <i class="icon-add mr-1"></i>
-                            <span>Add Store Consultant</span>
+                            <span>ASC</span>
                         </a>
                     </li>
                 {% endif %}
@@ -269,6 +269,15 @@
                         <a href="/admin/" class="navbar-nav-link">
                             <i class="icon-cog mr-1"></i>
                             <span>Settings</span>
+                        </a>
+                    </li>
+
+                {% endif %}
+                {% if user.is_superuser %}
+                    <li class="nav-item">
+                        <a href="/lock-list/" class="navbar-nav-link">
+                            <i class="icon-lock mr-1"></i>
+                            <span>Lock</span>
                         </a>
                     </li>
 

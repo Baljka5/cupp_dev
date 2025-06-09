@@ -426,6 +426,17 @@ def sc_add_index(request):
 #     return render(request, 'store_consultant/sc_add_delete.html', {'consultant': consultant})
 
 
+from django.views.decorators.http import require_POST
+from django.db import transaction
+from django.db.models import Q
+from django.http import JsonResponse
+import traceback
+from cupp.store_consultant.models import (
+    AllocationTemp, SC_Store_AllocationTemp,
+    Allocation, SC_Store_Allocation, HisAllocation
+)
+
+
 @require_POST
 def push_data(request):
     try:
@@ -434,11 +445,11 @@ def push_data(request):
             temp_allocations = AllocationTemp.objects.all()
             temp_store_allocations = SC_Store_AllocationTemp.objects.all()
 
-            # Set of store_cons from AllocationTemp for comparison
+            # Set of store_cons and store for comparison
             temp_store_cons_ids = set(temp_allocations.values_list('store_cons', flat=True))
             temp_store_ids = set(temp_store_allocations.values_list('store', flat=True))
 
-            # Update or create new entries in Allocation based on AllocationTemp
+            # Update or create new entries in Allocation
             for temp in temp_allocations:
                 Allocation.objects.update_or_create(
                     store_cons=temp.store_cons,
@@ -452,7 +463,7 @@ def push_data(request):
                     }
                 )
 
-            # Update or create new entries in SC_Store_Allocation based on SC_Store_AllocationTemp
+            # Update or create SC_Store_Allocation
             for temp_store in temp_store_allocations:
                 SC_Store_Allocation.objects.update_or_create(
                     store=temp_store.store,
@@ -464,14 +475,36 @@ def push_data(request):
                     }
                 )
 
-            # Delete entries from Allocation that are not in AllocationTemp
+            # Delete old entries
             Allocation.objects.filter(~Q(store_cons__in=temp_store_cons_ids)).delete()
-
-            # Delete entries from SC_Store_Allocation that are not in SC_Store_AllocationTemp
             SC_Store_Allocation.objects.filter(~Q(store__in=temp_store_ids)).delete()
 
+            # Insert into HisAllocation
+            for allocation in Allocation.objects.all():
+                if not allocation.consultant or not Consultants.objects.filter(id=allocation.consultant.id).exists():
+                    continue
+
+                sc_store_allocations = SC_Store_Allocation.objects.filter(consultant=allocation.consultant)
+
+                for sc_store_allocation in sc_store_allocations:
+                    HisAllocation.objects.create(
+                        consultant=allocation.consultant,
+                        store=sc_store_allocation.store,
+                        store_name=sc_store_allocation.store_name or '',
+                        sc_name=sc_store_allocation.sc_name or '',
+                        store_no=sc_store_allocation.store_no or '',
+                        year=allocation.year or '',
+                        month=allocation.month or '',
+                        team_no=allocation.team_no or '',
+                        area=allocation.area,
+                        store_cons=allocation.store_cons or '',
+                        tags=allocation.tags or ''
+                    )
+
         return JsonResponse({'status': 'success'})
+
     except Exception as e:
+        traceback.print_exc()  # 👈 log full error to console
         return JsonResponse({'status': 'failed', 'message': str(e)}, status=500)
 
 
@@ -757,3 +790,46 @@ def populate_historical_allocations():
 #     unallocated_stores = StoreConsultant.objects.filter(allocation__isnull=True)
 #     store_data = [{'store_id': store.store_id} for store in unallocated_stores]
 #     return JsonResponse({'stores': store_data})
+
+
+@login_required
+def lock_list(request):
+    """
+    Lock UI-г харуулах view. Салбарын дугаараар хайлт хийж болно.
+    """
+    store_id_query = request.GET.get('store_id', '')
+
+    query = Q()
+    if store_id_query:
+        query &= Q(store_id__icontains=store_id_query)
+
+    queryset = StoreConsultant.objects.filter(query).order_by('id')
+
+    paginator = Paginator(queryset, 10)  # 10 мөрөөр хуудаслаж харуулна
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'store_consultant/lock.html', {
+        'page_obj': page_obj,
+        'store_id_query': store_id_query
+    })
+
+@require_POST
+@login_required
+def lock_update(request):
+    """
+    Lock товчлуураар ирсэн мэдээллийг хадгалах view.
+    Сонгогдсон id-тай StoreConsultant-уудыг lock (is_locked=True),
+    бусдыг unlock (is_locked=False) болгоно.
+    """
+    lock_ids = request.POST.getlist('lock_ids')
+
+    # Бүх StoreConsultant-уудыг lock-гүй болгоно
+    StoreConsultant.objects.update(is_locked=False)
+
+    # Сонгогдсон ID-тай StoreConsultant-уудыг lock-тай болгоно
+    if lock_ids:
+        StoreConsultant.objects.filter(id__in=lock_ids).update(is_locked=True)
+
+    messages.success(request, "Lock тохиргоо амжилттай хадгалагдлаа.")
+    return redirect('lock-list')

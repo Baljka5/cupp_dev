@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load event_tags %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <div class="content">
+        <form method="post" action="{% url 'lock-update' %}">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-12 d-flex justify-content-end mb-3">
+                    <input type="text" name="store_id" value="{{ store_id_query }}" placeholder="Store ID..."
+                           class="form-control w-25" style="margin-right: 10px;">
+                    <button type="submit" class="btn bg-purple ml-1">Filter</button>
+                    <a href="{% url 'lock-list' %}" class="btn btn-secondary ml-2">Clear</a>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered" width="100%">
+                    <thead>
+                    <tr>
+                        <th>Дугаар</th>
+                        <th>Салбарын дугаар</th>
+                        <th>Store Consultant</th>
+                        <th>Store Planner</th>
+                        <th>Store Trainer</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for model in page_obj %}
+                        <tr>
+                            <td>{{ model.id }}</td>
+                            <td>{{ model.store_id }}</td>
+                            <td>
+                                <input type="checkbox" name="lock_ids" value="{{ model.id }}"
+                                       {% if model.is_locked %}checked{% endif %}>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="lock_ids" value="{{ model.id }}"
+                                       {% if model.is_locked %}checked{% endif %}>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="lock_ids" value="{{ model.id }}"
+                                       {% if model.is_locked %}checked{% endif %}>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-end mt-3">
+                <button type="submit" class="btn btn-success">Save Changes</button>
+            </div>
+        </form>
+
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1" aria-label="First"><span>&laquo;&laquo;</span></a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}"
+                           aria-label="Previous"><span>&laquo;</span></a>
+                    </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><a class="btn bg-purple" href="?page={{ num }}">{{ num }}</a></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next"><span>&raquo;</span></a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last"><span>&raquo;&raquo;</span></a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endblock %}
