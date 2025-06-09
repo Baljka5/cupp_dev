@@ -1347,7 +1347,7 @@ function isValidPushDate() {
             const candidate = new Date(targetDate);
             candidate.setDate(candidate.getDate() + offset);
 
-            if (candidate.getDay() === 5 && isWorkingDay(candidate)) {
+            if (candidate.getDay() === 9 && isWorkingDay(candidate)) {
                 const diff = Math.abs(today - candidate);
                 if (diff < minDiff) {
                     minDiff = diff;
