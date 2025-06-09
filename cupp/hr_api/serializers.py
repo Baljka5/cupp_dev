@@ -126,3 +126,30 @@ class VeritechGeneralSerializer(serializers.ModelSerializer):
     class Meta:
         model = General
         fields = ['employeecode', 'gender', 'firstname', 'lastname', 'postaddress']
+
+class PersonalInfoSerializer(serializers.Serializer):
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.EmailField()
+    family_name = serializers.CharField(allow_blank=True)
+    birthday = serializers.DateTimeField()
+    register_number = serializers.CharField()
+    workplace_code = serializers.CharField()
+    workplace_name = serializers.CharField()
+    unit_code = serializers.CharField()
+    start_date = serializers.DateTimeField()
+    gender = serializers.CharField()
+    phone_number = serializers.CharField()
+    civil_reg_number = serializers.CharField(allow_blank=True)
+    bank_account_number = serializers.CharField(allow_blank=True)
+    bank_name = serializers.CharField(allow_blank=True)
+    address_type1 = serializers.CharField(allow_blank=True)
+    city1 = serializers.CharField()
+    district1 = serializers.CharField()
+    committee1 = serializers.CharField()
+    address1 = serializers.CharField()
+    address_type2 = serializers.CharField(allow_blank=True)
+    city2 = serializers.CharField(allow_blank=True)
+    district2 = serializers.CharField(allow_blank=True)
+    committee2 = serializers.CharField(allow_blank=True)
+    address2 = serializers.CharField(allow_blank=True)
