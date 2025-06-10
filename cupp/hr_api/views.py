@@ -1,4 +1,5 @@
 import requests
+import json
 from numpy import record
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -139,10 +140,11 @@ class SaveRawJsonView(APIView):
 
     def post(self, request):
         try:
+            # JSON string болгож дамжуулж байна
             incoming_data = {
-                "data": request.data,
+                "data": json.dumps(request.data),
                 "employee_id": request.data.get("employee_id", ""),
-                "responseData": request.data.get("responseData", {})
+                "responseData": json.dumps(request.data.get("responseData", {}))
             }
 
             serializer = PersonalInfoRawSerializer(data=incoming_data)
@@ -161,6 +163,7 @@ class SaveRawJsonView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
 class PersonalInfoListView(APIView):
     authentication_classes = [APIKeyAuthentication]
     permission_classes = []
@@ -171,6 +174,41 @@ class PersonalInfoListView(APIView):
             serializer = PersonalInfoRawSerializer(records, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ForwardPersonalInfoView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def post(self, request, pk):
+        try:
+            instance = PersonalInfoRaw.objects.get(id=pk)
+
+            try:
+                payload = json.loads(instance.data)
+            except json.JSONDecodeError:
+                return Response({"error": "Invalid JSON in stored data"}, status=400)
+
+            url = "https://pp.cumongol.mn/api/list-data/"
+
+            response = requests.post(url, json=payload, timeout=10)
+
+            instance.responseData = response.text
+            instance.status = "SUCCESS" if response.status_code == 200 else "ERROR"
+            instance.save()
+
+            return Response({
+                "status": instance.status,
+                "response_status": response.status_code,
+                "response_data": response.json() if response.headers.get('Content-Type', '').startswith('application/json') else response.text,
+            }, status=status.HTTP_200_OK)
+
+        except PersonalInfoRaw.DoesNotExist:
+            return Response({"error": "Record not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({
                 "error": str(e),

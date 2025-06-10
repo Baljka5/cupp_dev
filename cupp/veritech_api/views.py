@@ -1,9 +1,9 @@
 import requests
 from django.utils.dateparse import parse_date
 from django.shortcuts import render
-from .models import General_24, Address_24, Bank_24, Experience_24, Education_24, Attitude_24, Family_24, Skills_24, SubInfo_24, CandidateGeneral_24, \
-    CandidateAddress_24, in_Act_General_24, in_Act_Experience_24, in_Act_Bank_24, in_Act_Address_24, in_Act_Education_24, in_Act_Attitude_24, \
-    in_Act_Family_24, in_Act_Skills_24, in_Act_SubInfo_24
+from .models import General, Address, Bank, Experience, Education, Attitude, Family, Skills, SubInfo, CandidateGeneral, \
+    CandidateAddress, in_Act_General, in_Act_Experience, in_Act_Bank, in_Act_Address, in_Act_Education, in_Act_Attitude, \
+    in_Act_Family, in_Act_Skills, in_Act_SubInfo
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
@@ -42,7 +42,6 @@ def fetch_and_save_employee_data(request):
 
     if response.status_code == 200:
         data = response.json()['response']['result']
-        # Save data for the first 60 employees (or fewer if not available)
         employee_data = data.get('empinfo', {})
         save_multiple_employees(employee_data)
         return HttpResponse("Data saved successfully.", status=200)
@@ -134,7 +133,7 @@ def save_multiple_candidate_employees(candidate_employee_data):
         if idx >= 10000:
             break
         # Check if employee with the same employeeid already exists to avoid duplication
-        if not CandidateGeneral_24.objects.filter(candidateid=candidate_employee.get('candidateid')).exists():
+        if not CandidateGeneral.objects.filter(candidateid=candidate_employee.get('candidateid')).exists():
             save_candidate_data_to_db(candidate_employee)
 
 
@@ -146,7 +145,7 @@ def save_multiple_employees(employee_data):
         if idx >= 10000:
             break
         # Check if employee with the same employeeid already exists to avoid duplication
-        if not General_24.objects.filter(employeeid=employee.get('employeeid')).exists():
+        if not General.objects.filter(employeeid=employee.get('employeeid')).exists():
             save_data_to_db(employee)
 
 
@@ -158,7 +157,7 @@ def save_multiple_inactive_employees(employee_data):
         if idx >= 10000:
             break
         # Check if employee with the same employeeid already exists to avoid duplication
-        if not in_Act_General_24.objects.filter(employeeid=employee.get('employeeid')).exists():
+        if not in_Act_General.objects.filter(employeeid=employee.get('employeeid')).exists():
             save_inactive_data_to_db(employee)
 
 
@@ -175,7 +174,7 @@ def safe_int(value):
 
 def save_data_to_db(data):
     # Save General Data
-    general_info = General_24(
+    general_info = General(
         employeeid=data.get('employeeid', None),
         gender=data.get('gender', None),
         employeecode=data.get('employeecode', None),
@@ -200,7 +199,7 @@ def save_data_to_db(data):
     # Save Address Data
     for i in range(safe_int(data.get('empaddress_size', 0))):  # Use safe_int to handle missing/empty keys
         address = data['empaddress'].get(str(i), {})
-        address_record = Address_24(
+        address_record = Address(
             employeeid=address.get('employeeid', None),
             addresstypename=address.get('addresstypename', None),
             cityname=address.get('cityname', None),
@@ -213,7 +212,7 @@ def save_data_to_db(data):
     # Save Bank Data
     for i in range(safe_int(data.get('empbank_size', 0))):
         bank = data['empbank'].get(str(i), {})
-        bank_record = Bank_24(
+        bank_record = Bank(
             employeeid=bank.get('employeeid', None),
             bankname=bank.get('bankname', None),
             bankaccountnumber=bank.get('bankaccountnumber', None)
@@ -223,7 +222,7 @@ def save_data_to_db(data):
     # Save Experience Data
     for i in range(safe_int(data.get('empworkexp_size', 0))):
         experience = data['empworkexp'].get(str(i), {})
-        experience_record = Experience_24(
+        experience_record = Experience(
             employeeid=experience.get('employeeid', None),
             organizationname=experience.get('organizationname', None),
             departmentname=experience.get('departmentname', None),
@@ -236,7 +235,7 @@ def save_data_to_db(data):
     # Save Education Data
     for i in range(safe_int(data.get('empeducation_size', 0))):
         education = data['empeducation'].get(str(i), {})
-        education_record = Education_24(
+        education_record = Education(
             employeeid=education.get('employeeid', None),
             edutype=education.get('edutype', None),
             edulevel=education.get('edulevel', None),
@@ -251,7 +250,7 @@ def save_data_to_db(data):
     # Save Attitude Data (Punishment and Reward)
     for i in range(safe_int(data.get('emppunishment_size', 0))):
         punishment = data['emppunishment'].get(str(i), {})
-        attitude_record = Attitude_24(
+        attitude_record = Attitude(
             employeeid=punishment.get('employeeid', None),
             punishment=punishment.get('punishment', None),
             punishmentdate=parse_date_if_valid(punishment.get('punishmentdate', None)),
@@ -262,7 +261,7 @@ def save_data_to_db(data):
 
     for i in range(safe_int(data.get('empreward_size', 0))):
         reward = data['empreward'].get(str(i), {})
-        attitude_record = Attitude_24(
+        attitude_record = Attitude(
             employeeid=reward.get('employeeid', None),
             rewardtypename=reward.get('rewardtypename', None),
             rewardname=reward.get('rewardname', None),
@@ -274,7 +273,7 @@ def save_data_to_db(data):
     # Save Family Data
     for i in range(safe_int(data.get('empfamily_size', 0))):
         family = data['empfamily'].get(str(i), {})
-        family_record = Family_24(
+        family_record = Family(
             employeeid=family.get('employeeid', None),
             relationshipname=family.get('relationshipname', None),
             firstname=family.get('firstname', None),
@@ -288,7 +287,7 @@ def save_data_to_db(data):
     # Save Skills Data (Language, Talent, Skills, Hrmexam)
     for i in range(safe_int(data.get('emplanguage_size', 0))):
         language = data['emplanguage'].get(str(i), {})
-        skills_record = Skills_24(
+        skills_record = Skills(
             employeeid=language.get('employeeid', None),
             skillname=language.get('skillname', None)
         )
@@ -296,7 +295,7 @@ def save_data_to_db(data):
 
     for i in range(safe_int(data.get('emptalent_size', 0))):
         talent = data['emptalent'].get(str(i), {})
-        skills_record = Skills_24(
+        skills_record = Skills(
             employeeid=talent.get('employeeid', None),
             skillname=talent.get('skillname', None)
         )
@@ -304,7 +303,7 @@ def save_data_to_db(data):
 
     for i in range(safe_int(data.get('empskill_size', 0))):
         skill = data['empskill'].get(str(i), {})
-        skills_record = Skills_24(
+        skills_record = Skills(
             employeeid=skill.get('employeeid', None),
             skillname=skill.get('skillname', None)
         )
@@ -312,7 +311,7 @@ def save_data_to_db(data):
 
     for i in range(safe_int(data.get('hrmexam_size', 0))):
         exam = data['hrmexam'].get(str(i), {})
-        skills_record = Skills_24(
+        skills_record = Skills(
             employeeid=exam.get('employeeid', None),
             examname=exam.get('examname', None)
         )
@@ -320,7 +319,7 @@ def save_data_to_db(data):
 
     for i in range(safe_int(data.get('empsubinfo_size', 0))):
         subinfo = data['empsubinfo'].get(str(i), {})
-        subinfo_record = SubInfo_24(
+        subinfo_record = SubInfo(
             employeeid=subinfo.get('employeeid', None),
             workstartdate=parse_date_if_valid(subinfo.get('workstartdate', None)),
             workenddate=parse_date_if_valid(subinfo.get('workenddate', None)),
@@ -336,7 +335,7 @@ def save_data_to_db(data):
 
 def save_inactive_data_to_db(data):
     # Save General Data
-    general_info = in_Act_General_24(
+    general_info = in_Act_General(
         employeeid=data.get('employeeid', None),
         gender=data.get('gender', None),
         employeecode=data.get('employeecode', None),
@@ -361,7 +360,7 @@ def save_inactive_data_to_db(data):
     # Save Address Data
     for i in range(safe_int(data.get('empaddress_size', 0))):  # Use safe_int to handle missing/empty keys
         address = data['empaddress'].get(str(i), {})
-        address_record = in_Act_Address_24(
+        address_record = in_Act_Address(
             employeeid=address.get('employeeid', None),
             addresstypename=address.get('addresstypename', None),
             cityname=address.get('cityname', None),
@@ -374,7 +373,7 @@ def save_inactive_data_to_db(data):
     # Save Bank Data
     for i in range(safe_int(data.get('empbank_size', 0))):
         bank = data['empbank'].get(str(i), {})
-        bank_record = in_Act_Bank_24(
+        bank_record = in_Act_Bank(
             employeeid=bank.get('employeeid', None),
             bankname=bank.get('bankname', None),
             bankaccountnumber=bank.get('bankaccountnumber', None)
@@ -384,7 +383,7 @@ def save_inactive_data_to_db(data):
     # Save Experience Data
     for i in range(safe_int(data.get('empworkexp_size', 0))):
         experience = data['empworkexp'].get(str(i), {})
-        experience_record = in_Act_Experience_24(
+        experience_record = in_Act_Experience(
             employeeid=experience.get('employeeid', None),
             organizationname=experience.get('organizationname', None),
             departmentname=experience.get('departmentname', None),
@@ -397,7 +396,7 @@ def save_inactive_data_to_db(data):
     # Save Education Data
     for i in range(safe_int(data.get('empeducation_size', 0))):
         education = data['empeducation'].get(str(i), {})
-        education_record = in_Act_Education_24(
+        education_record = in_Act_Education(
             employeeid=education.get('employeeid', None),
             edutype=education.get('edutype', None),
             edulevel=education.get('edulevel', None),
@@ -412,7 +411,7 @@ def save_inactive_data_to_db(data):
     # Save Attitude Data (Punishment and Reward)
     for i in range(safe_int(data.get('emppunishment_size', 0))):
         punishment = data['emppunishment'].get(str(i), {})
-        attitude_record = in_Act_Attitude_24(
+        attitude_record = in_Act_Attitude(
             employeeid=punishment.get('employeeid', None),
             punishment=punishment.get('punishment', None),
             punishmentdate=parse_date_if_valid(punishment.get('punishmentdate', None)),
@@ -423,7 +422,7 @@ def save_inactive_data_to_db(data):
 
     for i in range(safe_int(data.get('empreward_size', 0))):
         reward = data['empreward'].get(str(i), {})
-        attitude_record = in_Act_Attitude_24(
+        attitude_record = in_Act_Attitude(
             employeeid=reward.get('employeeid', None),
             rewardtypename=reward.get('rewardtypename', None),
             rewardname=reward.get('rewardname', None),
@@ -435,7 +434,7 @@ def save_inactive_data_to_db(data):
     # Save Family Data
     for i in range(safe_int(data.get('empfamily_size', 0))):
         family = data['empfamily'].get(str(i), {})
-        family_record = in_Act_Family_24(
+        family_record = in_Act_Family(
             employeeid=family.get('employeeid', None),
             relationshipname=family.get('relationshipname', None),
             firstname=family.get('firstname', None),
@@ -449,7 +448,7 @@ def save_inactive_data_to_db(data):
     # Save Skills Data (Language, Talent, Skills, Hrmexam)
     for i in range(safe_int(data.get('emplanguage_size', 0))):
         language = data['emplanguage'].get(str(i), {})
-        skills_record = in_Act_Skills_24(
+        skills_record = in_Act_Skills(
             employeeid=language.get('employeeid', None),
             skillname=language.get('skillname', None)
         )
@@ -457,7 +456,7 @@ def save_inactive_data_to_db(data):
 
     for i in range(safe_int(data.get('emptalent_size', 0))):
         talent = data['emptalent'].get(str(i), {})
-        skills_record = in_Act_Skills_24(
+        skills_record = in_Act_Skills(
             employeeid=talent.get('employeeid', None),
             skillname=talent.get('skillname', None)
         )
@@ -465,7 +464,7 @@ def save_inactive_data_to_db(data):
 
     for i in range(safe_int(data.get('empskill_size', 0))):
         skill = data['empskill'].get(str(i), {})
-        skills_record = in_Act_Skills_24(
+        skills_record = in_Act_Skills(
             employeeid=skill.get('employeeid', None),
             skillname=skill.get('skillname', None)
         )
@@ -473,7 +472,7 @@ def save_inactive_data_to_db(data):
 
     for i in range(safe_int(data.get('hrmexam_size', 0))):
         exam = data['hrmexam'].get(str(i), {})
-        skills_record = in_Act_Skills_24(
+        skills_record = in_Act_Skills(
             employeeid=exam.get('employeeid', None),
             examname=exam.get('examname', None)
         )
@@ -481,7 +480,7 @@ def save_inactive_data_to_db(data):
 
     for i in range(safe_int(data.get('empsubinfo_size', 0))):
         subinfo = data['empsubinfo'].get(str(i), {})
-        subinfo_record = in_Act_SubInfo_24(
+        subinfo_record = in_Act_SubInfo(
             employeeid=subinfo.get('employeeid', None),
             workstartdate=parse_date_if_valid(subinfo.get('workstartdate', None)),
             workenddate=parse_date_if_valid(subinfo.get('workenddate', None)),
@@ -497,7 +496,7 @@ def save_inactive_data_to_db(data):
 
 def save_candidate_data_to_db(candidate_data):
     # Save General Data
-    candidate_general_info = CandidateGeneral_24(
+    candidate_general_info = CandidateGeneral(
         candidateid=candidate_data.get('candidateid', None),
         code=candidate_data.get('code', None),
         civilregnumber=candidate_data.get('civilregnumber', None),
@@ -517,7 +516,7 @@ def save_candidate_data_to_db(candidate_data):
     for i in range(
             safe_int(candidate_data.get('candidateaddress_size', 0))):  # Use safe_int to handle missing/empty keys
         candidate_address = candidate_data['candidateaddress'].get(str(i), {})
-        candidate_address_record = CandidateAddress_24(
+        candidate_address_record = CandidateAddress(
             candidateid=candidate_address.get('candidateid', None),
             addresstypename=candidate_address.get('addresstypename', None),
             cityname=candidate_address.get('cityname', None),
