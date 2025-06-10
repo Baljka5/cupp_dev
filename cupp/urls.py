@@ -39,7 +39,7 @@ from cupp.point.views import get_store_location
 from cupp.zipmanager.views import upload_zip, zip_list, download_latest_zip, downloaded_devices
 from cupp.bi_embed_api.views import report_view, login, callback
 from cupp.hr_api.views import StoreCombinedInfoView, StoreListCombinedInfoView, StoreAddressInfoView, \
-    VeritechGeneralView, SaveRawJsonView
+    VeritechGeneralView, SaveRawJsonView, PersonalInfoListView
 from cupp.store_consultant.views import lock_list
 
 # from cupp.powerBI_api.views import fetch_powerbi_data
@@ -54,6 +54,7 @@ urlpatterns = [
     path('api/store-info/address', StoreAddressInfoView.as_view(), name='store-address-info'),
     path('api/emp-info/', VeritechGeneralView.as_view()),
     path('api/save-data/', SaveRawJsonView.as_view(), name='save-data'),
+    path('api/list-data/', PersonalInfoListView.as_view(), name='list-data'),
 
     path('lock-list/', sc_views.lock_list, name='lock-list'),
     path('lock-update/', sc_views.lock_update, name='lock-update'),

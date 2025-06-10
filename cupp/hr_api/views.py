@@ -14,7 +14,8 @@ from cupp.store_consultant.models import (
 )
 from .serializers import (
     StorePlanningSerializer, StoreTrainerSerializer, StoreConsultantSerializer,
-    SCAllocationSerializer, CitySerializer, DistrictSerializer, VeritechGeneralSerializer, PersonalInfoRawSerializer
+    SCAllocationSerializer, CitySerializer, DistrictSerializer, VeritechGeneralSerializer, PersonalInfoRawSerializer,
+    PersonalInfoRaw
 )
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.authentication import SessionAuthentication
@@ -159,3 +160,19 @@ class SaveRawJsonView(APIView):
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class PersonalInfoListView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def get(self, request):
+        try:
+            records = PersonalInfoRaw.objects.order_by('-created_at')[:50]
+            serializer = PersonalInfoRawSerializer(records, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

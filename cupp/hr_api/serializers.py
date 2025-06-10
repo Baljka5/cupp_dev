@@ -135,13 +135,18 @@ class PersonalInfoRawSerializer(serializers.ModelSerializer):
         model = PersonalInfoRaw
         fields = ['id', 'data', 'status', 'employee_id', 'responseData', 'created_at']
 
-    def to_internal_value(self, input_data):
-        raw = input_data.copy()
-
+    def to_representation(self, instance):
         import json
-        if isinstance(raw.get("data"), dict):
-            raw["data"] = json.dumps(raw.get("data"))
-        if isinstance(raw.get("responseData"), dict):
-            raw["responseData"] = json.dumps(raw.get("responseData"))
+        result = super().to_representation(instance)
 
-        return super().to_internal_value(raw)
+        try:
+            result['data'] = json.loads(result['data'])
+        except Exception:
+            result['data'] = {"error": "Invalid JSON"}
+
+        try:
+            result['responseData'] = json.loads(result['responseData']) if result['responseData'] else {}
+        except Exception:
+            result['responseData'] = {"error": "Invalid JSON"}
+
+        return result
