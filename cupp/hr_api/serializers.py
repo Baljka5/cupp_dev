@@ -3,6 +3,8 @@ from cupp.point.models import StorePlanning, City, District
 from cupp.store_trainer.models import StoreTrainer
 from cupp.store_consultant.models import StoreConsultant, Consultants, Area, SC_Store_AllocationTemp, AllocationTemp
 from cupp.veritech_api.models import General
+from cupp.hr_api.models import PersonalInfoRaw
+import json
 
 
 class StorePlanningSerializer(serializers.ModelSerializer):
@@ -127,29 +129,19 @@ class VeritechGeneralSerializer(serializers.ModelSerializer):
         model = General
         fields = ['employeecode', 'gender', 'firstname', 'lastname', 'postaddress']
 
-class PersonalInfoSerializer(serializers.Serializer):
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
-    email = serializers.EmailField()
-    family_name = serializers.CharField(allow_blank=True)
-    birthday = serializers.DateTimeField()
-    register_number = serializers.CharField()
-    workplace_code = serializers.CharField()
-    workplace_name = serializers.CharField()
-    unit_code = serializers.CharField()
-    start_date = serializers.DateTimeField()
-    gender = serializers.CharField()
-    phone_number = serializers.CharField()
-    civil_reg_number = serializers.CharField(allow_blank=True)
-    bank_account_number = serializers.CharField(allow_blank=True)
-    bank_name = serializers.CharField(allow_blank=True)
-    address_type1 = serializers.CharField(allow_blank=True)
-    city1 = serializers.CharField()
-    district1 = serializers.CharField()
-    committee1 = serializers.CharField()
-    address1 = serializers.CharField()
-    address_type2 = serializers.CharField(allow_blank=True)
-    city2 = serializers.CharField(allow_blank=True)
-    district2 = serializers.CharField(allow_blank=True)
-    committee2 = serializers.CharField(allow_blank=True)
-    address2 = serializers.CharField(allow_blank=True)
+
+class PersonalInfoRawSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonalInfoRaw
+        fields = ['id', 'data', 'status', 'employee_id', 'responseData', 'created_at']
+
+    def to_internal_value(self, input_data):
+        raw = input_data.copy()
+
+        import json
+        if isinstance(raw.get("data"), dict):
+            raw["data"] = json.dumps(raw.get("data"))
+        if isinstance(raw.get("responseData"), dict):
+            raw["responseData"] = json.dumps(raw.get("responseData"))
+
+        return super().to_internal_value(raw)

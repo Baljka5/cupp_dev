@@ -14,7 +14,7 @@ from cupp.store_consultant.models import (
 )
 from .serializers import (
     StorePlanningSerializer, StoreTrainerSerializer, StoreConsultantSerializer,
-    SCAllocationSerializer, CitySerializer, DistrictSerializer, VeritechGeneralSerializer, PersonalInfoSerializer
+    SCAllocationSerializer, CitySerializer, DistrictSerializer, VeritechGeneralSerializer, PersonalInfoRawSerializer
 )
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.authentication import SessionAuthentication
@@ -132,77 +132,24 @@ class VeritechGeneralView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
-class ForwardPersonalInfoView(APIView):
+class SaveRawJsonView(APIView):
     authentication_classes = [APIKeyAuthentication]
     permission_classes = []
 
     def post(self, request):
         try:
-            sample_data = [
-                {
-                    "first_name": "Дархан",
-                    "last_name": "Атарболд",
-                    "email": "darkhan20021@gmail.com",
-                    "family_name": "",
-                    "birthday": "2009-06-05T16:34:35.000Z",
-                    "register_number": "ЖЖ80888811",
-                    "workplace_code": "00120",
-                    "workplace_name": "Цагийн ажилтан",
-                    "unit_code": "CU120",
-                    "start_date": "2025-06-05T16:35:00.567Z",
-                    "gender": "MALE",
-                    "phone_number": "86008112",
-                    "civil_reg_number": "",
-                    "bank_account_number": "",
-                    "bank_name": "",
-                    "address_type1": "",
-                    "city1": "Баян-Өлгий",
-                    "district1": "Алтанцөгц",
-                    "committee1": "2-р баг, Баянбулаг",
-                    "address1": "өбб",
-                    "address_type2": "",
-                    "city2": "",
-                    "district2": "",
-                    "committee2": "",
-                    "address2": ""
-                },
-                {
-                    "first_name": "Дархан2",
-                    "last_name": "Атарболд2",
-                    "email": "darkhan20021@gmail.com",
-                    "family_name": "",
-                    "birthday": "2009-06-05T16:34:35.000Z",
-                    "register_number": "ЖЖ80888811",
-                    "workplace_code": "00120",
-                    "workplace_name": "Цагийн ажилтан",
-                    "unit_code": "CU120",
-                    "start_date": "2025-06-05T16:35:00.567Z",
-                    "gender": "MALE",
-                    "phone_number": "86008112",
-                    "civil_reg_number": "",
-                    "bank_account_number": "",
-                    "bank_name": "",
-                    "address_type1": "",
-                    "city1": "Баян-Өлгий",
-                    "district1": "Алтанцөгц",
-                    "committee1": "2-р баг, Баянбулаг",
-                    "address1": "өбб",
-                    "address_type2": "",
-                    "city2": "",
-                    "district2": "",
-                    "committee2": "",
-                    "address2": ""
-                },
+            incoming_data = {
+                "data": request.data,
+                "employee_id": request.data.get("employee_id", ""),
+                "responseData": request.data.get("responseData", {})
+            }
 
-            ]
-
-            serializer = PersonalInfoSerializer(data=sample_data, many=True)
+            serializer = PersonalInfoRawSerializer(data=incoming_data)
             if serializer.is_valid():
+                serializer.save()
                 return Response({
-                    "status": "success (test mode)",
-                    "data_sent": serializer.data
-                }, status=status.HTTP_200_OK)
+                    "message": "Data saved successfully",
+                }, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -212,29 +159,3 @@ class ForwardPersonalInfoView(APIView):
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# class ForwardPersonalInfoView(APIView):
-#     authentication_classes = [APIKeyAuthentication]
-#     permission_classes = []
-#
-#     def post(self, request):
-#         serializer = PersonalInfoSerializer(data=request.data, many=True)
-#         if serializer.is_valid():
-#             # Гадаад API руу дамжуулах
-#             external_api_url = "https://external.example.com/endpoint"
-#             headers = {
-#                 "Content-Type": "application/json",
-#                 "Authorization": "Bearer your_token_here"
-#             }
-#
-#             try:
-#                 response = requests.post(external_api_url, json=serializer.data, headers=headers)
-#                 return Response({
-#                     "status": "forwarded",
-#                     "external_status_code": response.status_code,
-#                     "external_response": response.json()
-#                 }, status=status.HTTP_200_OK)
-#
-#             except requests.exceptions.RequestException as e:
-#                 return Response({"error": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
-#
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

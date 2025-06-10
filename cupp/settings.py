@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'cupp.zipmanager',
     'cupp.bi_embed_api',
     'cupp.store_consultant.apps.StoreConsultantConfig',
+    'cupp.hr_api'
 #     'cupp.bi_report'
 ]
 
