@@ -201,6 +201,7 @@ class ForwardPersonalInfoView(APIView):
         try:
             instance = PersonalInfoRaw.objects.get(id=pk)
 
+            # Хадгалсан JSON string-ийг dict болгон хөрвүүлнэ
             try:
                 payload = json.loads(instance.data)
             except json.JSONDecodeError:
@@ -214,14 +215,19 @@ class ForwardPersonalInfoView(APIView):
 
             response = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
 
-            instance.responseData = response.text
+            # Хариу нь JSON хэлбэртэй байвал responseData-д dict хэлбэрээр хадгална
+            if response.headers.get('Content-Type', '').startswith('application/json'):
+                instance.responseData = response.json()
+            else:
+                instance.responseData = {"raw": response.text}
+
             instance.status = "SUCCESS" if response.status_code == 200 else "ERROR"
             instance.save()
 
             return Response({
                 "status": instance.status,
                 "response_status": response.status_code,
-                "response_data": response.json() if response.headers.get('Content-Type', '').startswith('application/json') else response.text,
+                "response_data": instance.responseData,
             }, status=status.HTTP_200_OK)
 
         except PersonalInfoRaw.DoesNotExist:
@@ -231,3 +237,4 @@ class ForwardPersonalInfoView(APIView):
                 "error": str(e),
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
