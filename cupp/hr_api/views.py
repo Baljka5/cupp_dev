@@ -140,7 +140,6 @@ class SaveRawJsonView(APIView):
 
     def post(self, request):
         try:
-            # JSON string болгож дамжуулж байна
             incoming_data = {
                 "data": json.dumps(request.data),
                 "employee_id": request.data.get("employee_id", ""),
@@ -169,7 +168,7 @@ class PersonalInfoListView(APIView):
 
     def get(self, request):
         try:
-            records = PersonalInfoRaw.objects.order_by('-created_at')[:50]
+            records = PersonalInfoRaw.objects.filter(status="Pending").order_by('-created_at')[:50]
             serializer = PersonalInfoRawSerializer(records, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
