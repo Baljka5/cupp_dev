@@ -201,33 +201,29 @@ class ForwardPersonalInfoView(APIView):
         try:
             instance = PersonalInfoRaw.objects.get(id=pk)
 
-            # Хадгалсан JSON string-ийг dict болгон хөрвүүлнэ
-            try:
-                payload = json.loads(instance.data)
-            except json.JSONDecodeError:
-                return Response({"error": "Invalid JSON in stored data"}, status=400)
+            payload = request.data
 
             url = "https://pp.cumongol.mn/api/list-info/"
-
             headers = {
                 "x-api-key": self.request.META.get("HTTP_X_API_KEY", "")
             }
-
             response = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
 
-            # Хариу нь JSON хэлбэртэй байвал responseData-д dict хэлбэрээр хадгална
             if response.headers.get('Content-Type', '').startswith('application/json'):
-                instance.responseData = response.json()
+                response_data = response.json()
             else:
-                instance.responseData = {"raw": response.text}
+                response_data = {"raw": response.text}
 
+            instance.data = json.dumps(payload)                      # Шинэ өгөгдлийг хадгалах
+            instance.responseData = json.dumps(response_data)
             instance.status = "SUCCESS" if response.status_code == 200 else "ERROR"
+            instance.employee_id = payload.get("employee_id", "")    # Шинэ employee_id байвал өөрчлөх
             instance.save()
 
             return Response({
                 "status": instance.status,
                 "response_status": response.status_code,
-                "response_data": instance.responseData,
+                "response_data": response_data,
             }, status=status.HTTP_200_OK)
 
         except PersonalInfoRaw.DoesNotExist:
