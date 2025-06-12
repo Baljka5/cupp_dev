@@ -163,7 +163,6 @@ class SaveRawJsonView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 class PersonalInfoListView(APIView):
     authentication_classes = [APIKeyAuthentication]
     permission_classes = []
@@ -180,11 +179,25 @@ class PersonalInfoListView(APIView):
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class ListDataView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def post(self, request):
+        payload = request.data
+        return Response({
+            "status": "SUCCESS",
+            "employee_id": payload.get("employee_id", ""),
+            "error_message": ""
+        }, status=200)
+
+
 class ForwardPersonalInfoView(APIView):
     authentication_classes = [APIKeyAuthentication]
     permission_classes = []
 
-    def post(self, request, pk):
+    def put(self, request, pk):
         try:
             instance = PersonalInfoRaw.objects.get(id=pk)
 
@@ -193,9 +206,13 @@ class ForwardPersonalInfoView(APIView):
             except json.JSONDecodeError:
                 return Response({"error": "Invalid JSON in stored data"}, status=400)
 
-            url = "https://pp.cumongol.mn/api/list-data/"
+            url = "http://localhost:8000/api/list-info/"
 
-            response = requests.post(url, json=payload, timeout=10)
+            headers = {
+                "x-api-key": request.headers.get("x-api-key", "")
+            }
+
+            response = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
 
             instance.responseData = response.text
             instance.status = "SUCCESS" if response.status_code == 200 else "ERROR"
@@ -204,7 +221,8 @@ class ForwardPersonalInfoView(APIView):
             return Response({
                 "status": instance.status,
                 "response_status": response.status_code,
-                "response_data": response.json() if response.headers.get('Content-Type', '').startswith('application/json') else response.text,
+                "response_data": response.json() if response.headers.get('Content-Type', '').startswith(
+                    'application/json') else response.text,
             }, status=status.HTTP_200_OK)
 
         except PersonalInfoRaw.DoesNotExist:

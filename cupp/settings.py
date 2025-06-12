@@ -102,6 +102,9 @@ REST_FRAMEWORK = {
 
 ROOT_URLCONF = 'cupp.urls'
 
+APPEND_SLASH=False
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
