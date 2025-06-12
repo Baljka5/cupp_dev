@@ -206,7 +206,7 @@ class ForwardPersonalInfoView(APIView):
             except json.JSONDecodeError:
                 return Response({"error": "Invalid JSON in stored data"}, status=400)
 
-            url = "http://localhost:8000/api/list-info/"
+            url = "https://pp.cumongol.mn/api/list-info/"
 
             headers = {
                 "x-api-key": self.request.META.get("HTTP_X_API_KEY", "")
