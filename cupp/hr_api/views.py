@@ -196,7 +196,7 @@ class ForwardPersonalInfoView(APIView):
     authentication_classes = [APIKeyAuthentication]
     permission_classes = []
 
-    def put(self, request, pk):
+    def post(self, request, pk):
         try:
             instance = PersonalInfoRaw.objects.get(id=pk)
 
@@ -206,23 +206,29 @@ class ForwardPersonalInfoView(APIView):
             headers = {
                 "x-api-key": self.request.META.get("HTTP_X_API_KEY", "")
             }
+
             response = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
 
+            # Parse response (not stored in responseData)
             if response.headers.get('Content-Type', '').startswith('application/json'):
-                response_data = response.json()
+                response_json = response.json()
             else:
-                response_data = {"raw": response.text}
+                response_json = {"raw": response.text}
 
-            instance.data = json.dumps(payload)                      # Шинэ өгөгдлийг хадгалах
-            instance.responseData = json.dumps(response_data)
+            # Save only request payload to responseData
+            instance.responseData = json.dumps(payload)
             instance.status = "SUCCESS" if response.status_code == 200 else "ERROR"
-            instance.employee_id = payload.get("employee_id", "")    # Шинэ employee_id байвал өөрчлөх
             instance.save()
 
+            # Parse saved `data`
+            try:
+                stored_data = json.loads(instance.data)
+            except Exception:
+                stored_data = {"error": "Invalid stored data"}
+
             return Response({
-                "status": instance.status,
-                "response_status": response.status_code,
-                "response_data": response_data,
+                "data": stored_data,
+                "responseData": payload
             }, status=status.HTTP_200_OK)
 
         except PersonalInfoRaw.DoesNotExist:
@@ -232,4 +238,3 @@ class ForwardPersonalInfoView(APIView):
                 "error": str(e),
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
