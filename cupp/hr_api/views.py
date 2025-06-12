@@ -209,7 +209,7 @@ class ForwardPersonalInfoView(APIView):
             url = "http://localhost:8000/api/list-info/"
 
             headers = {
-                "x-api-key": request.headers.get("x-api-key", "")
+                "x-api-key": self.request.META.get("HTTP_X_API_KEY", "")
             }
 
             response = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
@@ -221,8 +221,7 @@ class ForwardPersonalInfoView(APIView):
             return Response({
                 "status": instance.status,
                 "response_status": response.status_code,
-                "response_data": response.json() if response.headers.get('Content-Type', '').startswith(
-                    'application/json') else response.text,
+                "response_data": response.json() if response.headers.get('Content-Type', '').startswith('application/json') else response.text,
             }, status=status.HTTP_200_OK)
 
         except PersonalInfoRaw.DoesNotExist:
