@@ -8,7 +8,7 @@ from sentry_sdk.serializer import serialize
 import traceback
 
 from cupp.point.models import StorePlanning, City, District
-from cupp.veritech_api.models import General
+from cupp.veritech_api.models import General, Experience
 from cupp.store_trainer.models import StoreTrainer
 from cupp.store_consultant.models import (
     StoreConsultant, SC_Store_AllocationTemp, Consultants, AllocationTemp, Area
@@ -130,7 +130,16 @@ class VeritechGeneralView(APIView):
 
     def get(self, request):
         records = General.objects.all()
-        serializer = VeritechGeneralSerializer(records, many=True)
+
+        # N+1 query-ээс сэргийлэх: бүх employeeid-д таарах experience-үүдийг татаж map үүсгэнэ
+        exp_qs = Experience.objects.filter(enddate__isnull=True)
+        exp_map = {}
+
+        for exp in exp_qs:
+            key = str(exp.employeeid)
+            exp_map.setdefault(key, []).append(exp.departmentname)
+
+        serializer = VeritechGeneralSerializer(records, many=True, context={"experience_map": exp_map})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

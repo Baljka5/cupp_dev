@@ -2,7 +2,7 @@ from rest_framework import serializers
 from cupp.point.models import StorePlanning, City, District
 from cupp.store_trainer.models import StoreTrainer
 from cupp.store_consultant.models import StoreConsultant, Consultants, Area, SC_Store_AllocationTemp, AllocationTemp
-from cupp.veritech_api.models import General
+from cupp.veritech_api.models import General, Experience
 from cupp.hr_api.models import PersonalInfoRaw
 import json
 
@@ -125,9 +125,15 @@ class DistrictSerializer(serializers.ModelSerializer):
 
 
 class VeritechGeneralSerializer(serializers.ModelSerializer):
+    department_names = serializers.SerializerMethodField()
+
     class Meta:
         model = General
-        fields = ['employeecode', 'gender', 'firstname', 'lastname', 'postaddress']
+        fields = ['employeeid', 'employeecode', 'gender', 'firstname', 'lastname', 'postaddress', 'department_names']
+
+    def get_department_names(self, obj):
+        experience_map = self.context.get("experience_map", {})
+        return experience_map.get(str(obj.employeeid), [])
 
 
 class PersonalInfoRawSerializer(serializers.ModelSerializer):
