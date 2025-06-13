@@ -149,18 +149,71 @@ class SaveRawJsonView(APIView):
 
     def post(self, request):
         try:
+            original_data = request.data.copy()
+
             incoming_data = {
-                "data": json.dumps(request.data),
-                "employee_id": request.data.get("employee_id", ""),
-                "responseData": json.dumps(request.data.get("responseData", {}))
+                "data": json.dumps(original_data),
+                "employee_id": original_data.get("employee_id", ""),
+                "responseData": None
             }
 
             serializer = PersonalInfoRawSerializer(data=incoming_data)
             if serializer.is_valid():
-                serializer.save()
+                instance = serializer.save()
+
+                headers = {
+                    "x-api-key": request.META.get("HTTP_X_API_KEY", "")
+                }
+
+                # 1-р API
+                first_api_url = "https://pp.cumongol.mn/api/list-data/"
+                try:
+                    first_response = requests.get(first_api_url, headers=headers, timeout=50, verify=False)
+                    first_json = first_response.json() if 'application/json' in first_response.headers.get(
+                        'Content-Type', '') else {"raw": first_response.text}
+                except Exception as ex:
+                    first_json = {"error": f"Request to pp.cumongol.mn failed: {str(ex)}"}
+
+                # ✅ Хэрвээ list хэлбэртэй байвал эхний dict-г сонгоно
+                if isinstance(first_json, list):
+                    if len(first_json) > 0 and isinstance(first_json[0], dict):
+                        payload_to_candidate = first_json[0]
+                    else:
+                        payload_to_candidate = {"error": "Invalid list structure from first API"}
+                else:
+                    payload_to_candidate = first_json
+
+                # 2-р API
+                second_api_url = "http://192.168.10.39:8000/candidate/"
+                second_response = None
+                try:
+                    second_response = requests.post(second_api_url, json=payload_to_candidate, headers=headers,
+                                                    timeout=50)
+                    second_json = second_response.json() if 'application/json' in second_response.headers.get(
+                        'Content-Type', '') else {"raw": second_response.text}
+                except Exception as ex:
+                    second_json = {"error": f"Request to internal API failed: {str(ex)}"}
+
+                # Final data structure
+                try:
+                    current_data = json.loads(instance.data)
+                except Exception:
+                    current_data = {
+                        "original": original_data,
+                    }
+
+                # Save back to DB
+                instance.data = json.dumps(current_data)
+                instance.responseData = json.dumps(second_json)
+                instance.status = "SUCCESS" if second_response and second_response.status_code == 200 else "ERROR"
+                instance.save()
+
                 return Response({
-                    "message": "Data saved successfully",
+                    "message": "Data saved and forwarded successfully",
+                    "data": current_data,
+                    "responseData": second_json
                 }, status=status.HTTP_201_CREATED)
+
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
