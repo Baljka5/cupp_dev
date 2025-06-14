@@ -97,8 +97,17 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
-    )
+    ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',  # IP-р хязгаарлалт
+        'rest_framework.throttling.UserRateThrottle',  # Authenticated user-р хязгаарлалт
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10/minute',  # API key байхгүй хэрэглэгч (IP-р хянах)
+        'user': '60/minute',  # API key эсвэл Login хийсэн хэрэглэгч
+    }
 }
+
 
 ROOT_URLCONF = 'cupp.urls'
 
