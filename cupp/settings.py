@@ -99,12 +99,12 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',  # IP-р хязгаарлалт
-        'rest_framework.throttling.UserRateThrottle',  # Authenticated user-р хязгаарлалт
+        'rest_framework.throttling.AnonRateThrottle',  # IP-д үндэслэсэн
+        'rest_framework.throttling.UserRateThrottle',  # is_authenticated хэрэглэгчдэд
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '10/minute',  # API key байхгүй хэрэглэгч (IP-р хянах)
-        'user': '60/minute',  # API key эсвэл Login хийсэн хэрэглэгч
+        'anon': '10/minute',
+        'user': '60/minute',
     }
 }
 

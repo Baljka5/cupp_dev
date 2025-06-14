@@ -1,6 +1,7 @@
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser  # ✅ нэмнэ
 
 class APIKeyAuthentication(BaseAuthentication):
     def authenticate(self, request):
@@ -10,4 +11,4 @@ class APIKeyAuthentication(BaseAuthentication):
         if not api_key or api_key != expected_key:
             raise AuthenticationFailed('Invalid or missing API key')
 
-        return (None, None)
+        return (AnonymousUser(), None)  # ✅ None биш
