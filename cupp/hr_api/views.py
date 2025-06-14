@@ -184,7 +184,7 @@ class SaveRawJsonView(APIView):
                     payload_to_candidate = first_json
 
                 # 2-р API
-                second_api_url = "http://192.168.10.39:8000/candidate/"
+                second_api_url = "http://10.10.90.90/candidate/"
                 second_response = None
                 try:
                     second_response = requests.post(second_api_url, json=payload_to_candidate, headers=headers,
