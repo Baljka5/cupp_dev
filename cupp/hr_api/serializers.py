@@ -36,19 +36,14 @@ class StoreConsultantSerializer(serializers.ModelSerializer):
 
 
 class SCAllocationSerializer(serializers.ModelSerializer):
-    # SC_Store_Allocation fields
     store_name = serializers.CharField()
     sc_name = serializers.CharField()
     store_no = serializers.CharField()
+    sc_email = serializers.SerializerMethodField()
+    sc_code = serializers.SerializerMethodField()  # ← нэмсэн хэсэг
 
-    # Extra fields from Allocation
     year = serializers.SerializerMethodField()
     month = serializers.SerializerMethodField()
-
-    # From Consultants (sc_mst)
-    sc_email = serializers.SerializerMethodField()
-
-    # From Area (via Allocation)
     area_team_no = serializers.SerializerMethodField()
     area_manager_name = serializers.SerializerMethodField()
     area_manager_surname = serializers.SerializerMethodField()
@@ -60,6 +55,7 @@ class SCAllocationSerializer(serializers.ModelSerializer):
             'id',
             'store_name',
             'sc_name',
+            'sc_code',  # ← шинэ талбар
             'store_no',
             'year',
             'month',
@@ -70,18 +66,14 @@ class SCAllocationSerializer(serializers.ModelSerializer):
             'area_manager_email',
         ]
 
-    # Cached Allocation lookup
     def get_allocation(self, obj):
         if not hasattr(self, '_allocation_cache'):
             self._allocation_cache = {}
-
         key = obj.consultant_id
-
         if key not in self._allocation_cache:
             self._allocation_cache[key] = AllocationTemp.objects.filter(
                 consultant_id=key
             ).select_related('area').first()
-
         return self._allocation_cache[key]
 
     def get_year(self, obj):
@@ -92,12 +84,15 @@ class SCAllocationSerializer(serializers.ModelSerializer):
         allocation = self.get_allocation(obj)
         return allocation.month if allocation else None
 
+    def get_sc_email(self, obj):
+        return obj.consultant.sc_email if obj.consultant else None
+
+    def get_sc_code(self, obj):
+        return obj.consultant.sc_code if obj.consultant else None
+
     def get_area_team_no(self, obj):
         allocation = self.get_allocation(obj)
         return allocation.area.team_no if allocation and allocation.area else None
-
-    def get_sc_email(self, obj):
-        return obj.consultant.sc_email if obj.consultant else None
 
     def get_area_manager_name(self, obj):
         allocation = self.get_allocation(obj)

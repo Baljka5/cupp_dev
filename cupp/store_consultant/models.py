@@ -90,7 +90,6 @@ class StoreConsultant(m.Model):
 
     ost_dt = m.CharField('Date', blank=True, null=True, max_length=10)
     is_locked = m.BooleanField('Is Locked', default=False, null=True)
-
     created_date = m.DateTimeField('Created date', auto_now_add=True, null=True)
     modified_date = m.DateTimeField('Modified date', auto_now=True, null=True)
     created_by = m.ForeignKey(User, verbose_name='Created by', related_name='store_consultant_created',
@@ -149,6 +148,7 @@ class Area(m.Model):
 
 class Consultants(m.Model):
     sc_name = m.CharField('Store name of consultants', max_length=50, blank=True, null=True)
+    sc_code = m.CharField('Store code', max_length=10, blank=True, null=True)
     sc_surname = m.CharField('Surname of store consultants', max_length=50, blank=True, null=True)
     sc_email = m.EmailField('Email address of store consultants', blank=True, null=True)
     is_active = m.BooleanField('SC active', blank=True, null=True, default=True)
