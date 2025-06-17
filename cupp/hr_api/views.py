@@ -174,7 +174,7 @@ class SaveRawJsonView(APIView):
                 except Exception as ex:
                     first_json = {"error": f"Request to pp.cumongol.mn failed: {str(ex)}"}
 
-                # ✅ Хэрвээ list хэлбэртэй байвал эхний dict-г сонгоно
+                # Хэрвээ list хэлбэртэй байвал эхний dict-г сонгоно
                 if isinstance(first_json, list):
                     if len(first_json) > 0 and isinstance(first_json[0], dict):
                         payload_to_candidate = first_json[0]
@@ -300,3 +300,128 @@ class ForwardPersonalInfoView(APIView):
                 "error": str(e),
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class FetchAndUpdateFromExternalView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def post(self, request):
+        try:
+            headers = {
+                "x-api-key": request.META.get("HTTP_X_API_KEY", "")
+            }
+
+            list_data_url = "https://pp.cumongol.mn/api/list-data/"
+
+            try:
+                response = requests.get(list_data_url, headers=headers, timeout=30, verify=False)
+                print("✅ Response status code:", response.status_code)
+                print("✅ Response headers:", response.headers)
+                print("✅ Raw response text:", response.text)
+
+                content_type = response.headers.get("Content-Type", "")
+                if content_type.startswith("application/json"):
+                    response_data = response.json()
+                else:
+                    print("⚠️ Unexpected Content-Type:", content_type)
+                    return Response({"error": f"Unexpected Content-Type: {content_type}"}, status=500)
+
+            except Exception as e:
+                return Response({"error": f"Failed to fetch from list-data API: {str(e)}"}, status=500)
+
+            # ⛔ If response is empty list
+            if not isinstance(response_data, list) or len(response_data) == 0:
+                return Response({
+                    "message": "Response received but no data found",
+                    "data_preview": response_data
+                }, status=200)
+
+            result = []
+
+            # 2. Iterate and update each entry
+            for item in response_data:
+                employee_id = item.get("employee_id", "")
+                if not employee_id:
+                    result.append({
+                        "status": "SKIPPED",
+                        "reason": "Missing employee_id",
+                        "item": item
+                    })
+                    continue
+
+                try:
+                    instance = PersonalInfoRaw.objects.filter(employee_id=employee_id).latest('created_at')
+                except PersonalInfoRaw.DoesNotExist:
+                    result.append({
+                        "employee_id": employee_id,
+                        "status": "SKIPPED",
+                        "reason": "No existing record found"
+                    })
+                    continue
+
+                # 3. Forward to candidate API
+                candidate_url = "http://10.10.90.90/candidate/"
+                try:
+                    post_response = requests.post(candidate_url, json=item, headers=headers, timeout=30)
+                    content_type_post = post_response.headers.get('Content-Type', '')
+                    if content_type_post.startswith("application/json"):
+                        post_json = post_response.json()
+                    else:
+                        post_json = {"raw": post_response.text}
+                except Exception as e:
+                    post_json = {"error": f"POST to candidate failed: {str(e)}"}
+                    instance.status = "ERROR"
+                else:
+                    instance.status = "SUCCESS" if post_response.status_code == 200 else "ERROR"
+
+                # 4. Update DB instance
+                instance.responseData = json.dumps(post_json)
+                instance.save()
+
+                result.append({
+                    "updated_id": instance.id,
+                    "employee_id": employee_id,
+                    "status": instance.status
+                })
+
+            return Response({
+                "message": "Processed all matched records",
+                "results": result
+            }, status=200)
+
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=500)
+
+
+
+class SaveOnlyRawJsonView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def post(self, request):
+        try:
+            original_data = request.data.copy()
+
+            instance = PersonalInfoRaw.objects.create(
+                data=json.dumps(original_data),
+                employee_id=original_data.get("employee_id", ""),
+                responseData=None,
+                status="Pending"
+            )
+
+            return Response({
+                "message": "Data saved successfully",
+                "id": instance.id,
+                "employee_id": instance.employee_id
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

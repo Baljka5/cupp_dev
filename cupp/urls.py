@@ -39,7 +39,8 @@ from cupp.point.views import get_store_location
 from cupp.zipmanager.views import upload_zip, zip_list, download_latest_zip, downloaded_devices
 from cupp.bi_embed_api.views import report_view, login, callback
 from cupp.hr_api.views import StoreCombinedInfoView, StoreListCombinedInfoView, StoreAddressInfoView, \
-    VeritechGeneralView, SaveRawJsonView, PersonalInfoListView, ForwardPersonalInfoView, ListDataView
+    VeritechGeneralView, SaveRawJsonView, PersonalInfoListView, ForwardPersonalInfoView, ListDataView, \
+    SaveOnlyRawJsonView, FetchAndUpdateFromExternalView
 from cupp.store_consultant.views import lock_list
 
 # from cupp.powerBI_api.views import fetch_powerbi_data
@@ -57,9 +58,10 @@ urlpatterns = [
     path('api/save-data/', SaveRawJsonView.as_view(), name='save-data'),
     path('api/list-data/', PersonalInfoListView.as_view(), name='list-data'),
     path('api/list-info/', ListDataView.as_view(), name='list-data'),
-
+    path('api/can-save-data/', SaveOnlyRawJsonView.as_view(), name='save-only-raw-json'),
     path('lock-list/', sc_views.lock_list, name='lock-list'),
     path('lock-update/', sc_views.lock_update, name='lock-update'),
+    path('api/fetch-and-save/', FetchAndUpdateFromExternalView.as_view(), name='fetch-and-save'),
 
     path('list/', zip_list, name='zip_list'),
     path('upload/', upload_zip, name='upload_zip'),
@@ -71,7 +73,7 @@ urlpatterns = [
     path('candidate_save/', fetch_and_save_candidate_employee_data, name='save_candidate_employee_data'),
     # path('power/', fetch_powerbi_data, name='save_powerbi_data'),
 
-    path('api/storemaster/', StoreMasterAPI.as_view(), name='storemaster-api'),
+    path('api/storemaster', StoreMasterAPI.as_view(), name='storemaster-api'),
     # path('fetch/mongo_biz_loc/', update_store_type.update_store_type, name='update_store_type'),
 
     path('ajax/get_districts/', get_districts, name='ajax_get_districts'),
