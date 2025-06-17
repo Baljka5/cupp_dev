@@ -3,7 +3,7 @@ from cupp.point.models import StorePlanning, City, District
 from cupp.store_trainer.models import StoreTrainer
 from cupp.store_consultant.models import StoreConsultant, Consultants, Area, SC_Store_AllocationTemp, AllocationTemp
 from cupp.veritech_api.models import General, Experience
-from cupp.hr_api.models import PersonalInfoRaw
+from cupp.hr_api.models import PersonalInfoRaw, EmpPersonalInfoRaw
 import json
 
 
@@ -134,6 +134,27 @@ class VeritechGeneralSerializer(serializers.ModelSerializer):
 class PersonalInfoRawSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalInfoRaw
+        fields = ['id', 'data', 'status', 'employee_id', 'responseData', 'created_at']
+
+    def to_representation(self, instance):
+        import json
+        result = super().to_representation(instance)
+
+        try:
+            result['data'] = json.loads(result['data'])
+        except Exception:
+            result['data'] = {"error": "Invalid JSON"}
+
+        try:
+            result['responseData'] = json.loads(result['responseData']) if result['responseData'] else {}
+        except Exception:
+            result['responseData'] = {"error": "Invalid JSON"}
+
+        return result
+
+class EmpPersonalInfoRawSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmpPersonalInfoRaw
         fields = ['id', 'data', 'status', 'employee_id', 'responseData', 'created_at']
 
     def to_representation(self, instance):

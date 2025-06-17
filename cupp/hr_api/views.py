@@ -16,7 +16,7 @@ from cupp.store_consultant.models import (
 from .serializers import (
     StorePlanningSerializer, StoreTrainerSerializer, StoreConsultantSerializer,
     SCAllocationSerializer, CitySerializer, DistrictSerializer, VeritechGeneralSerializer, PersonalInfoRawSerializer,
-    PersonalInfoRaw
+    PersonalInfoRaw, EmpPersonalInfoRawSerializer, EmpPersonalInfoRaw
 )
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.authentication import SessionAuthentication
@@ -240,6 +240,23 @@ class PersonalInfoListView(APIView):
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class EmpPersonalInfoListView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def get(self, request):
+        try:
+            records = EmpPersonalInfoRaw.objects.filter(status="Pending").order_by('-created_at')[:50]
+            serializer = EmpPersonalInfoRawSerializer(records, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 class ListDataView(APIView):
     authentication_classes = [APIKeyAuthentication]
@@ -425,3 +442,103 @@ class SaveOnlyRawJsonView(APIView):
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class EmpSaveOnlyRawJsonView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def post(self, request):
+        try:
+            original_data = request.data.copy()
+
+            instance = EmpPersonalInfoRaw.objects.create(
+                data=json.dumps(original_data),
+                employee_id=original_data.get("employee_id", ""),
+                responseData=None,
+                status="Pending"
+            )
+
+            return Response({
+                "message": "Data saved successfully",
+                "id": instance.id,
+                "employee_id": instance.employee_id
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class PersonalInfoMergedView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def get(self, request, pk):
+        try:
+            instance = PersonalInfoRaw.objects.get(id=pk)
+
+            try:
+                data_json = json.loads(instance.data)
+            except Exception:
+                data_json = {"error": "Invalid data JSON"}
+
+            try:
+                response_json = json.loads(instance.responseData) if instance.responseData else {}
+            except Exception:
+                response_json = {"error": "Invalid responseData JSON"}
+
+            # Combine both
+            merged = {
+                "data": data_json,
+                "responseData": response_json,
+                "status": instance.status,
+                "employee_id": instance.employee_id,
+                "created_at": instance.created_at
+            }
+
+            return Response(merged, status=200)
+
+        except PersonalInfoRaw.DoesNotExist:
+            return Response({"error": "Record not found"}, status=404)
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=500)
+
+class EmpPersonalInfoMergedView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def get(self, request, pk):
+        try:
+            instance = EmpPersonalInfoRaw.objects.get(id=pk)
+
+            try:
+                data_json = json.loads(instance.data)
+            except Exception:
+                data_json = {"error": "Invalid data JSON"}
+
+            try:
+                response_json = json.loads(instance.responseData) if instance.responseData else {}
+            except Exception:
+                response_json = {"error": "Invalid responseData JSON"}
+
+            # Combine both
+            merged = {
+                "data": data_json,
+                "responseData": response_json,
+                "status": instance.status,
+                "employee_id": instance.employee_id,
+                "created_at": instance.created_at
+            }
+
+            return Response(merged, status=200)
+
+        except EmpPersonalInfoRaw.DoesNotExist:
+            return Response({"error": "Record not found"}, status=404)
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=500)
