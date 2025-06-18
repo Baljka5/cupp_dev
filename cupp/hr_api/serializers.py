@@ -88,7 +88,29 @@ class SCAllocationSerializer(serializers.ModelSerializer):
         return obj.consultant.sc_email if obj.consultant else None
 
     def get_sc_code(self, obj):
-        return obj.consultant.sc_code if obj.consultant else None
+        original_code = obj.consultant.sc_code if obj.consultant else None
+        allocation = self.get_allocation(obj)
+
+        if not (allocation and allocation.area and original_code):
+            return original_code  # fallback to default if any missing
+
+        # area_team_no → "TEAM 2" → 2
+        try:
+            team_number = allocation.area.team_no.strip().split()[-1]
+        except Exception:
+            team_number = ""
+
+        # sc_code → "SC5" → 5
+        try:
+            sc_number = original_code.strip().lstrip("SC")
+        except Exception:
+            sc_number = ""
+
+        # Construct new format
+        if team_number.isdigit() and sc_number.isdigit():
+            return f"SC{team_number}-{sc_number}"
+        else:
+            return original_code
 
     def get_area_team_no(self, obj):
         allocation = self.get_allocation(obj)
