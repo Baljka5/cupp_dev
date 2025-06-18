@@ -65,8 +65,8 @@ urlpatterns = [
     path('lock-list/', sc_views.lock_list, name='lock-list'),
     path('lock-update/', sc_views.lock_update, name='lock-update'),
     path('api/fetch-and-save/', FetchAndUpdateFromExternalView.as_view(), name='fetch-and-save'),
-    path('api/can-get-data/<int:pk>/', PersonalInfoMergedView.as_view(), name='personal-info-merged'),
-    path('api/emp-get-data/<int:pk>/', EmpPersonalInfoMergedView.as_view(), name='personal-info-merged'),
+    path('api/can-get-data/<int:pk>', PersonalInfoMergedView.as_view(), name='personal-info-merged'),
+    path('api/emp-get-data/<int:pk>', EmpPersonalInfoMergedView.as_view(), name='personal-info-merged'),
 
     path('list/', zip_list, name='zip_list'),
     path('upload/', upload_zip, name='upload_zip'),
