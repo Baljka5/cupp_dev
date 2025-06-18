@@ -490,10 +490,7 @@ class PersonalInfoMergedView(APIView):
             # Combine both
             merged = {
                 "data": data_json,
-                "responseData": response_json,
-                "status": instance.status,
-                "employee_id": instance.employee_id,
-                "created_at": instance.created_at
+                "responseData": response_json
             }
 
             return Response(merged, status=200)
