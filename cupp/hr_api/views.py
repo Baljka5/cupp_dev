@@ -240,6 +240,7 @@ class PersonalInfoListView(APIView):
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class EmpPersonalInfoListView(APIView):
     authentication_classes = [APIKeyAuthentication]
     permission_classes = []
@@ -255,7 +256,6 @@ class EmpPersonalInfoListView(APIView):
                 "error": str(e),
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 
 class ListDataView(APIView):
@@ -414,7 +414,6 @@ class FetchAndUpdateFromExternalView(APIView):
             }, status=500)
 
 
-
 class SaveOnlyRawJsonView(APIView):
     authentication_classes = [APIKeyAuthentication]
     permission_classes = []
@@ -424,6 +423,7 @@ class SaveOnlyRawJsonView(APIView):
             original_data = request.data.copy()
 
             instance = PersonalInfoRaw.objects.create(
+                unique_id=original_data.get("unique_id", ""),
                 data=json.dumps(original_data),
                 employee_id=original_data.get("employee_id", ""),
                 responseData=None,
@@ -432,8 +432,7 @@ class SaveOnlyRawJsonView(APIView):
 
             return Response({
                 "message": "Data saved successfully",
-                "id": instance.id,
-                "employee_id": instance.employee_id
+                "unique_id": instance.unique_id
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
@@ -441,6 +440,7 @@ class SaveOnlyRawJsonView(APIView):
                 "error": str(e),
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class EmpSaveOnlyRawJsonView(APIView):
     authentication_classes = [APIKeyAuthentication]
@@ -469,13 +469,14 @@ class EmpSaveOnlyRawJsonView(APIView):
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class PersonalInfoMergedView(APIView):
     authentication_classes = [APIKeyAuthentication]
     permission_classes = []
 
-    def get(self, request, pk):
+    def get(self, request, unique_id):
         try:
-            instance = PersonalInfoRaw.objects.get(id=pk)
+            instance = PersonalInfoRaw.objects.filter(unique_id=unique_id).latest('created_at')
 
             try:
                 data_json = json.loads(instance.data)
@@ -502,6 +503,7 @@ class PersonalInfoMergedView(APIView):
                 "error": str(e),
                 "traceback": traceback.format_exc()
             }, status=500)
+
 
 class EmpPersonalInfoMergedView(APIView):
     authentication_classes = [APIKeyAuthentication]

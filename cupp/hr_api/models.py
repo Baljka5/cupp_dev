@@ -4,6 +4,7 @@ import json
 
 
 class PersonalInfoRaw(models.Model):
+    unique_id = models.CharField(max_length=50, blank=True)
     data = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, blank=True, default='PENDING')
