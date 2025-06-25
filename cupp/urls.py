@@ -105,7 +105,7 @@ urlpatterns = [
     path('get-unallocated-stores/', sc_views.get_unallocated_stores, name='get_unallocated_stores'),
 
     path('sc-index/', sc_views.scIndex, name='sc-index'),
-    path('store-index/', sc_views.index, name='store-index'),
+    path('store-index', sc_views.index, name='store-index'),
     path('sc-view/<int:id>', sc_views.sc_view, name='sc-views'),
     path('sc-edit/<int:id>', sc_views.edit, name='sc-edit'),
     path('sc-update/<int:id>', sc_views.update, name='sc-update'),
