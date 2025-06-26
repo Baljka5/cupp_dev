@@ -89,6 +89,7 @@ class StoreConsultant(m.Model):
     store_email = m.EmailField('Store email', blank=True, null=True)
 
     ost_dt = m.CharField('Date', blank=True, null=True, max_length=10)
+    cls_dt = m.CharField('Close Date', blank=True, null=True, max_length=10)
     is_locked = m.BooleanField('Is Locked', default=False, null=True)
     created_date = m.DateTimeField('Created date', auto_now_add=True, null=True)
     modified_date = m.DateTimeField('Modified date', auto_now=True, null=True)
