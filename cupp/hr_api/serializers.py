@@ -5,15 +5,26 @@ from cupp.store_consultant.models import StoreConsultant, Consultants, Area, SC_
 from cupp.veritech_api.models import General, Experience
 from cupp.hr_api.models import PersonalInfoRaw, EmpPersonalInfoRaw
 import json
+import re
 
 
 class StorePlanningSerializer(serializers.ModelSerializer):
+    address = serializers.SerializerMethodField()
+
     class Meta:
         model = StorePlanning
         fields = [
-            'grade', 'address_det', 'cluster', 'addr1_prov', 'addr2_dist', 'addr3_khr', 'address', 'near_school',
-            'address_simple', 'lat', 'lon'
+            'grade', 'address_det', 'cluster', 'addr1_prov', 'addr2_dist', 'addr3_khr',
+            'address', 'near_school', 'address_simple', 'lat', 'lon'
         ]
+
+    def get_address(self, obj):
+        """
+        Урд талын тоо болон . тэмдэгт арилгана (жишээ: '14. Сүхбаатарын гудамж' → 'Сүхбаатарын гудамж')
+        """
+        if not obj.address:
+            return None
+        return re.sub(r'^\s*\d+\.?\s*', '', obj.address.strip())
 
 
 class StoreTrainerSerializer(serializers.ModelSerializer):
@@ -25,14 +36,26 @@ class StoreTrainerSerializer(serializers.ModelSerializer):
 
 
 class StoreConsultantSerializer(serializers.ModelSerializer):
+    cls_dt = serializers.SerializerMethodField()
     class Meta:
         model = StoreConsultant
         fields = [
             'store_id', 'store_name', 'team_mgr', 'sc_name', 'sm_num', 'am_num',
             'tt_type', 'wday_hours', 'wend_hours', 'alc_reason', 'ciga_reason', 'sm_name', 'sm_phone', 'created_date',
             'out_city_flow', 'in_out_flow', 'near_bus_station', 'bus_station_range',
-            'university_range', 'high_school_range', 'use_yn', 'store_type', 'store_email', 'ost_dt'
+            'university_range', 'high_school_range', 'use_yn', 'store_type', 'store_email', 'ost_dt', 'cls_dt'
         ]
+
+    def get_cls_dt(self, obj):
+        val = obj.cls_dt
+        if not val:
+            return None
+
+        val_str = str(val).strip()
+        if val_str.startswith("9999"):
+            return 0
+
+        return val
 
 
 class SCAllocationSerializer(serializers.ModelSerializer):
@@ -173,6 +196,7 @@ class PersonalInfoRawSerializer(serializers.ModelSerializer):
             result['responseData'] = {"error": "Invalid JSON"}
 
         return result
+
 
 class EmpPersonalInfoRawSerializer(serializers.ModelSerializer):
     class Meta:
