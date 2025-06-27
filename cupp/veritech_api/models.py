@@ -1,8 +1,15 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 
 
-# General table
+def safe_int(value):
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return 0
+
+
 class General(models.Model):
     employeeid = models.CharField(max_length=20, null=True, blank=True)
     gender = models.CharField(max_length=10, null=True, blank=True)
@@ -22,8 +29,40 @@ class General(models.Model):
     departmentname = models.CharField(max_length=100, null=True, blank=True)
     positionname = models.CharField(max_length=100, null=True, blank=True)
     insuredtypename = models.CharField(max_length=100, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)  # Automatically set when created
-    updated_at = models.DateTimeField(auto_now=True)  # Automatically update on every save
+    statusname = models.CharField(max_length=100, null=True, blank=True)
+    currentstatusname = models.CharField(max_length=100, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def save_data_to_db(cls, data):
+        employeeid = data.get('employeeid', None)
+        if not employeeid:
+            return  # Skip if no employeeid
+
+        general_defaults = {
+            'gender': data.get('gender', None),
+            'employeecode': data.get('employeecode', None),
+            'originname': data.get('originname', None),
+            'urag': data.get('urag', None),
+            'firstname': data.get('firstname', None),
+            'lastname': data.get('lastname', None),
+            'stateregnumber': data.get('stateregnumber', None),
+            'dateofbirth': parse_date(data.get('dateofbirth', None)) if data.get('dateofbirth') else None,
+            'employeephone': data.get('employeephone', None),
+            'postaddress': data.get('postaddress', None),
+            'educationlevel': data.get('educationlevel', None),
+            'maritalstatus': data.get('maritalstatus', None),
+            'nooffamilymember': safe_int(data.get('nooffamilymember', 0)),
+            'noofchildren': safe_int(data.get('noofchildren', 0)),
+            'departmentname': data.get('departmentname', None),
+            'positionname': data.get('positionname', None),
+            'insuredtypename': data.get('insuredtypename', None),
+            'statusname': data.get('statusname', None),
+            'currentstatusname': data.get('currentstatusname', None)
+        }
+
+        cls.objects.update_or_create(employeeid=employeeid, defaults=general_defaults)
 
 
 # Address table

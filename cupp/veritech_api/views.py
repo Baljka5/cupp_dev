@@ -138,15 +138,10 @@ def save_multiple_candidate_employees(candidate_employee_data):
 
 
 def save_multiple_employees(employee_data):
-    """
-    Save data for the first 60 employees (or fewer if not available), ensuring no duplicates.
-    """
     for idx, employee in enumerate(employee_data.values()):
         if idx >= 10000:
             break
-        # Check if employee with the same employeeid already exists to avoid duplication
-        if not General.objects.filter(employeeid=employee.get('employeeid')).exists():
-            save_data_to_db(employee)
+        save_data_to_db(employee)
 
 
 def save_multiple_inactive_employees(employee_data):
@@ -192,7 +187,9 @@ def save_data_to_db(data):
         noofchildren=safe_int(data.get('noofchildren', 0)),
         departmentname=data.get('departmentname', None),
         positionname=data.get('positionname', None),
-        insuredtypename=data.get('insuredtypename', None)
+        insuredtypename=data.get('insuredtypename', None),
+        statusname=data.get('statusname', None),
+        currentstatusname=data.get('currentstatusname', None)
     )
     general_info.save()
 
