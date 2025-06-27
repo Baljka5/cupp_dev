@@ -46,6 +46,7 @@ class StoreTrainer(m.Model):
     monitor_eq = m.CharField('Recording device information', blank=True, null=True, max_length=100)
     hard_disk_size_tb = m.IntegerField('Hard disk size', blank=True, null=True, default=0)
     video_storage_day = m.IntegerField('Days to keep records', blank=True, null=True, default=0)
+    is_locked_st = m.BooleanField(default=False, null=True)
     created_date = m.DateTimeField('Created date', auto_now_add=True)
     modified_date = m.DateTimeField('Modified date', auto_now=True)
     created_by = m.ForeignKey(User, verbose_name='Created by', related_name='store_trainer_created',

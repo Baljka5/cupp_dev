@@ -83,12 +83,11 @@
                                 <td><a href="/st-view/{{ model.id }}" class="btn btn-danger"
                                        style="background-color: #efc47f; color: black;">View</a>
                                 <td>
-                                    {% if model.is_locked %}
+                                    {% if model.is_locked_st %}
                                         <button class="btn btn-secondary" disabled>Locked</button>
                                     {% else %}
                                         <a href="{% url 'sc-edit' model.id %}" class="btn btn-primary">Edit</a>
                                     {% endif %}
-                                </td>
                                 </td>
                             </tr>
                         {% endfor %}

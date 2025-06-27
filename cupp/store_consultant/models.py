@@ -90,7 +90,9 @@ class StoreConsultant(m.Model):
 
     ost_dt = m.CharField('Date', blank=True, null=True, max_length=10)
     cls_dt = m.CharField('Close Date', blank=True, null=True, max_length=10)
-    is_locked = m.BooleanField('Is Locked', default=False, null=True)
+    is_locked_sc = m.BooleanField('Is Locked', default=False, null=True)
+    is_locked_st = m.BooleanField('Is Locked', default=False, null=True)
+    is_locked_sp = m.BooleanField('Is Locked', default=False, null=True)
     created_date = m.DateTimeField('Created date', auto_now_add=True, null=True)
     modified_date = m.DateTimeField('Modified date', auto_now=True, null=True)
     created_by = m.ForeignKey(User, verbose_name='Created by', related_name='store_consultant_created',

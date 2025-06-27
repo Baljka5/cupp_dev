@@ -817,19 +817,22 @@ def lock_list(request):
 @require_POST
 @login_required
 def lock_update(request):
-    """
-    Lock товчлуураар ирсэн мэдээллийг хадгалах view.
-    Сонгогдсон id-тай StoreConsultant-уудыг lock (is_locked=True),
-    бусдыг unlock (is_locked=False) болгоно.
-    """
-    lock_ids = request.POST.getlist('lock_ids')
+    lock_ids_sc = request.POST.getlist('lock_ids_sc')
+    lock_ids_sp = request.POST.getlist('lock_ids_sp')
+    lock_ids_st = request.POST.getlist('lock_ids_st')
 
-    # Бүх StoreConsultant-уудыг lock-гүй болгоно
-    StoreConsultant.objects.update(is_locked=False)
+    StoreConsultant.objects.update(
+        is_locked_sc=False,
+        is_locked_sp=False,
+        is_locked_st=False
+    )
 
-    # Сонгогдсон ID-тай StoreConsultant-уудыг lock-тай болгоно
-    if lock_ids:
-        StoreConsultant.objects.filter(id__in=lock_ids).update(is_locked=True)
+    if lock_ids_sc:
+        StoreConsultant.objects.filter(id__in=lock_ids_sc).update(is_locked_sc=True)
+    if lock_ids_sp:
+        StoreConsultant.objects.filter(id__in=lock_ids_sp).update(is_locked_sp=True)
+    if lock_ids_st:
+        StoreTrainer.objects.filter(id__in=lock_ids_st).update(is_locked_st=True)
 
     messages.success(request, "Lock тохиргоо амжилттай хадгалагдлаа.")
     return redirect('lock-list')

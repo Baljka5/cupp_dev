@@ -3,7 +3,7 @@
 {% load widget_tweaks %}
 
 {% block content %}
-    <div class="content">
+    <div class="content" style="margin-top: 30px;">
         <form method="post" action="{% url 'lock-update' %}">
             {% csrf_token %}
             <div class="row">
@@ -22,7 +22,7 @@
                         <th>Дугаар</th>
                         <th>Салбарын дугаар</th>
                         <th>Store Consultant</th>
-                        <th>Store Planner</th>
+{#                        <th>Store Planner</th>#}
                         <th>Store Trainer</th>
                     </tr>
                     </thead>
@@ -32,16 +32,16 @@
                             <td>{{ model.id }}</td>
                             <td>{{ model.store_id }}</td>
                             <td>
-                                <input type="checkbox" name="lock_ids" value="{{ model.id }}"
-                                       {% if model.is_locked %}checked{% endif %}>
+                                <input type="checkbox" name="lock_ids_sc" value="{{ model.id }}"
+                                       {% if model.is_locked_sc %}checked{% endif %}>
                             </td>
+{#                            <td>#}
+{#                                <input type="checkbox" name="lock_ids_sp" value="{{ model.id }}"#}
+{#                                       {% if model.is_locked_sp %}checked{% endif %}>#}
+{#                            </td>#}
                             <td>
-                                <input type="checkbox" name="lock_ids" value="{{ model.id }}"
-                                       {% if model.is_locked %}checked{% endif %}>
-                            </td>
-                            <td>
-                                <input type="checkbox" name="lock_ids" value="{{ model.id }}"
-                                       {% if model.is_locked %}checked{% endif %}>
+                                <input type="checkbox" name="lock_ids_st" value="{{ model.id }}"
+                                       {% if model.is_locked_st %}checked{% endif %}>
                             </td>
                         </tr>
                     {% endfor %}
