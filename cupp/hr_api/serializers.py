@@ -37,6 +37,7 @@ class StoreTrainerSerializer(serializers.ModelSerializer):
 
 class StoreConsultantSerializer(serializers.ModelSerializer):
     cls_dt = serializers.SerializerMethodField()
+
     class Meta:
         model = StoreConsultant
         fields = [
@@ -169,7 +170,8 @@ class VeritechGeneralSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = General
-        fields = ['employeeid', 'employeecode', 'gender', 'firstname', 'lastname', 'postaddress', 'department_names']
+        fields = ['employeeid', 'employeecode', 'gender', 'firstname', 'lastname', 'postaddress', 'department_names',
+                  'currentstatusname', 'statusname']
 
     def get_department_names(self, obj):
         experience_map = self.context.get("experience_map", {})

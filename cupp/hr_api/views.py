@@ -131,17 +131,15 @@ class VeritechGeneralView(APIView):
     def get(self, request):
         records = General.objects.all()
 
-        # N+1 query-ээс сэргийлэх: бүх employeeid-д таарах experience-үүдийг татаж map үүсгэнэ
         exp_qs = Experience.objects.filter(enddate__isnull=True)
         exp_map = {}
 
         for exp in exp_qs:
             key = str(exp.employeeid)
-            exp_map.setdefault(key, []).append(exp.departmentname)
+            exp_map.setdefault(key, []).append((exp.departmentname, exp.positionname))
 
         serializer = VeritechGeneralSerializer(records, many=True, context={"experience_map": exp_map})
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 class SaveRawJsonView(APIView):
     authentication_classes = [APIKeyAuthentication]
