@@ -228,7 +228,7 @@ class PersonalInfoListView(APIView):
 
     def get(self, request):
         try:
-            records = PersonalInfoRaw.objects.filter(status="Pending").order_by('-created_at')[:50]
+            records = PersonalInfoRaw.objects.filter()
             serializer = PersonalInfoRawSerializer(records, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 

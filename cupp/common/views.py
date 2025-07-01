@@ -46,6 +46,8 @@ class Map(LoginRequiredMixin, g.TemplateView):
             return ['store_trainer/show.html']
         elif self.request.user.groups.filter(name='plannig_manager').exists():
             return ['store_consultant/index.html']
+        elif self.request.user.groups.filter(name='Sales_Analyst').exists():
+            return ['store_consultant/lock.html']
         return [self.template_name]
 
     def get_context_data(self, **kwargs):

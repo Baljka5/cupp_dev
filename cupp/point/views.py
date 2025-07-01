@@ -463,5 +463,7 @@ def custom_login_redirect(request):
         return redirect('/st-index/')
     elif request.user.groups.filter(name='planning_manager').exists():
         return redirect('/sc-index/')
+    elif request.user.groups.filter(name='Sales_Analyst').exists():
+        return redirect('/lock-list/')
     else:
         return redirect('/default-redirect/')

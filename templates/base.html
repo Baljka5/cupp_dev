@@ -257,12 +257,12 @@
                             <span>Allocation</span>
                         </a>
                     </li>
-{#                    <li class="nav-item">#}
-{#                        <a href="{% url 'sc-add-index' %}" class="navbar-nav-link">#}
-{#                            <i class="icon-add mr-1"></i>#}
-{#                            <span>ASC</span>#}
-{#                        </a>#}
-{#                    </li>#}
+                    {#                    <li class="nav-item">#}
+                    {#                        <a href="{% url 'sc-add-index' %}" class="navbar-nav-link">#}
+                    {#                            <i class="icon-add mr-1"></i>#}
+                    {#                            <span>ASC</span>#}
+                    {#                        </a>#}
+                    {#                    </li>#}
                 {% endif %}
                 {% if user.is_superuser %}
                     <li class="nav-item">
@@ -273,7 +273,8 @@
                     </li>
 
                 {% endif %}
-                {% if user.is_superuser %}
+                {% is_in_sales_analyst as user_in_sales_analyst %}
+                {% if user_in_sales_analyst %}
                     <li class="nav-item">
                         <a href="/lock-list/" class="navbar-nav-link">
                             <i class="icon-lock mr-1"></i>

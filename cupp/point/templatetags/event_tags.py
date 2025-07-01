@@ -85,6 +85,10 @@ def is_in_planning_manager(context):
     request = context['request']
     return request.user.groups.filter(name='planning_manager').exists() or request.user.is_superuser
 
+@register.simple_tag(takes_context=True)
+def is_in_sales_analyst(context):
+    request = context['request']
+    return request.user.groups.filter(name='Sales_Analyst').exists() or request.user.is_superuser
 
 @register.filter
 def truncate_chars(value, num):
