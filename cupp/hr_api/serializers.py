@@ -4,6 +4,7 @@ from cupp.store_trainer.models import StoreTrainer
 from cupp.store_consultant.models import StoreConsultant, Consultants, Area, SC_Store_AllocationTemp, AllocationTemp
 from cupp.veritech_api.models import General, Experience
 from cupp.hr_api.models import PersonalInfoRaw, EmpPersonalInfoRaw
+from datetime import date
 import json
 import re
 
@@ -166,16 +167,99 @@ class DistrictSerializer(serializers.ModelSerializer):
 
 
 class VeritechGeneralSerializer(serializers.ModelSerializer):
-    department_names = serializers.SerializerMethodField()
+    department_name = serializers.SerializerMethodField()
+    position_name = serializers.SerializerMethodField()
+    store = serializers.SerializerMethodField()
+    type = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
+    total_years_worked = serializers.SerializerMethodField()
+    joined_date = serializers.SerializerMethodField()
+    cu_years_worked = serializers.SerializerMethodField()
 
     class Meta:
         model = General
-        fields = ['employeeid', 'employeecode', 'gender', 'firstname', 'lastname', 'postaddress', 'department_names',
-                  'currentstatusname', 'statusname']
+        fields = [
+            'employeeid', 'employeecode', 'urag', 'firstname', 'lastname',
+            'gender', 'stateregnumber', 'dateofbirth', 'postaddress',
+            'department_name', 'position_name', 'store',
+            'type', 'status', 'age',
+            'total_years_worked', 'joined_date', 'cu_years_worked'
+        ]
 
-    def get_department_names(self, obj):
-        experience_map = self.context.get("experience_map", {})
-        return experience_map.get(str(obj.employeeid), [])
+    def get_experience_list(self, obj):
+        experience_map_all = self.context.get("experience_full_map", {})
+        return experience_map_all.get(str(obj.employeeid), [])
+
+    def get_department_name(self, obj):
+        experience = self.context.get("experience_map", {}).get(str(obj.employeeid), [])
+        return experience[0][0] if experience else None
+
+    def get_position_name(self, obj):
+        experience = self.context.get("experience_map", {}).get(str(obj.employeeid), [])
+        return experience[0][1] if experience else None
+
+    def get_store(self, obj):
+        dept_name = self.get_department_name(obj)
+        if dept_name and dept_name.startswith("CU"):
+            return dept_name
+        return ""
+
+    def get_type(self, obj):
+        return obj.statusname
+
+    def get_status(self, obj):
+        return obj.currentstatusname
+
+    def get_age(self, obj):
+        if obj.dateofbirth:
+            today = date.today()
+            return today.year - obj.dateofbirth.year - (
+                    (today.month, today.day) < (obj.dateofbirth.month, obj.dateofbirth.day)
+            )
+        return None
+
+    def get_total_years_worked(self, obj):
+        total_days = 0
+        today = date.today()
+        for exp in self.get_experience_list(obj):
+            start = exp.get("startdate")
+            end = exp.get("enddate") or today
+            if start:
+                total_days += (end - start).days
+
+        return round(total_days / 365, 2) if total_days else 0
+
+    def get_joined_date(self, obj):
+        experience_list = self.get_experience_list(obj)
+        if experience_list:
+            start_dates = [exp['startdate'] for exp in experience_list if exp.get('startdate')]
+            if start_dates:
+                return min(start_dates)
+        return None
+
+    # def get_joined_date(self, obj):
+    #     experience_list = self.get_experience_list(obj)
+    #     start_dates = [exp['startdate'] for exp in experience_list if exp.get('startdate')]
+    #     return min(start_dates) if start_dates else None
+
+    def get_left_date(self, obj):
+        experience_list = self.get_experience_list(obj)
+        end_dates = [exp['enddate'] for exp in experience_list if exp.get('enddate')]
+        return max(end_dates) if end_dates else None
+
+    def get_cu_years_worked(self, obj):
+        cu_days = 0
+        today = date.today()
+        for exp in self.get_experience_list(obj):
+            dept = exp.get("departmentname", "")
+            if dept.startswith("CU"):
+                start = exp.get("startdate")
+                end = exp.get("enddate") or today
+                if start:
+                    cu_days += (end - start).days
+
+        return round(cu_days / 365, 2) if cu_days else 0
 
 
 class PersonalInfoRawSerializer(serializers.ModelSerializer):

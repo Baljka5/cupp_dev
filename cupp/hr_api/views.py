@@ -131,15 +131,34 @@ class VeritechGeneralView(APIView):
     def get(self, request):
         records = General.objects.all()
 
-        exp_qs = Experience.objects.filter(enddate__isnull=True)
-        exp_map = {}
+        exp_qs_all = Experience.objects.all()
+        exp_qs_current = Experience.objects.filter(enddate__isnull=True)
 
-        for exp in exp_qs:
+        exp_map = {}
+        exp_full_map = {}
+
+        for exp in exp_qs_current:
             key = str(exp.employeeid)
             exp_map.setdefault(key, []).append((exp.departmentname, exp.positionname))
 
-        serializer = VeritechGeneralSerializer(records, many=True, context={"experience_map": exp_map})
+        for exp in exp_qs_all:
+            key = str(exp.employeeid)
+            exp_full_map.setdefault(key, []).append({
+                "startdate": exp.startdate,
+                "enddate": exp.enddate,
+                "departmentname": exp.departmentname
+            })
+
+        serializer = VeritechGeneralSerializer(
+            records,
+            many=True,
+            context={
+                "experience_map": exp_map,
+                "experience_full_map": exp_full_map
+            }
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class SaveRawJsonView(APIView):
     authentication_classes = [APIKeyAuthentication]
@@ -228,7 +247,7 @@ class PersonalInfoListView(APIView):
 
     def get(self, request):
         try:
-            records = PersonalInfoRaw.objects.filter()
+            records = PersonalInfoRaw.objects.filter(status="Pending").order_by('-created_at')[:50]
             serializer = PersonalInfoRawSerializer(records, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
