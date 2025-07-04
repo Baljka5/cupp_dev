@@ -181,7 +181,7 @@ class VeritechGeneralSerializer(serializers.ModelSerializer):
         model = General
         fields = [
             'employeeid', 'employeecode', 'urag', 'firstname', 'lastname',
-            'gender', 'stateregnumber', 'dateofbirth', 'postaddress',
+            'gender', 'stateregnumber', 'dateofbirth', 'postaddress', 'employeephone',
             'department_name', 'position_name', 'store',
             'type', 'status', 'age',
             'total_years_worked', 'joined_date', 'cu_years_worked'

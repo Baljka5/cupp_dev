@@ -20,7 +20,7 @@ from .serializers import (
 )
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.authentication import SessionAuthentication
-from .authentication import APIKeyAuthentication
+from .authentication import APIKeyAuthentication, VeritechOnlyAPIKeyAuthentication
 
 
 class StoreListCombinedInfoView(APIView):
@@ -125,7 +125,7 @@ class StoreAddressInfoView(APIView):
 
 
 class VeritechGeneralView(APIView):
-    authentication_classes = [APIKeyAuthentication]
+    authentication_classes = [VeritechOnlyAPIKeyAuthentication]  # ← шинэ класс
     permission_classes = []
 
     def get(self, request):
