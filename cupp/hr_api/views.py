@@ -495,12 +495,13 @@ class EmpSaveOnlyRawJsonView(APIView):
                         "unique_id": instance.unique_id
                     }, status=status.HTTP_200_OK)
 
-                else:
-                    # Other statuses (like Pending) — treat as new
-                    pass
+                elif instance.status == "Pending":
+                    return Response({
+                        "message": "Pending байна. Дараа хүсэлт илгээнэ үү",
+                        "unique_id": instance.unique_id
+                    }, status=status.HTTP_429_TOO_MANY_REQUESTS)  # Optional: or 200
 
-            # Хэрвээ байхгүй эсвэл шинэ бичлэг үүсгэх шаардлагатай бол:
-            instance = PersonalInfoRaw.objects.create(
+            instance = EmpPersonalInfoRaw.objects.create(
                 unique_id=unique_id,
                 data=json.dumps(original_data),
                 employee_id=original_data.get("employee_id", ""),
@@ -518,6 +519,7 @@ class EmpSaveOnlyRawJsonView(APIView):
                 "error": str(e),
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class PersonalInfoMergedView(APIView):
     authentication_classes = [APIKeyAuthentication]
