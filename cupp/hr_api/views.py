@@ -466,8 +466,42 @@ class EmpSaveOnlyRawJsonView(APIView):
     def post(self, request):
         try:
             original_data = request.data.copy()
+            unique_id = original_data.get("unique_id", "")
 
-            instance = EmpPersonalInfoRaw.objects.create(
+            if not unique_id:
+                return Response({
+                    "error": "unique_id is required"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            instance = PersonalInfoRaw.objects.filter(unique_id=unique_id).order_by('-created_at').first()
+
+            if instance:
+                if instance.status == "Success":
+                    return Response({
+                        "message": "Already saved",
+                        "unique_id": instance.unique_id,
+                        "status": instance.status
+                    }, status=status.HTTP_200_OK)
+
+                elif instance.status == "Failed":
+                    instance.data = json.dumps(original_data)
+                    instance.employee_id = original_data.get("employee_id", "")
+                    instance.responseData = None
+                    instance.status = "Pending"
+                    instance.save()
+
+                    return Response({
+                        "message": "Existing record updated to Pending",
+                        "unique_id": instance.unique_id
+                    }, status=status.HTTP_200_OK)
+
+                else:
+                    # Other statuses (like Pending) — treat as new
+                    pass
+
+            # Хэрвээ байхгүй эсвэл шинэ бичлэг үүсгэх шаардлагатай бол:
+            instance = PersonalInfoRaw.objects.create(
+                unique_id=unique_id,
                 data=json.dumps(original_data),
                 employee_id=original_data.get("employee_id", ""),
                 responseData=None,
@@ -475,9 +509,8 @@ class EmpSaveOnlyRawJsonView(APIView):
             )
 
             return Response({
-                "message": "Data saved successfully",
-                "id": instance.id,
-                "employee_id": instance.employee_id
+                "message": "New data saved successfully",
+                "unique_id": instance.unique_id
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
@@ -485,7 +518,6 @@ class EmpSaveOnlyRawJsonView(APIView):
                 "error": str(e),
                 "traceback": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class PersonalInfoMergedView(APIView):
     authentication_classes = [APIKeyAuthentication]
