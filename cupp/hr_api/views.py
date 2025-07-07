@@ -497,7 +497,7 @@ class EmpSaveOnlyRawJsonView(APIView):
 
                 elif instance.status == "Pending":
                     return Response({
-                        "message": "Pending байна. Дараа хүсэлт илгээнэ үү",
+                        "message": "Pending. Please try again later.",
                         "unique_id": instance.unique_id
                     }, status=status.HTTP_429_TOO_MANY_REQUESTS)  # Optional: or 200
 
