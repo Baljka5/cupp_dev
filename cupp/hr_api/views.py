@@ -473,7 +473,7 @@ class SaveOnlyRawJsonView(APIView):
                         "unique_id": instance.unique_id
                     }, status=status.HTTP_429_TOO_MANY_REQUESTS)  # Optional: or 200
 
-            instance = EmpPersonalInfoRaw.objects.create(
+            instance = PersonalInfoRaw.objects.create(
                 unique_id=unique_id,
                 data=json.dumps(original_data),
                 employee_id=original_data.get("employee_id", ""),
