@@ -438,9 +438,43 @@ class SaveOnlyRawJsonView(APIView):
     def post(self, request):
         try:
             original_data = request.data.copy()
+            unique_id = original_data.get("unique_id", "")
 
-            instance = PersonalInfoRaw.objects.create(
-                unique_id=original_data.get("unique_id", ""),
+            if not unique_id:
+                return Response({
+                    "error": "unique_id is required"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            instance = PersonalInfoRaw.objects.filter(unique_id=unique_id).order_by('-created_at').first()
+
+            if instance:
+                if instance.status == "Success":
+                    return Response({
+                        "message": "Already saved",
+                        "unique_id": instance.unique_id,
+                        "status": instance.status
+                    }, status=status.HTTP_200_OK)
+
+                elif instance.status == "Failed":
+                    instance.data = json.dumps(original_data)
+                    instance.employee_id = original_data.get("employee_id", "")
+                    instance.responseData = None
+                    instance.status = "Pending"
+                    instance.save()
+
+                    return Response({
+                        "message": "Existing record updated to Pending",
+                        "unique_id": instance.unique_id
+                    }, status=status.HTTP_200_OK)
+
+                elif instance.status == "Pending":
+                    return Response({
+                        "message": "Pending. Please try again later.",
+                        "unique_id": instance.unique_id
+                    }, status=status.HTTP_429_TOO_MANY_REQUESTS)  # Optional: or 200
+
+            instance = EmpPersonalInfoRaw.objects.create(
+                unique_id=unique_id,
                 data=json.dumps(original_data),
                 employee_id=original_data.get("employee_id", ""),
                 responseData=None,
@@ -448,7 +482,7 @@ class SaveOnlyRawJsonView(APIView):
             )
 
             return Response({
-                "message": "Data saved successfully",
+                "message": "New data saved successfully",
                 "unique_id": instance.unique_id
             }, status=status.HTTP_201_CREATED)
 
