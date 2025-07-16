@@ -13,6 +13,7 @@ from uuid import uuid4
 from cupp.constants import CHOICES_POINT_TYPE, CHOICES_POINT_GRADE
 from cupp.store_trainer.models import StoreTrainer
 from cupp.store_consultant.models import StoreConsultant
+from django.utils import timezone
 
 
 # from cupp.choices import get_point_type_choices
@@ -329,3 +330,21 @@ class UserPermission(m.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.permission.codename} - {self.group.name if self.group else 'No Group'}"
+
+
+class PPAccessLog(m.Model):
+    username = m.CharField(max_length=150)
+    login_time = m.DateTimeField(default=timezone.now)
+    logout_time = m.DateTimeField(null=True, blank=True)
+    session_duration = m.DurationField(null=True, blank=True)
+    action = m.TextField()
+    ip_address = m.GenericIPAddressField()
+    used_window = m.CharField(max_length=255)
+
+    def save(self, *args, **kwargs):
+        if self.logout_time and not self.session_duration:
+            self.session_duration = self.logout_time - self.login_time
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.username} - {self.login_time}"

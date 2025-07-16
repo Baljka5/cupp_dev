@@ -1,0 +1,1 @@
+default_app_config = 'cupp.point.apps.PointConfig'

@@ -9,6 +9,8 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 import traceback
+from .models import PPAccessLog
+from django.utils.timezone import now
 
 from .forms import PointForm, PhotoFormset, StorePlanningForm
 from .models import Point, District, City, Type, StorePlanning, NearbyStore
@@ -432,6 +434,32 @@ def get_store_location(request):
         traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=500)
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0]
+    return request.META.get('REMOTE_ADDR')
+
+def log_user_login(request):
+    PPAccessLog.objects.create(
+        username=request.user.username,
+        login_time=now(),
+        action="Login",
+        ip_address=get_client_ip(request),
+        used_window="PP system"
+    )
+
+def log_user_logout(request):
+    from django.utils.timezone import now
+    latest_log = PPAccessLog.objects.filter(
+        username=request.user.username,
+        logout_time__isnull=True
+    ).order_by('-login_time').first()
+    if latest_log:
+        latest_log.logout_time = now()
+        latest_log.action = "Logout"
+        latest_log.used_window = "PP system"
+        latest_log.save()
 
 @login_required
 def custom_login_redirect(request):
