@@ -126,7 +126,7 @@ urlpatterns = [
 
     path('save-consultant-stores/', sc_views.save_consultant_stores, name='save-consultant-stores'),
 
-    path('log-index/', event_views.index, name='event_index'),
+    path('log-index', event_views.index, name='event_index'),
     path('log-create', event_views.event_addnew, name='event-create'),
     path('log-edit/<int:id>', event_views.edit, name='event-edit'),
     path('log-update/<int:id>', event_views.update, name='event_update'),
