@@ -2,14 +2,23 @@ from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from .models import Consultants
 
-print("✅ signal.py loaded")
+print("signal.py loaded")
+
+
+def generate_next_sc_code():
+    last = Consultants.objects.filter(sc_code__startswith='SC').order_by('-id').first()
+    if last and last.sc_code and last.sc_code[2:].isdigit():
+        next_number = int(last.sc_code[2:]) + 1
+    else:
+        next_number = 1
+    return f"SC{next_number}"
 
 
 @receiver(post_save, sender='auth.User')
 def create_or_update_consultant_if_in_group(sender, instance, **kwargs):
     from django.contrib.auth.models import Group
     if instance.groups.filter(name="Store Consultant").exists():
-        obj, created = Consultants.objects.update_or_create(
+        consultant, created = Consultants.objects.update_or_create(
             sc_email=instance.email,
             defaults={
                 'sc_name': instance.first_name,
@@ -17,8 +26,12 @@ def create_or_update_consultant_if_in_group(sender, instance, **kwargs):
                 'sc_email': instance.email
             }
         )
+        if created and not consultant.sc_code:
+            consultant.sc_code = generate_next_sc_code()
+            consultant.save(update_fields=["sc_code"])
+
         action = "created" if created else "updated"
-        print(f"🚀 Consultant {action} for: {instance.email}")
+        print(f" Consultant {action} for: {instance.email}")
 
 
 @receiver(m2m_changed, sender='auth.User_groups')
@@ -27,7 +40,7 @@ def handle_user_group_change(sender, instance, action, pk_set, **kwargs):
         from django.contrib.auth.models import Group
         store_consultant_group = Group.objects.filter(name="Store Consultant").first()
         if store_consultant_group and store_consultant_group.pk in pk_set:
-            obj, created = Consultants.objects.update_or_create(
+            consultant, created = Consultants.objects.update_or_create(
                 sc_email=instance.email,
                 defaults={
                     'sc_name': instance.first_name,
@@ -35,5 +48,9 @@ def handle_user_group_change(sender, instance, action, pk_set, **kwargs):
                     'sc_email': instance.email
                 }
             )
+            if created and not consultant.sc_code:
+                consultant.sc_code = generate_next_sc_code()
+                consultant.save(update_fields=["sc_code"])
+
             action = "created" if created else "updated"
-            print(f"⚡ Consultant {action} via group assignment: {instance.email}")
+            print(f" Consultant {action} via group assignment: {instance.email}")
