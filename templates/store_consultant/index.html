@@ -1326,12 +1326,12 @@ function updateScCounts() {
 
 function isValidPushDate() {
     const today = new Date();
-    const targetDates = [4, 4];
+    const targetDates = [5, 5];
 
     // Ажлын өдөр мөн эсэхийг шалгах (Mon–Fri)
     const isWorkingDay = (date) => {
         const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-        return day >= 1 && day <= 1;
+        return day >= 2 && day <= 2;
     };
 
     // Тухайн сарын 1, 15-ны өдрүүдийн ойр 1 дэх өдрүүдийг олно
@@ -1348,7 +1348,7 @@ function isValidPushDate() {
             const candidate = new Date(targetDate);
             candidate.setDate(candidate.getDate() + offset);
 
-            if (candidate.getDay() === 1 && isWorkingDay(candidate)) {
+            if (candidate.getDay() === 2 && isWorkingDay(candidate)) {
                 const diff = Math.abs(today - candidate);
                 if (diff < minDiff) {
                     minDiff = diff;
