@@ -8,18 +8,16 @@ print("signal.py loaded")
 
 
 def generate_next_sc_code():
-    from django.db.models.functions import Length
-
-    consultants = Consultants.objects.filter(sc_code__startswith="SC", sc_code__regex=r"^SC\d+$")
     max_number = 0
+    consultants = Consultants.objects.exclude(sc_code__isnull=True).exclude(sc_code__exact='')
 
     for c in consultants:
-        match = re.match(r"SC(\d+)", c.sc_code or "")
+        match = re.match(r"^SC(\d+)$", c.sc_code.strip())
         if match:
-            max_number = max(max_number, int(match.group(1)))
+            num = int(match.group(1))
+            max_number = max(max_number, num)
 
     return f"SC{max_number + 1}"
-
 
 @receiver(post_save, sender='auth.User')
 def create_or_update_consultant_if_in_group(sender, instance, **kwargs):
