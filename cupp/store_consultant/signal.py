@@ -19,19 +19,20 @@ def generate_next_sc_code():
 
     return f"SC{max_number + 1}"
 
+
 @receiver(post_save, sender='auth.User')
-def create_or_update_consultant_if_in_group(sender, instance, **kwargs):
+def create_consultant_on_user_create(sender, instance, created, **kwargs):
+    """
+    Зөвхөн шинэ хэрэглэгч үүсэх үед Consultants бүртгэл автоматаар үүсгэнэ.
+    """
     from django.contrib.auth.models import Group
+
+    if not created:
+        return  # Зөвхөн шинээр үүсгэх үед ажиллуулна
 
     if instance.groups.filter(name="Store Consultant").exists():
         with transaction.atomic():
-            consultant = Consultants.objects.filter(sc_email=instance.email).first()
-            if consultant:
-                consultant.sc_name = instance.first_name
-                consultant.sc_surname = instance.last_name
-                consultant.save(update_fields=["sc_name", "sc_surname"])
-                print(f" Consultant updated for: {instance.email}")
-            else:
+            if not Consultants.objects.filter(sc_email=instance.email).exists():
                 sc_code = generate_next_sc_code()
                 Consultants.objects.create(
                     sc_name=instance.first_name,
@@ -39,24 +40,22 @@ def create_or_update_consultant_if_in_group(sender, instance, **kwargs):
                     sc_email=instance.email,
                     sc_code=sc_code
                 )
-                print(f" Consultant created for: {instance.email}")
+                print(f"✅ Consultant created for: {instance.email}")
 
 
 @receiver(m2m_changed, sender='auth.User_groups')
 def handle_user_group_change(sender, instance, action, pk_set, **kwargs):
+    """
+    Store Consultant group-д хэрэглэгч нэмэгдсэн үед л шинээр Consultants бүртгэнэ
+    (Өмнө бүртгэлгүй тохиолдолд).
+    """
     if action == "post_add":
         from django.contrib.auth.models import Group
         store_consultant_group = Group.objects.filter(name="Store Consultant").first()
 
         if store_consultant_group and store_consultant_group.pk in pk_set:
             with transaction.atomic():
-                consultant = Consultants.objects.filter(sc_email=instance.email).first()
-                if consultant:
-                    consultant.sc_name = instance.first_name
-                    consultant.sc_surname = instance.last_name
-                    consultant.save(update_fields=["sc_name", "sc_surname"])
-                    print(f" Consultant updated via group for: {instance.email}")
-                else:
+                if not Consultants.objects.filter(sc_email=instance.email).exists():
                     sc_code = generate_next_sc_code()
                     Consultants.objects.create(
                         sc_name=instance.first_name,
@@ -64,4 +63,4 @@ def handle_user_group_change(sender, instance, action, pk_set, **kwargs):
                         sc_email=instance.email,
                         sc_code=sc_code
                     )
-                    print(f" Consultant created via group for: {instance.email}")
+                    print(f"✅ Consultant created via group assignment for: {instance.email}")
