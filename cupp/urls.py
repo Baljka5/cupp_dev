@@ -43,6 +43,7 @@ from cupp.hr_api.views import StoreCombinedInfoView, StoreListCombinedInfoView, 
     SaveOnlyRawJsonView, FetchAndUpdateFromExternalView, PersonalInfoMergedView, EmpSaveOnlyRawJsonView, \
     EmpPersonalInfoMergedView, EmpPersonalInfoListView
 from cupp.store_consultant.views import lock_list
+from cupp.veritech_api.views import GetStoreIdByBizloc
 
 # from cupp.powerBI_api.views import fetch_powerbi_data
 
@@ -67,6 +68,7 @@ urlpatterns = [
     path('api/fetch-and-save/', FetchAndUpdateFromExternalView.as_view(), name='fetch-and-save'),
     path('api/can-get-data/<str:unique_id>', PersonalInfoMergedView.as_view(), name='personal-info-merged'),
     path('api/emp-get-data/<int:pk>', EmpPersonalInfoMergedView.as_view(), name='personal-info-merged'),
+    path('api/list-biz/', GetStoreIdByBizloc.as_view(), name='list-data'),
 
     path('list/', zip_list, name='zip_list'),
     path('upload/', upload_zip, name='upload_zip'),
@@ -76,6 +78,7 @@ urlpatterns = [
     path('save/', fetch_and_save_employee_data, name='save_employee_data'),
     path('inact-save/', fetch_and_save_inactive_employee_data, name='save_in_active_employee_data'),
     path('candidate_save/', fetch_and_save_candidate_employee_data, name='save_candidate_employee_data'),
+
     # path('power/', fetch_powerbi_data, name='save_powerbi_data'),
 
     path('api/storemaster', StoreMasterAPI.as_view(), name='storemaster-api'),

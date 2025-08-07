@@ -6,6 +6,10 @@ from .models import General, Address, Bank, Experience, Education, Attitude, Fam
     in_Act_Family, in_Act_Skills, in_Act_SubInfo
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from django.http import JsonResponse
+from rest_framework.views import APIView
+from pymongo import MongoClient
+from rest_framework import status
 
 
 @csrf_exempt
@@ -528,3 +532,25 @@ def parse_date_if_valid(date_string):
     if date_string:
         return parse_date(date_string)
     return None
+
+class GetStoreIdByBizloc(APIView):
+    def post(self, request):
+        bizloc_nm = request.data.get('bizloc_nm', '').strip()
+
+        if not bizloc_nm:
+            return JsonResponse({'error': 'bizloc_nm is required'}, status=400)
+
+        try:
+            client = MongoClient('mongodb://admin:CE2dmin22@10.10.90.230/')
+            db = client['nubia_db']
+            collection = db['bgf_hq_bizloc_mst']
+
+            result = collection.find_one({'bizloc_nm': bizloc_nm})
+
+            if result:
+                return JsonResponse({'storeid': result.get('bizloc_cd')}, status=200)
+            else:
+                return JsonResponse({'error': 'No storeid found for given bizloc_nm'}, status=404)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
