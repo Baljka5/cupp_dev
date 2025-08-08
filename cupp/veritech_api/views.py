@@ -1,4 +1,5 @@
 import requests
+import re
 from django.utils.dateparse import parse_date
 from django.shortcuts import render
 from .models import General, Address, Bank, Experience, Education, Attitude, Family, Skills, SubInfo, CandidateGeneral, \
@@ -535,7 +536,14 @@ def parse_date_if_valid(date_string):
 
 class GetStoreIdByBizloc(APIView):
     def post(self, request):
-        bizloc_nm = request.data.get('bizloc_nm', '').strip()
+        bizloc_nm = (request.data.get('bizloc_nm') or '').strip()
+        try:
+            limit = int(request.data.get('limit', 50))
+            page = int(request.data.get('page', 1))
+            limit = 1 if limit <= 0 else min(limit, 200)
+            page = 1 if page <= 0 else page
+        except Exception:
+            limit, page = 50, 1
 
         if not bizloc_nm:
             return JsonResponse({'error': 'bizloc_nm is required'}, status=400)
@@ -545,12 +553,28 @@ class GetStoreIdByBizloc(APIView):
             db = client['nubia_db']
             collection = db['bgf_hq_bizloc_mst']
 
-            result = collection.find_one({'bizloc_nm': bizloc_nm})
+            regex = {'$regex': re.escape(bizloc_nm), '$options': 'i'}
 
-            if result:
-                return JsonResponse({'storeid': result.get('bizloc_cd')}, status=200)
-            else:
-                return JsonResponse({'error': 'No storeid found for given bizloc_nm'}, status=404)
+            skip = (page - 1) * limit
+
+            cursor = (
+                collection.find(
+                    {'bizloc_nm': regex},
+                    projection={'_id': 0, 'bizloc_cd': 1, 'bizloc_nm': 1}
+                )
+                .sort('bizloc_nm', 1)
+                .skip(skip)
+                .limit(limit)
+            )
+
+            items = list(cursor)
+            total = collection.count_documents({'bizloc_nm': regex})
+
+            return JsonResponse({
+                'query': bizloc_nm,
+                'total': total,
+                'results': items
+            }, status=200, safe=False)
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
