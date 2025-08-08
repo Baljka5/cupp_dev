@@ -1370,7 +1370,13 @@ function isValidPushDate() {
         (closestMonday15 && todayStr === closestMonday15.toDateString())
     );
 }
+
 function pushData() {
+    if (!isValidPushDate()) {
+        alert('The PUSH button is only active on the nearest Monday to the 1st or 15th working day.');
+        return;
+    }
+
     const spinner = document.getElementById('loading-spinner');
     spinner.style.display = 'flex';
 
@@ -1392,91 +1398,42 @@ function pushData() {
         spinner.style.display = 'none';
     });
 }
-function pushData() {
-    const spinner = document.getElementById('loading-spinner');
-    spinner.style.display = 'flex';
 
-    fetch('/push-data/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.status === 'success' ? 'Data pushed successfully!' : 'Failed to push data.');
-        spinner.style.display = 'none';
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while trying to push data.');
-        spinner.style.display = 'none';
-    });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const pushButton = document.getElementById('pushBtn');
+
+    if (!isValidPushDate()) {
+        pushButton.disabled = true;
+        pushButton.title = "PUSH is only enabled on the nearest Monday of 1st or 15th (working day).";
+    } else {
+        pushButton.disabled = false;
+        pushButton.title = "Ready to push data";
+    }
+});
+
+        function closePushModal() {
+    document.getElementById('pushModal').style.display = 'none';
 }
-{#function pushData() {#}
-{#    if (!isValidPushDate()) {#}
-{#        alert('The PUSH button is only active on the nearest Monday to the 1st or 15th working day.');#}
-{#        return;#}
-{#    }#}
-{##}
-{#    const spinner = document.getElementById('loading-spinner');#}
-{#    spinner.style.display = 'flex';#}
-{##}
-{#    fetch('/push-data/', {#}
-{#        method: 'POST',#}
-{#        headers: {#}
-{#            'Content-Type': 'application/json',#}
-{#            'X-CSRFToken': getCookie('csrftoken')#}
-{#        }#}
-{#    })#}
-{#    .then(response => response.json())#}
-{#    .then(data => {#}
-{#        alert(data.status === 'success' ? 'Data pushed successfully!' : 'Failed to push data.');#}
-{#        spinner.style.display = 'none';#}
-{#    })#}
-{#    .catch(error => {#}
-{#        console.error('Error:', error);#}
-{#        alert('An error occurred while trying to push data.');#}
-{#        spinner.style.display = 'none';#}
-{#    });#}
 
-{##}
-{##}
-{#document.addEventListener('DOMContentLoaded', function () {#}
-{#    const pushButton = document.getElementById('pushBtn');#}
-{##}
-{#    if (!isValidPushDate()) {#}
-{#        pushButton.disabled = true;#}
-{#        pushButton.title = "PUSH is only enabled on the nearest Monday of 1st or 15th (working day).";#}
-{#    } else {#}
-{#        pushButton.disabled = false;#}
-{#        pushButton.title = "Ready to push data";#}
-{#    }#}
+document.addEventListener('DOMContentLoaded', function () {
+    const pushButton = document.getElementById('pushBtn');
 
-{##}
-{#        function closePushModal() {#}
-{#    document.getElementById('pushModal').style.display = 'none';#}
-{#}#}
-{##}
-{#document.addEventListener('DOMContentLoaded', function () {#}
-{#    const pushButton = document.getElementById('pushBtn');#}
-{##}
-{#    if (isValidPushDate()) {#}
-{#        pushButton.disabled = false;#}
-{#        pushButton.title = "Ready to push data";#}
-{##}
-{#        // Modal харуулах#}
-{#        const pushModal = document.getElementById('pushModal');#}
-{#        if (pushModal) {#}
-{#            pushModal.style.display = 'flex';#}
-{#        }#}
-{##}
-{#    } else {#}
-{#        pushButton.disabled = true;#}
-{#        pushButton.title = "PUSH is only enabled on the nearest Monday of 1st or 15th (working day).";#}
-{#    }#}
+    if (isValidPushDate()) {
+        pushButton.disabled = false;
+        pushButton.title = "Ready to push data";
 
+        // Modal харуулах
+        const pushModal = document.getElementById('pushModal');
+        if (pushModal) {
+            pushModal.style.display = 'flex';
+        }
+
+    } else {
+        pushButton.disabled = true;
+        pushButton.title = "PUSH is only enabled on the nearest Monday of 1st or 15th (working day).";
+    }
+});
 
 
 
