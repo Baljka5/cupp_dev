@@ -98,7 +98,7 @@ def report_view(request):
         return redirect("powerbi_login")
 
     user_email = request.session.get("id_token_claims", {}).get("preferred_username")
-    role = "SalesRegion"  # Та өөрийн RLS Role-г энд тохируулна
+    role = "SalesRegion"
 
     embed_token = generate_embed_token(access_token, DATASET_ID, user_email, role)
 

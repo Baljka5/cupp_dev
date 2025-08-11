@@ -120,7 +120,11 @@
 
         <div class="d-flex justify-content-between mt-4">
             <a href="{% url 'upload_zip' %}" class="btn btn-primary">📤 Upload New File</a>
-            <a href="{% url 'download_latest_zip' %}" class="btn btn-success">⬇️ Download Latest File</a>
+            <form method="POST" action="{% url 'download_latest_zip' %}" id="downloadForm" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="hostname" id="hostnameInput">
+                <button type="submit" class="btn btn-success">⬇️ Download Latest File</button>
+            </form>
         </div>
         <div class="text-center mt-4">
             <a href="{% url 'downloaded_devices' %}" class="btn btn-secondary">📥 Downloaded Devices</a>
@@ -129,5 +133,17 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Заавал "DOMContentLoaded" дараа ажиллуулна
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById('downloadForm');
+        if (form) {
+            form.addEventListener('submit', function () {
+                const fallbackHostname = window.location.hostname;
+                document.getElementById('hostnameInput').value = fallbackHostname;
+            });
+        }
+    });
+</script>
 </body>
 </html>

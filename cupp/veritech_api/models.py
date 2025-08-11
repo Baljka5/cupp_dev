@@ -77,6 +77,8 @@ class Address(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
+
+
 # Bank table
 class Bank(models.Model):
     employeeid = models.CharField(max_length=20, null=True, blank=True)
