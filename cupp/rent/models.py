@@ -29,7 +29,7 @@ class StrRent(models.Model):
     ext_ed_dt = models.DateField('Сунгагдсан хугацаа', null=True)
     hand_over_dt = models.DateField('Талбай хүлээлцсэн актын өдөр', null=True)
     rent_mo_fee = models.IntegerField('Түрээсийн төлбөр ', null=True, default=0)
-    rent_mo_fee_annex1 = models.IntegerField('Түрээсийн төлбөр 1', null=True, default=0, blank=True)
+    rent_mo_fee_annex1 = models.IntegerField('Түрээсийн төлбөр 12', null=True, default=0, blank=True)
     rent_mo_fee_annex2 = models.IntegerField('Түрээсийн төлбөр 2', blank=True, null=True, default=0)
     rent_mo_fee_annex3 = models.IntegerField('Түрээсийн төлбөр 3', blank=True, null=True, default=0)
     deposit_amount = models.IntegerField('Барьцаа төлбөр', null=True, default=0)
