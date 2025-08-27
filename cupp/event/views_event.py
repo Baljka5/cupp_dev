@@ -40,7 +40,7 @@ def event_addnew(request):
             form.instance.modified_by = request.user
             form.save()
             messages.success(request, "Event added successfully!")
-            return redirect('/log-index')
+            return redirect('/log-index/')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
@@ -126,7 +126,7 @@ def update(request, id):
             form.instance.modified_by = request.user
             form.save()
             messages.success(request, 'Update successful.')
-            return redirect('/log-index')
+            return redirect('/log-index/')
         else:
             messages.error(request, 'Error updating the form. Please check your data.')
     return render(request, 'event/edit.html', {'form': form, 'model': model})
@@ -135,7 +135,7 @@ def update(request, id):
 def destroy(request, id):
     model = StoreDailyLog.objects.get(id=id)
     model.delete()
-    return redirect("/log-index")
+    return redirect("/log-index/")
 
 
 def store_id_search(request):

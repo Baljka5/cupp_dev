@@ -45,7 +45,7 @@ def comp_addnew(request):
                 form.instance.modified_by = request.user
                 form.save()
                 messages.success(request, "Event added successfully!")
-                return redirect('/comp-index')
+                return redirect('/comp-index/')
             except Exception as e:
                 messages.error(request, f"Error saving event: {e}")
 
@@ -142,7 +142,7 @@ def update(request, id):
                 form.instance.modified_by = request.user
                 form.save()
                 messages.success(request, 'Update successful.')
-                return redirect('/comp-index')
+                return redirect('/comp-index/')
             except Exception as e:
                 messages.error(request, f"Error updating the form: {e}")
 
@@ -157,7 +157,7 @@ def update(request, id):
 def destroy(request, id):
     model = StoreCompetitors.objects.get(id=id)
     model.delete()
-    return redirect("/comp-index")
+    return redirect("/comp-index/")
 
 
 def store_id_search(request):

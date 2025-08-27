@@ -32,7 +32,7 @@ def rent_addnew(request):
                 form.instance.modified_by = request.user
                 form.save()
                 messages.success(request, "Event added successfully!")
-                return redirect('/rent-index')
+                return redirect('/rent-index/')
             except Exception as e:
                 messages.error(request, f"Error saving event: {e}")
         else:
@@ -101,7 +101,7 @@ def edit(request, id):
 #     if form.is_valid():
 #         form.instance.modified_by = request.user
 #         form.save()
-#         return redirect("/rent-index")
+#         return redirect("/rent-index/")
 #     return render(request, 'rent/edit.html', {'model': model})
 
 def update(request, id):
@@ -112,7 +112,7 @@ def update(request, id):
             form.instance.modified_by = request.user  # Ensure the modifier is the current user
             form.save()
             messages.success(request, 'Update successful.')
-            return redirect('/rent-index')  # Redirect to the appropriate URL after successful update
+            return redirect('/rent-index/')  # Redirect to the appropriate URL after successful update
         else:
             messages.error(request, 'Error updating the form. Please check your data.')
     return render(request, 'rent/edit.html', {'form': form, 'model': model})
@@ -121,7 +121,7 @@ def update(request, id):
 def destroy(request, id):
     model = StrRent.objects.get(id=id)
     model.delete()
-    return redirect("/rent-index")
+    return redirect("/rent-index/")
 
 
 def store_id_search(request):

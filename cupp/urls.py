@@ -100,7 +100,7 @@ urlpatterns = [
     # path('register-license/', license_views.MainTableCreateView, name='register_license'),
 
     path('leg-index/', leg_views.index, name='leg-index'),
-    path('leg-add/', leg_views.leg_add, name='leg-add'),
+    path('leg-add', leg_views.leg_add, name='leg-add'),
     path('leg-edit/<int:id>', leg_views.edit, name='leg-edit'),
     path('leg-update/<int:id>', leg_views.update, name='leg-update'),
     path('leg-delete/<int:id>', leg_views.destroy, name='leg-delete'),
@@ -129,14 +129,14 @@ urlpatterns = [
 
     path('save-consultant-stores/', sc_views.save_consultant_stores, name='save-consultant-stores'),
 
-    path('log-index', event_views.index, name='event_index'),
+    path('log-index/', event_views.index, name='event_index'),
     path('log-create', event_views.event_addnew, name='event-create'),
     path('log-edit/<int:id>', event_views.edit, name='event-edit'),
     path('log-update/<int:id>', event_views.update, name='event_update'),
     path('log-delete/<int:id>', event_views.destroy, name='log-delete'),
 
     path('comp-index/', comp_views.index, name='comp_index'),
-    path('comp-create/', comp_views.comp_addnew, name='comp-create'),
+    path('comp-create', comp_views.comp_addnew, name='comp-create'),
     path('comp-edit/<int:id>', comp_views.edit, name='comp-edit'),
     path('comp-update/<int:id>', comp_views.update, name='comp_update'),
     path('comp-delete/<int:id>', comp_views.destroy, name='comp-delete'),
