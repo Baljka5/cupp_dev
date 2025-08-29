@@ -7,7 +7,9 @@
     <div class="container">
         <form method="POST" action="{% url 'sc-update' model.id %}">
             {% csrf_token %}
-            {{ form.as_p }}
+            <!-- {{ form.as_p }} -->
+            {{ form.field.errors }}
+             <!-- {#            {{ form.as_p }}#} -->
             <div class="row">
 
                 <div class="row">
@@ -44,7 +46,7 @@
 
                     <div class="form-group col-md-6">
                         <label>Үнийн бодлого: </label>
-                        <input type="text" class="form-control" name="prc_grade" id="id_prc_grade"
+                        <input type="text" class="form-control" name="prc_grade" id="id_prc_grade" required
                                value="{{ model.prc_grade }}"/>
                     </div>
                     <div class="col-12">
@@ -89,7 +91,7 @@
                     {#                    </div>#}
                     <div class="form-group col-md-6 liquor-time">
                         <label>Амралтын өдрүүдийн цагийн хуваарь: </label>
-                        <input type="text" id="id_wend_hours" name="wend_hours" class="form-control"
+                        <input type="text" id="id_wend_hours" name="wend_hours" class="form-control" required
                                value="{{ model.wend_hours }}" placeholder="HH:MM - HH:MM"
                                pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9] - ([01]?[0-9]|2[0-3]):[0-5][0-9]$"
                                required>
@@ -173,7 +175,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Хэвтээ хөлдөөгчны тоо /Орос эсвэл Mонгол/: </label>
-                        <input type="text" class="form-control" name="chest_frz_ru" id="cash_chest_frz_ru"
+                        <input type="text" class="form-control" name="chest_frz_ru" id="cash_chest_frz_ru" required
                                value="{{ model.chest_frz_ru }}"/>
                     </div>
                     <div class="form-group col-md-6">
@@ -183,7 +185,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Босоо хөлдөөгчны тоо /Солонгос/: </label>
-                        <input type="text" class="form-control" name="up_frz_kr" id="id_up_frz_kr"
+                        <input type="text" class="form-control" name="up_frz_kr" id="id_up_frz_kr" required
                                value="{{ model.up_frz_kr }}"/>
                     </div>
                     <div class="form-group col-md-6">
@@ -204,13 +206,25 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Ус ундааны босоо хөргүүрийн хаалганы тоо: </label>
-                        <input type="text" class="form-control" name="walkin_chiller" id="id_walkin_chiller"
-                               value="{{ model.walkin_chiller }}"/>
+                        {{ form.walkin_chiller|add_class:"form-control"|attr:"step:any"|attr:"required" }}
+                        {% if form.walkin_chiller.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.walkin_chiller.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <!-- <input type="text" class="form-control" name="walkin_chiller" id="id_walkin_chiller"
+                               value="{{ model.walkin_chiller }}"/> -->
                     </div>
                     <div class="form-group col-md-6">
                         <label>Хоолны хөргүүрийн тоо: </label>
-                        <input type="text" class="form-control" name="lunch_case_L8" id="id_lunch_case_L8"
-                               value="{{ model.lunch_case_L8 }}"/>
+                        {{ form.lunch_case_L8|add_class:"form-control"|attr:"step:any"|attr:"required" }}
+                        {% if form.lunch_case_L8.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.lunch_case_L8.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <!-- <input type="text" class="form-control" name="lunch_case_L8" id="id_lunch_case_L8"
+                               value="{{ model.lunch_case_L8 }}"/> -->
                     </div>
                     <div class="col-12">
                         <h3>License</h3>
@@ -218,12 +232,12 @@
 
                     <div class="form-group col-md-6">
                         <label>Архины зөвшөөрөл: </label>
-                        <input type="text" class="form-control" name="alc_reason" id="id_alc_reason"
+                        <input type="text" class="form-control" name="alc_reason" id="id_alc_reason" required
                                value="{{ model.alc_reason }}"/>
                     </div>
                     <div class="form-group col-md-6">
                         <label>Тамхины зөвшөөрөлгүй байгаа шалтгаан: </label>
-                        <input type="text" class="form-control" name="ciga_reason" id="id_ciga_reason"
+                        <input type="text" class="form-control" name="ciga_reason" id="id_ciga_reason" required
                                value="{{ model.ciga_reason }}"/>
                     </div>
                     <div class="form-group col-md-6">
@@ -295,7 +309,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Машины зогсоолтой бол хичнээн машин багтах боломжтой вэ?: </label>
-                        <input type="number" class="form-control" name="car_park_slot" id="id_car_park_slot"
+                        <input type="number" class="form-control" name="car_park_slot" id="id_car_park_slot" required
                                value="{{ model.car_park_slot }}"/>
                     </div>
                     <div class="form-group col-md-6">
@@ -390,7 +404,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Суултуурын тоо: </label>
-                        <input type="number" class="form-control" name="toilet_seat" id="id_toilet_seat"
+                        <input type="number" class="form-control" name="toilet_seat" id="id_toilet_seat" required
                                value="{{ model.toilet_seat }}"/>
                     </div>
                     <div class="form-group col-md-6">
@@ -424,17 +438,17 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Дэлгүүрийн лангууны тоо: </label>
-                        <input type="number" class="form-control" name="shelf" id="id_shelf"
+                        <input type="number" class="form-control" name="shelf" id="id_shelf" required
                                value="{{ model.shelf }}"/>
                     </div>
                     <div class="form-group col-md-6">
                         <label>Дэлгүүрийн тавцангийн тоо: </label>
-                        <input type="number" class="form-control" name="shelf_list" id="id_shelf_list"
+                        <input type="number" class="form-control" name="shelf_list" id="id_shelf_list" required
                                value="{{ model.shelf_list }}"/>
                     </div>
                     <div class="form-group col-md-6">
                         <label>CU BAR Тоо /Хаалга/: </label>
-                        <input type="number" class="form-control" name="cu_bar_door" id="id_cu_bar_door"
+                        <input type="number" class="form-control" name="cu_bar_door" id="id_cu_bar_door" required
                                value="{{ model.cu_bar_door }}"/>
                     </div>
                     {#                    <div class="form-group col-md-6">#}
@@ -454,7 +468,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Дэлгүүр хэдэн орж гарах гарц/үүд-тэй вэ?: </label>
-                        <input type="number" class="form-control" name="entrace_qty" id="id_entrace_qty"
+                        <input type="number" class="form-control" name="entrace_qty" id="id_entrace_qty" required
                                value="{{ model.entrace_qty }}"/>
                     </div>
                     <div class="form-group col-md-6">
@@ -477,7 +491,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Гадна шатны тоо: </label>
-                        <input type="number" class="form-control" name="doorstep_qty" id="id_doorstep_qty"
+                        <input type="number" class="form-control" name="doorstep_qty" id="id_doorstep_qty" required
                                value="{{ model.doorstep_qty }}"/>
                     </div>
                     <div class="form-group col-md-6">

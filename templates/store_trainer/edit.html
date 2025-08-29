@@ -33,7 +33,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Талбайн хэмжээ (m²)</label>
-                        {{ form.size|add_class:"form-control"|attr:"step:any" }}
+                        {{ form.size|add_class:"form-control"|attr:"step:any"|attr:"required" }}
                         {% if form.size.errors %}
                             <div class="invalid-feedback d-block">
                                 {{ form.size.errors.0 }}
@@ -42,13 +42,21 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Сууж үйлчлүүлэх хэсэг: </label>
-                        <input type="text" class="form-control" name="sitting_size" id="id_sitting_size"
-                               value="{{ model.sitting_size }}"/>
+                        {{ form.sitting_size|add_class:"form-control"|attr:"step:any"|attr:"required" }}
+                        {% if form.sitting_size.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.sitting_size.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="form-group col-md-6">
                         <label>Агуулахын хэсэг: </label>
-                        <input type="text" class="form-control" name="war_size" id="id_war_size"
-                               value="{{ model.war_size }}"/>
+                        {{ form.war_size|add_class:"form-control"|attr:"step:any"|attr:"required" }}
+                                {% if form.war_size.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.war_size.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="form-group col-md-6">
                         <label>00 хэсэг: </label>
@@ -57,23 +65,39 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Заалны цэвэр хэмжээ: </label>
-                        <input type="text" class="form-control" name="resale_size" id="id_resale_size"
-                               value="{{ model.resale_size }}"/>
+                        {{ form.resale_size|add_class:"form-control"|attr:"step:any"|attr:"required" }}
+                        {% if form.resale_size.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.resale_size.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="form-group col-md-6">
                         <label>Лангууны тоо: </label>
-                        <input type="text" class="form-control" name="shelf" id="id_shelf"
-                               value="{{ model.shelf }}"/>
+                        {{ form.shelf|add_class:"form-control"|attr:"step:any"|attr:"required" }}
+                        {% if form.shelf.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.shelf.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="form-group col-md-6">
                         <label>Ханын лангууны тоо: </label>
-                        <input type="text" class="form-control" name="wall_shelf" id="id_wall_shelf"
-                               value="{{ model.wall_shelf }}"/>
+                        {{ form.wall_shelf|add_class:"form-control"|attr:"step:any"|attr:"required" }}
+                        {% if form.wall_shelf.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.wall_shelf.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="form-group col-md-6">
                         <label>Кассын тавиур /урт, богино/: </label>
-                        <input type="text" class="form-control" name="cash_shelf" id="cash_shelf"
-                               value="{{ model.cash_shelf }}"/>
+                        {{ form.cash_shelf|add_class:"form-control"|attr:"step:any"|attr:"required" }}
+                        {% if form.cash_shelf.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.cash_shelf.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="form-group col-md-6">
                         <label>Хариуцсан ST: </label>
@@ -81,14 +105,22 @@
                                value="{{ model.st_name }}"/>
                     </div>
                     <div class="form-group col-md-6">
-                        <label>Сандалны тоо: </label>
-                        <input type="text" class="form-control" name="chair_size" id="id_chair_size"
-                               value="{{ model.chair_size }}"/>
+                        <label>Сандалны тоо: </label>   
+                        {{ form.chair_size|add_class:"form-control"|attr:"step:any"|attr:"required" }}
+                        {% if form.chair_size.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.chair_size.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="form-group col-md-6">
                         <label>Ширээний тоо: </label>
-                        <input type="text" class="form-control" name="desk_size" id="id_desk_size"
-                               value="{{ model.desk_size }}"/>
+                        {{ form.desk_size|add_class:"form-control"|attr:"step:any"|attr:"required" }}
+                        {% if form.desk_size.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.desk_size.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
 
                     <div class="form-group col-md-6">
@@ -158,8 +190,12 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>Хэвтээ хөлдөөгчны тоо: </label>
-                        <input type="text" class="form-control" name="horizontal_freeze" id="id_horizontal_freeze"
-                               value="{{ model.horizontal_freeze }}"/>
+                        {{ form.horizontal_freeze|add_class:"form-control"|attr:"step:any"|attr:"required" }}
+                        {% if form.horizontal_freeze.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.horizontal_freeze.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="form-group col-md-6">
                         <label>Кофены машины тоо: </label>

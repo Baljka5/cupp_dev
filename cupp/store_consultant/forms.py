@@ -1,4 +1,5 @@
 from django import forms as f
+from django.core.exceptions import ValidationError
 from django.conf import settings
 from cupp.store_consultant.models import StoreConsultant, Allocation, Tag, Consultants
 
@@ -130,6 +131,20 @@ class StoreConsultantForm(f.ModelForm):
             model = Allocation
             fields = ['consultant', 'area', 'year', 'month', 'team_no', 'store_cons', 'storeID', 'store_name',
                       'tags']
+            
+    def clean(self):
+        cleaned_data = super().clean()
+
+        int_fields = [
+            "lunch_case_L8", "walkin_chiller"
+        ]
+
+        for field in int_fields:
+            value = cleaned_data.get(field)
+            if value == 0:
+                self.add_error(field, ValidationError("0 байж болохгүй, 0-ээс их утга оруулна уу."))
+
+        return cleaned_data
 
 
 class ConsultantFrom(f.ModelForm):
@@ -137,3 +152,6 @@ class ConsultantFrom(f.ModelForm):
         model = Consultants
         fields = ['sc_name', 'sc_surname', 'sc_email', 'sc_phone', 'sc_sex', 'sc_birthdt', 'sc_rel_status',
                   'sc_child', 'sc_Addr1', 'sc_Addr2', 'sc_Addr3', 'sc_Addr4']
+        
+
+

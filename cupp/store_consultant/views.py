@@ -120,7 +120,8 @@ def store_view(request, id):
 
 def edit(request, id):
     model = StoreConsultant.objects.get(id=id)
-    return render(request, 'store_consultant/edit.html', {'model': model})
+    form = StoreConsultantForm(instance=model)
+    return render(request, 'store_consultant/edit.html', {'model': model, 'form': form})
 
 
 # def update(request, id):
