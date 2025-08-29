@@ -64,7 +64,6 @@ def index(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-
     return render(request, "store_trainer/show.html", {
         'page_obj': page_obj,
         'store_id_query': store_id_query,
@@ -75,7 +74,17 @@ def index(request):
 
 def edit(request, id):
     model = StoreTrainer.objects.get(id=id)
-    return render(request, 'store_trainer/edit.html', {'model': model})
+    form = StoreTrainerForm(instance=model)
+    return render(request, 'store_trainer/edit.html', {'model': model, 'form': form})
+
+
+def update(request, id):
+    model = StoreTrainer.objects.get(id=id)
+    form = StoreTrainerForm(request.POST, instance=model)
+    if form.is_valid():
+        form.save()
+        return redirect("/st-index/")
+    return render(request, 'store_trainer/edit.html', {'model': model, 'form': form})
 
 
 def st_view(request, id):
@@ -89,7 +98,7 @@ def update(request, id):
     if form.is_valid():
         form.save()
         return redirect("/st-index/")
-    return render(request, 'store_trainer/edit.html', {'model': model})
+    return render(request, 'store_trainer/edit.html', {'model': model, 'form': form})
 
 
 # def update(request, id):

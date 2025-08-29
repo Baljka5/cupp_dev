@@ -7,7 +7,8 @@
     <div class="container">
         <form method="POST" class="post-form" action="{% url 'st-update' model.id %}">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ form.field.errors }}
+            {#            {{ form.as_p }}#}
             <div class="row">
                 <div class="col-12">
                     <h3>Update Details</h3>
@@ -31,9 +32,13 @@
                                value="{{ model.store_name }}"/>
                     </div>
                     <div class="form-group col-md-6">
-                        <label>Талбайн хэмжээ/m2/: </label>
-                        <input type="text" class="form-control" name="size" id="id_size"
-                               value="{{ model.size }}"/>
+                        <label>Талбайн хэмжээ (m²)</label>
+                        {{ form.size|add_class:"form-control"|attr:"step:any" }}
+                        {% if form.size.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.size.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="form-group col-md-6">
                         <label>Сууж үйлчлүүлэх хэсэг: </label>
