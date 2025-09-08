@@ -48,7 +48,7 @@ def index(request):
         query &= Q(lic_id__lic_id_nm__icontains=lic_id_nm_query)
 
     if request.user.groups.filter(name='ST Manager').exists() or request.user.is_superuser:
-        models = StoreTrainer.objects.all().order_by('id')
+        models = StoreTrainer.objects.filter(query).order_by('id')
     else:
         models = StoreTrainer.objects.filter(query).distinct().order_by('id')
 
@@ -83,7 +83,7 @@ def update(request, id):
     form = StoreTrainerForm(request.POST, instance=model)
     if form.is_valid():
         form.save()
-        return redirect("/st-index/")
+        # return redirect("/st-index/")
     return render(request, 'store_trainer/edit.html', {'model': model, 'form': form})
 
 
@@ -92,13 +92,13 @@ def st_view(request, id):
     return render(request, 'store_trainer/index.html', {'model': model})
 
 
-def update(request, id):
-    model = StoreTrainer.objects.get(id=id)
-    form = StoreTrainerForm(request.POST, instance=model)
-    if form.is_valid():
-        form.save()
-        return redirect("/st-index/")
-    return render(request, 'store_trainer/edit.html', {'model': model, 'form': form})
+# def update(request, id):
+#     model = StoreTrainer.objects.get(id=id)
+#     form = StoreTrainerForm(request.POST, instance=model)
+#     if form.is_valid():
+#         form.save()
+#         # return redirect("/st-index/")
+#     return render(request, 'store_trainer/edit.html', {'model': model, 'form': form})
 
 
 # def update(request, id):
