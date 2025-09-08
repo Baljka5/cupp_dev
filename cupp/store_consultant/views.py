@@ -145,6 +145,7 @@ def update(request, id):
     else:
         form = StoreConsultantForm(instance=model)
 
+    messages.info(request, 'SC2 information has been changed successfully!')
     return render(request, 'store_consultant/edit.html', {'form': form, 'model': model})
 
 

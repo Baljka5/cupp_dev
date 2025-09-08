@@ -84,6 +84,7 @@ def update(request, id):
     if form.is_valid():
         form.save()
         # return redirect("/st-index/")
+        messages.info(request, 'ST information has been changed successfully!')
     return render(request, 'store_trainer/edit.html', {'model': model, 'form': form})
 
 

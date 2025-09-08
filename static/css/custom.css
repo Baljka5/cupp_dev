@@ -162,3 +162,13 @@ label {
 #map_daterange {
   width: 200px;
 }
+.save_alert_msg{
+    background-color: #40d846;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-align: center; 
+    position: absolute;
+    right: 30px;
+    top: 80px;
+}

@@ -5,6 +5,14 @@
 {% endblock %}
 {% block content %}
     <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="messages save_alert_msg">
+                    <i class="icon-checkmark-circle text-white mr-2"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        {% endif %}
         <form method="POST" action="{% url 'sc-update' model.id %}">
             {% csrf_token %}
             <!-- {{ form.as_p }} -->
