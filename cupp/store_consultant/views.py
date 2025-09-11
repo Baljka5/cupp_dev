@@ -139,13 +139,13 @@ def update(request, id):
         form = StoreConsultantForm(request.POST, instance=model)
         if form.is_valid():
             form.save()
-            return redirect("/store-index/")  # Adjust the redirect URL as needed
+            messages.info(request, 'SC2 information has been changed successfully!')
+            # return redirect("/store-index/")  # Adjust the redirect URL as needed
         else:
             print(form.errors)  # Print form errors in the console for debugging
     else:
         form = StoreConsultantForm(instance=model)
 
-    messages.info(request, 'SC2 information has been changed successfully!')
     return render(request, 'store_consultant/edit.html', {'form': form, 'model': model})
 
 
