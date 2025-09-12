@@ -149,6 +149,7 @@
         {% endif %}
     </div>
 
+        <div id="toasts"></div>
     {#    <div class="d-md-none">#}
     {#        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-mobile"#}
     {#                aria-expanded="true">#}
@@ -303,13 +304,31 @@
     {#    </div>#}
 </div>
 <script>
-    $(document).ready(function() {
-        // messages timeout for 10 sec 
-        setTimeout(function() {
-            $('.save_alert_msg').fadeOut('slow');
-        }, 5000); // <-- time in milliseconds, 1000 =  1 sec
+    // $(document).ready(function() {
+    //     // messages timeout for 10 sec 
+    //     setTimeout(function() {
+    //         $('.save_alert_msg').fadeOut('slow');
+    //     }, 5000); // <-- time in milliseconds, 1000 =  1 sec
 
+    // });
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('toasts');
+        {% for message in messages %}
+            const el = document.createElement('div');
+            el.className = 'toastify';
+            el.innerText = "{{ message|escapejs }}";
+            container.appendChild(el);
+            // show
+            setTimeout(() => el.classList.add('show'), 50);
+            // auto hide
+            setTimeout(()=> {
+            el.classList.remove('show');
+            setTimeout(()=> el.remove(), 300);
+            }, 4000);
+        {% endfor %}
     });
+        
+
     document.addEventListener('DOMContentLoaded', function () {
         const overlay = document.getElementById('loading-overlay');
 
