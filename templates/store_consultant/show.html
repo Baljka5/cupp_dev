@@ -139,7 +139,7 @@
                                                     {% if model.is_locked_sc %}
                                                         <button class="btn btn-secondary" disabled>Locked</button>
                                                     {% else %}
-                                                        <a href="{% url 'sc-edit' model.id %}" class="btn btn-primary">Edit</a>
+                                                        <a href="{% url 'sc-edit' model.id %}?page={{ page_number }}" class="btn btn-primary">Edit</a>
                                                     {% endif %}
                                                 </td>
                                             {% endif %}

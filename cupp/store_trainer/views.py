@@ -68,23 +68,33 @@ def index(request):
         'page_obj': page_obj,
         'store_id_query': store_id_query,
         'lic_id_nm_query': lic_id_nm_query,
+        'page_number': page_number,
         'user_name': request.user.username,
     })
 
 
 def edit(request, id):
+    page_number = request.GET.get('page')
     model = StoreTrainer.objects.get(id=id)
     form = StoreTrainerForm(instance=model)
-    return render(request, 'store_trainer/edit.html', {'model': model, 'form': form})
+    return render(request, 'store_trainer/edit.html', {'model': model, 'form': form, 'page_number': page_number})
 
 
 def update(request, id):
+    page_number = request.GET.get('page')
+    if page_number is not None:
+        try:
+            page_number = int(page_number)
+        except ValueError:
+            page_number = 1  # алдаатай тохиолдолд default
+    else:
+        page_number = 1  # параметр байхгүй үед default
     model = StoreTrainer.objects.get(id=id)
     form = StoreTrainerForm(request.POST, instance=model)
     if form.is_valid():
         form.save()
         messages.info(request, 'ST information has been changed successfully!')
-        return redirect("/st-index/")
+        return redirect(f"/st-index/?page={page_number}")
     return render(request, 'store_trainer/edit.html', {'model': model, 'form': form})
 
 

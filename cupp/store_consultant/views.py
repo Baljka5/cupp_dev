@@ -60,6 +60,7 @@ def index(request):
         'page_obj': page_obj,
         'store_id_query': store_id_query,
         'user_name': request.user.username,
+        'page_number': page_number,
         'team_mgr': team_mgr
     })
 
@@ -119,9 +120,10 @@ def store_view(request, id):
 
 
 def edit(request, id):
+    page_number = request.GET.get('page')
     model = StoreConsultant.objects.get(id=id)
     form = StoreConsultantForm(instance=model)
-    return render(request, 'store_consultant/edit.html', {'model': model, 'form': form})
+    return render(request, 'store_consultant/edit.html', {'model': model, 'form': form, 'page_number': page_number})
 
 
 # def update(request, id):
@@ -134,13 +136,22 @@ def edit(request, id):
 
 def update(request, id):
     model = get_object_or_404(StoreConsultant, id=id)
-
+    page_number = request.GET.get('page')
+    print("----------------------")
+    print(page_number)
+    if page_number is not None:
+        try:
+            page_number = int(page_number)
+        except ValueError:
+            page_number = 1  # алдаатай тохиолдолд default
+    else:
+        page_number = 1  # параметр байхгүй үед default
     if request.method == 'POST':
         form = StoreConsultantForm(request.POST, instance=model)
         if form.is_valid():
             form.save()
             messages.info(request, 'SC information has been changed successfully!')
-            return redirect("/store-index/")  # Adjust the redirect URL as needed?
+            return redirect(f"/store-index/?page={page_number}")  # Adjust the redirect URL as needed?
         else:
             print(form.errors)  # Print form errors in the console for debugging
     else:

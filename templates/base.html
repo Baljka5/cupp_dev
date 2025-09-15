@@ -171,7 +171,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'store-index' %}" class="navbar-nav-link">
+                        <a href="{% url 'store-index' %}?page=1" class="navbar-nav-link">
                             <i class="icon-store mr-1"></i>
                             <span>SC</span>
                         </a>
@@ -181,7 +181,7 @@
                 {% is_in_st_manager_group as user_in_st_manager_group %}
                 {% if user_in_store_trainer_group and user_in_st_manager_group %}
                     <li>
-                        <a href="{% url 'st-index' %}" class="navbar-nav-link">
+                        <a href="{% url 'st-index' %}?page=1" class="navbar-nav-link">
                             <i class="icon-store2 mr-1"></i>
                             <span>ST</span>
                         </a>
