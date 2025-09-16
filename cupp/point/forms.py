@@ -1,4 +1,5 @@
 from django import forms as f
+from django.core.exceptions import ValidationError
 from django.conf import settings
 
 from cupp.common.fields import ClearableFileInput
@@ -61,6 +62,19 @@ class StorePlanningForm(f.ModelForm):
             'park_slot', 'floor', 'cont_st_dt', 'cont_ed_dt', 'zip_code', 'rent_tp', 'rent_near', 'lessee_promise',
             'adv', 'disadv', 'propose', 'address_simple'
         )
+    def clean(self):
+        cleaned_data = super().clean()
+
+        addr_fields = [
+            "addr1_prov", "addr2_dist"
+        ]
+
+        for field in addr_fields:
+            value = cleaned_data.get(field)
+            if value is None:
+                self.add_error(field, ValidationError("Хоосон байж болохгүй, заавал утга оруулна уу."))
+
+        return cleaned_data    
 
 
 class DistrictForm(f.ModelForm):

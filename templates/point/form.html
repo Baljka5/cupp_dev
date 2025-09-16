@@ -65,10 +65,20 @@
                                 <div class="form-group col-md-6">
                                     <label>City&Province: <span class="text-purple">*</span></label>
                                     {% render_field store_planning_form.addr1_prov class+="form-control" %}
+                                    {% if store_planning_form.addr1_prov.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ store_planning_form.addr1_prov.errors.0 }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label>District&Sum: <span class="text-purple">*</span></label>
                                     {% render_field store_planning_form.addr2_dist class+="form-control" %}
+                                    {% if store_planning_form.addr2_dist.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ store_planning_form.addr2_dist.errors.0 }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Size:</label>
