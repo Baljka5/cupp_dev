@@ -1,6 +1,7 @@
 import json
 import os
 import datetime
+import sys
 from django.views.decorators.http import require_GET
 
 from django.contrib.auth.decorators import login_required
@@ -68,7 +69,7 @@ def index(request):
 def sc_view(request, id):
     try:
         model = StoreConsultant.objects.get(id=id)
-        st_model = StoreTrainer.objects.get(id=id)
+        st_model = StoreTrainer.objects.get(store_id=model.store_id)
     except (StoreConsultant.DoesNotExist, StoreTrainer.DoesNotExist):
         raise Http404("Store not found")
 
