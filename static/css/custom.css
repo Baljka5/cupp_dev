@@ -132,10 +132,11 @@ label {
 
 #id_type_filter {
   position: absolute;
-  top: 57px;
-  left: 7px;
+  top: 50px;
+  left: 0px;
   border-radius: 2px;
-  width: 185px;
+  width: 250px;
+  height: calc(100vh - 50px);
 }
 
 #second_filter {
@@ -189,3 +190,53 @@ label {
     margin-bottom: 8px;
 }
 .toastify.show { opacity: 1; transform: translate(-50%, -50%); }
+.point-badge{
+  width: 35px;
+  margin-right: 5px;
+  height: 15px;
+  padding: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.point-marker-img{
+  border-radius: 50px;
+  overflow: hidden;
+  height: 20px;
+  margin-right: 5px;
+}
+.point-marker-img img{
+height: 27px;
+}
+
+.grade-tag-label{
+  height: 20px;
+  padding: 0px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 75%;
+  border-radius: 15px;
+  background-color: #fff;
+  color: #00000080;
+  border:1px solid #dddddd;
+  font-weight: 600;
+}
+
+.grade-tag-label:hover{
+  background-color: #fff;
+  color: #00000080;
+  border:1px solid #dddddd;
+}
+.grade-tag-label:focus{
+  background-color: #e1f9f1;
+  color: #1bb875;
+  border:1px solid #1bb875
+  
+}
+.grade-tag-check:checked + .grade-tag-label {
+    background-color: #e1f9f1;
+    color: #1bb875;
+    border:1px solid #1bb875;
+    
+  }

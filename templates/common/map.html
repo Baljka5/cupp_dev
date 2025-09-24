@@ -21,22 +21,29 @@
                 {#                {% endfor %}#}
                 {% for k,v in types %}
                     {#                    {% if k != 'PP' %}#}
-                    <label class="d-block">
+                    <label class="d-flex align-items-center mb-2">
                         <input type="checkbox" value="{{ k }}" id="id_{{ k }}" name="type"
                                class="mr-1 type-checkbox"
                                checked>
+                               <div  class="point-marker-img">
+                                   <img src="/static/images/ui/marker-{{ k }}.png" alt="marker-{{ k }}">
+                               </div>
+                               <!-- <span class="badge badge-pill badge-info point-badge">{{ k }}</span> -->
                         {{ v }}
                     </label>
                     {#                    {% endif %}#}
                 {% endfor %}
 
+                
                 <hr class="mb-2 mt-2">
-                {% for k,v in grades %}
-                    <label class="d-block">
-                        <input type="checkbox" value="{{ k }}" name="grade" class="mr-1 type-checkbox" checked>
-                        Grade {{ v }}
-                    </label>
-                {% endfor %}
+                <div class="d-flex flex-wrap">
+                    {% for k,v in grades %}
+                        <label class="d-flex align-items-center justify-content-center mr-1 mb-1">
+                            <input type="checkbox" value="{{ k }}" id="grade_{{ k }}" name="grade" class="mr-1 grade-tag-check type-checkbox d-none" checked >
+                            <label class="mb-0 btn btn-outline-success grade-tag-label" for="grade_{{ k }}">Grade {{ v }}</label>
+                        </label>
+                    {% endfor %}
+                </div>
 
                 <hr class="mb-2 mt-2">
                 <label class="d-block">
