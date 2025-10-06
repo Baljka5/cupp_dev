@@ -97,7 +97,7 @@ urlpatterns = [
     # path('groups/', report_view, name='powerbi_report'),
     path('bi-embed/', point_views.bi_embed, name='bi-embed'),
     path('', point_views.index, name='event_index'),
-    # path('register-license/', license_views.MainTableCreateView, name='register_license'),
+    path('register-license', license_views.index, name='register_license'),
 
     path('leg-index/', leg_views.index, name='leg-index'),
     path('leg-add', leg_views.leg_add, name='leg-add'),

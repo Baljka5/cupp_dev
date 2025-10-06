@@ -12,7 +12,7 @@ from django.views import generic as g
 def addnew(request):
     lic_id_to_name = {dimension.lic_id: dimension.lic_id_nm for dimension in DimensionTable.objects.all()}
     if request.method == "POST":
-        form = MainTableForm(request.POST)
+        form = MainTableForm(request.POST, request.FILES)
         if form.is_valid():
             try:
                 form.instance.created_by = request.user if not form.instance.pk else form.instance.created_by

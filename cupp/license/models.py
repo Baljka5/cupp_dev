@@ -15,6 +15,8 @@ from django.utils import timezone
 from cupp.point.models import District, City
 from cupp.event.models import ActionOwner
 
+def upload_file(instance, filename):
+    return 'static/%s%s' % (str(uuid.uuid4())[:12], os.path.splitext(filename)[1])
 
 class DimensionTable(m.Model):
     lic_id = m.CharField('License type', blank=False, default='', max_length=50)
@@ -45,6 +47,7 @@ class MainTable(models.Model):
     alc_closetime = models.TimeField('Time to sell out alchohol', null=True, default=timezone.now, blank=True)
     lic_sqrm = models.DecimalField('Licensed area', max_digits=5, decimal_places=1, null=True, blank=True)
     camera_cnt = models.IntegerField('Total number of cameras', default=0, blank=True, null=True)
+    lic_file = m.FileField('License PDF file', upload_to=upload_file, blank=True, null=True)
 
     alc_type = models.CharField('Type of Alcohol', null=True, blank=True, max_length=10)
     lic_type = models.CharField('Type of License', null=True, blank=True, max_length=10)
