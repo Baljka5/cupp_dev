@@ -10,6 +10,10 @@
     <link rel="shortcut icon" type="/static/images/favicon.png" href="/static/images/favicon.png"/>
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet"
           type="text/css">
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
     <link href="/static/css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="/static/css/bootstrap_limitless.min.css" rel="stylesheet" type="text/css">
@@ -47,6 +51,8 @@
     <script src="/static/js/app.js"></script>
     <script src="/static/js/custom.js"></script>
     <!-- /theme JS files -->
+
+
 
     <style>
         #loading-overlay {
@@ -90,7 +96,11 @@
     </style>
 </head>
 
-<body class="navbar-top">
+<body class="navbar-top bg-white
+{% if request.path == '/map/' %}
+        overflow-hidden
+{% endif %}
+">
 
 <div id="loading-overlay" style="display: none;">
     <div class="spinner-container">
@@ -98,211 +108,374 @@
         <div class="loading-text">Түр хүлээнэ үү...</div>
     </div>
 </div>
-<!-- Main navbar -->
-<div class="navbar navbar-expand-md navbar-dark bg-purple fixed-top">
-    <div class="navbar-brand">
-        {% if user.is_authenticated %}
-            {% is_in_event_group as user_in_event_group %}
-            {% is_in_license_group as user_in_license_group %}
-            {% is_in_rent_group as user_in_rent_group %}
-            {% is_in_store_trainer_group as user_in_store_trainer_group %}
-            {% is_in_store_consultant_group as user_in_store_consultant_group %}
-            {% is_in_area_group as user_in_area_group %}
-            {% is_in_sc_direct_group as user_in_sc_direct_group %}
-            {% is_in_st_manager_group as user_in_st_manager_group %}
-            {% is_in_planning_manager as user_in_planning_manager_group %}
-            {% if user.is_superuser %}
-                <a href="{% url 'map' %}" class="d-inline-block">
-                    <img src="/static/images/logo.png" alt="xbook logo">
-                </a>
-            {% elif user_in_event_group %}
-                <a href="{% url 'event_index' %}" class="d-inline-block">
-                    <img src="/static/images/logo.png" alt="xbook logo">
-                </a>
-            {% elif user_in_license_group %}
-                <a href="{% url 'index' %}" class="d-inline-block">
-                    <img src="/static/images/logo.png" alt="xbook logo">
-                </a>
-            {% elif user_in_rent_group %}
-                <a href="{% url 'rent_index' %}" class="d-inline-block">
-                    <img src="/static/images/logo.png" alt="xbook logo">
-                </a>
-            {% elif user_in_store_trainer_group or user_in_st_manager_group %}
-                <a href="{% url 'st-index' %}" class="d-inline-block">
-                    <img src="/static/images/logo.png" alt="xbook logo">
-                </a>
-            {% elif user_in_store_consultant_group or user_in_area_group or user_in_sc_direct_group %}
-                <a href="{% url 'store-index' %}" class="d-inline-block">
-                    <img src="/static/images/logo.png" alt="xbook logo">
-                </a>
-            {% elif user_in_planning_manager_group %}
-                <a href="{% url 'sc-index' %}" class="d-inline-block">
-                    <img src="/static/images/logo.png" alt="xbook logo">
-                </a>
-            {% else %}
-                <a href="{% url 'map' %}" class="d-inline-block">
-                    <img src="/static/images/logo.png" alt="xbook logo">
-                </a>
-            {% endif %}
-        {% else %}
-            <!-- Your code for non-authenticated users -->
-        {% endif %}
-    </div>
 
-        <div id="toasts"></div>
-    {#    <div class="d-md-none">#}
-    {#        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-mobile"#}
-    {#                aria-expanded="true">#}
-    {#            <i class="icon-menu"></i>#}
-    {#        </button>#}
-    {#    </div>#}
+<!-- Main navbar NEW Tailwind-->
+    {% if user.is_authenticated %}
+        <nav class="top-0 w-full left-0 fixed z-20 bg-white shadow-sm">
+            <div class="flex flex-wrap items-center justify-between mx-auto shadow-sm">
+                {% if user.is_authenticated %}
+                    {% is_in_event_group as user_in_event_group %}
+                    {% is_in_license_group as user_in_license_group %}
+                    {% is_in_rent_group as user_in_rent_group %}
+                    {% is_in_store_trainer_group as user_in_store_trainer_group %}
+                    {% is_in_store_consultant_group as user_in_store_consultant_group %}
+                    {% is_in_area_group as user_in_area_group %}
+                    {% is_in_sc_direct_group as user_in_sc_direct_group %}
+                    {% is_in_st_manager_group as user_in_st_manager_group %}
+                    {% is_in_planning_manager as user_in_planning_manager_group %}
+                    {% if user.is_superuser %}
+                        <a href="{% url 'map' %}" class="ml-3 flex items-center space-x-3 rtl:space-x-reverse">
+                    {% elif user_in_event_group %}
+                        <a href="{% url 'event_index' %}" class="ml-3 flex items-center space-x-3 rtl:space-x-reverse">
+                    {% elif user_in_license_group %}
+                        <a href="{% url 'index' %}" class="ml-3 flex items-center space-x-3 rtl:space-x-reverse">
+                    {% elif user_in_rent_group %}
+                        <a href="{% url 'rent_index' %}" class="ml-3 flex items-center space-x-3 rtl:space-x-reverse">
+                    {% elif user_in_store_trainer_group or user_in_st_manager_group %}
+                        <a href="{% url 'st-index' %}" class="ml-3 flex items-center space-x-3 rtl:space-x-reverse">
+                    {% elif user_in_store_consultant_group or user_in_area_group or user_in_sc_direct_group %}
+                        <a href="{% url 'store-index' %}" class="ml-3 flex items-center space-x-3 rtl:space-x-reverse">
+                    {% elif user_in_planning_manager_group %}
+                        <a href="{% url 'sc-index' %}" class="ml-3 flex items-center space-x-3 rtl:space-x-reverse">
+                    {% else %}
+                        <a href="{% url 'map' %}" class="ml-3 flex items-center space-x-3 rtl:space-x-reverse">
+                    {% endif %}
+                            <img src="/static/images/cu-logo.png" alt="xbook logo" class="h-8">
+                        </a>
+                {% endif %}
+                <div class="hidden w-full md:block md:w-auto" id="navbar-default">
+                <ul class="mb-0 font-medium flex flex-col md:p-0 rounded-lg md:flex-row md:mt-0 !text-[#5d5d5d] !text-sm">
+                    {% is_in_store_consultant_group as user_in_store_consultant_group %}
+                    {% is_in_area_group as user_in_area_group %}
+                    {% is_in_sc_direct_group as user_in_sc_direct_group %}
+                    {% if user_in_store_consultant_group or user_in_area_group or user_in_sc_direct_group %}
 
-    <div class="collapse navbar-collapse">
-        {% if user.is_authenticated %}
-            <ul class="navbar-nav ml-md-auto">
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="{% url 'comp_index' %}" class="block  py-2 px-3 rounded-sm text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page"> 
+                                <i class="icon-warning mr-1 !text-xs"></i>
+                                 Comp
+                                </a>
+                        </li>
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="{% url 'store-index' %}?page=1" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page"><i class="icon-store mr-1 !text-xs"></i> SC</a>
+                        </li>
+
+                    {% endif %}
+
+                    {% is_in_store_trainer_group as user_in_store_trainer_group %}
+                    {% is_in_st_manager_group as user_in_st_manager_group %}
+                    {% if user_in_store_trainer_group and user_in_st_manager_group %}
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="{% url 'st-index' %}?page=1" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page"><i class="icon-store2 mr-1 !text-xs"></i> ST</a>
+                        </li>
+                    {% endif %}
+
+                    {% is_in_rent_group as user_in_rent_group %}
+                    {% if user_in_rent_group %}
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="{% url 'rent_index' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                                <i class="icon-file-check mr-1 !text-xs"></i> Rent
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% is_in_event_group as user_in_event_group %}
+                    {% is_in_license_group as user_in_license_group %}
+                    {% is_in_legal_team_group as user_in_legal_team_group %}
+                    {% if user_in_event_group %}
+
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="{% url 'event_index' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                                <i class="icon-calendar mr-1 !text-xs"></i> DL
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if user_in_legal_team_group %}
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="{% url 'index' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                                <i class="icon-add mr-1 !text-xs"></i> Lic
+                            </a>
+                        </li>
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="{% url 'leg-index' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                                <i class="icon-add mr-1 !text-xs"></i> Disp
+                            </a>
+                        </li>
+                    {% elif user_in_license_group %}
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="{% url 'index' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                                <i class="icon-add mr-1 !text-xs"></i> Lic
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% is_in_store_planner_group as user_in_store_planner_group %}
+                    {% is_in_manager_group as user_in_manager_group %}
+                    {% is_in_sp_director_group as user_in_sp_director_group %}
+                    {% if user_in_store_planner_group or user_in_manager_group or user_in_sp_director_group %}
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="{% url 'map' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                                <i class="icon-location4 mr-1 !text-xs"></i> Points
+                            </a>
+                        </li>
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="{% url 'point_create' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                                <i class="icon-plus22 mr-1 !text-xs"></i> AP
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% is_in_planning_manager as user_in_planning_manager_group %}
+                    {% if user_in_planning_manager_group %}
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="{% url 'sc-index' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                                <i class="icon-database-edit2 mr-1 !text-xs"></i> Allocation
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if user.is_superuser %}
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="/admin/" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                                <i class="icon-cog mr-1 !text-xs"></i> Settings
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% is_in_sales_analyst as user_in_sales_analyst %}
+                    {% if user_in_sales_analyst %}
+                        <li class="hover:bg-[#5e3188] group py-1">
+                            <a href="/lock-list/" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                                <i class="icon-lock mr-1 !text-xs"></i> Lock
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <li class="hover:bg-[#5e3188] group py-1">
+                        <a href="{% url 'password_change' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                            <i class="icon-key mr-1 !text-xs"></i> Change Password
+                        </a>
+                    </li>
+
+                    <li class="bg-red-500 hover:bg-red-800 py-1">
+                        <a href="{% url 'logout' %}" class="block py-2 px-3 !text-white rounded-sm" aria-current="page">
+                            <i class="icon-switch2 mr-1 !text-xs"></i> Sign out
+                        </a>
+                    </li>
+
+                </ul>
+                </div>
+            </div>
+        </nav>
+    {% endif %}<!-- End of Main navbar NEW Tailwind-->
+
+<!-- Main navbar OLD  DISPLAY:NONE-->
+    <div class="navbar navbar-expand-md navbar-dark bg-purple fixed-top d-none">
+        <div class="navbar-brand">
+            {% if user.is_authenticated %}
+                {% is_in_event_group as user_in_event_group %}
+                {% is_in_license_group as user_in_license_group %}
+                {% is_in_rent_group as user_in_rent_group %}
+                {% is_in_store_trainer_group as user_in_store_trainer_group %}
                 {% is_in_store_consultant_group as user_in_store_consultant_group %}
                 {% is_in_area_group as user_in_area_group %}
                 {% is_in_sc_direct_group as user_in_sc_direct_group %}
-                {% if user_in_store_consultant_group or user_in_area_group or user_in_sc_direct_group %}
-                    <li>
-                        <a href="{% url 'comp_index' %}" class="navbar-nav-link">
-                            <i class="icon-warning mr-1"></i>
-                            <span>Comp</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'store-index' %}?page=1" class="navbar-nav-link">
-                            <i class="icon-store mr-1"></i>
-                            <span>SC</span>
-                        </a>
-                    </li>
-                {% endif %}
-                {% is_in_store_trainer_group as user_in_store_trainer_group %}
                 {% is_in_st_manager_group as user_in_st_manager_group %}
-                {% if user_in_store_trainer_group and user_in_st_manager_group %}
-                    <li>
-                        <a href="{% url 'st-index' %}?page=1" class="navbar-nav-link">
-                            <i class="icon-store2 mr-1"></i>
-                            <span>ST</span>
-                        </a>
-                    </li>
-                {% endif %}
-                {% is_in_rent_group as user_in_rent_group %}
-                {% if user_in_rent_group %}
-                    <li>
-                        <a href="{% url 'rent_index' %}" class="navbar-nav-link">
-                            <i class="icon-file-check mr-1"></i>
-                            <span>Rent</span>
-                        </a>
-                    </li>
-                {% endif %}
-                {% is_in_event_group as user_in_event_group %}
-                {% is_in_license_group as user_in_license_group %}
-                {% is_in_legal_team_group as user_in_legal_team_group %}
-
-
-                {% if user_in_event_group %}
-                    <li>
-                        <a href="{% url 'event_index' %}" class="navbar-nav-link">
-                            <i class="icon-calendar mr-1"></i>
-                            <span>DL</span>
-                        </a>
-                    </li>
-                {% endif %}
-
-                {% if user_in_legal_team_group %}
-                    <!-- Show both License and Dispute for legal team group -->
-                    <li class="nav-item">
-                        <a href="{% url 'index' %}" class="navbar-nav-link">
-                            <i class="icon-add mr-1"></i>
-                            <span>Lic</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'leg-index' %}" class="navbar-nav-link">
-                            <i class="icon-add mr-1"></i>
-                            <span>Disp</span>
-                        </a>
-                    </li>
-                {% elif user_in_license_group %}
-                    <!-- Show only License for license group -->
-                    <li class="nav-item">
-                        <a href="{% url 'index' %}" class="navbar-nav-link">
-                            <i class="icon-add mr-1"></i>
-                            <span>Lic</span>
-                        </a>
-                    </li>
-                {% endif %}
-                {% is_in_store_planner_group as user_in_store_planner_group %}
-                {% is_in_manager_group as user_in_manager_group %}
-                {% is_in_sp_director_group as user_in_sp_director_group %}
-                {% if user_in_store_planner_group or user_in_manager_group or user_in_sp_director_group %}
-                    <li class="nav-item">
-                        <a href="{% url 'map' %}" class="navbar-nav-link">
-                            <i class="icon-location4 mr-1"></i>
-                            <span>Points</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'point_create' %}" class="navbar-nav-link">
-                            <i class="icon-plus22 mr-1"></i>
-                            <span>AP</span>
-                        </a>
-                    </li>
-                {% endif %}
                 {% is_in_planning_manager as user_in_planning_manager_group %}
-                {% if user_in_planning_manager_group %}
-                    <li class="nav-item">
-                        <a href="{% url 'sc-index' %}" class="navbar-nav-link">
-                            <i class="icon-database-edit2 mr-1"></i>
-                            <span>Allocation</span>
-                        </a>
-                    </li>
-                    {#                    <li class="nav-item">#}
-                    {#                        <a href="{% url 'sc-add-index' %}" class="navbar-nav-link">#}
-                    {#                            <i class="icon-add mr-1"></i>#}
-                    {#                            <span>ASC</span>#}
-                    {#                        </a>#}
-                    {#                    </li>#}
-                {% endif %}
                 {% if user.is_superuser %}
+                    <a href="{% url 'map' %}" class="d-inline-block">
+                        <img src="/static/images/logo.png" alt="xbook logo">
+                    </a>
+                {% elif user_in_event_group %}
+                    <a href="{% url 'event_index' %}" class="d-inline-block">
+                        <img src="/static/images/logo.png" alt="xbook logo">
+                    </a>
+                {% elif user_in_license_group %}
+                    <a href="{% url 'index' %}" class="d-inline-block">
+                        <img src="/static/images/logo.png" alt="xbook logo">
+                    </a>
+                {% elif user_in_rent_group %}
+                    <a href="{% url 'rent_index' %}" class="d-inline-block">
+                        <img src="/static/images/logo.png" alt="xbook logo">
+                    </a>
+                {% elif user_in_store_trainer_group or user_in_st_manager_group %}
+                    <a href="{% url 'st-index' %}" class="d-inline-block">
+                        <img src="/static/images/logo.png" alt="xbook logo">
+                    </a>
+                {% elif user_in_store_consultant_group or user_in_area_group or user_in_sc_direct_group %}
+                    <a href="{% url 'store-index' %}" class="d-inline-block">
+                        <img src="/static/images/logo.png" alt="xbook logo">
+                    </a>
+                {% elif user_in_planning_manager_group %}
+                    <a href="{% url 'sc-index' %}" class="d-inline-block">
+                        <img src="/static/images/logo.png" alt="xbook logo">
+                    </a>
+                {% else %}
+                    <a href="{% url 'map' %}" class="d-inline-block">
+                        <img src="/static/images/logo.png" alt="xbook logo">
+                    </a>
+                {% endif %}
+            {% else %}
+                <!-- Your code for non-authenticated users -->
+            {% endif %}
+        </div>
+
+            <div id="toasts"></div>
+        {#    <div class="d-md-none">#}
+        {#        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-mobile"#}
+        {#                aria-expanded="true">#}
+        {#            <i class="icon-menu"></i>#}
+        {#        </button>#}
+        {#    </div>#}
+
+        <div class="collapse navbar-collapse">
+            {% if user.is_authenticated %}
+                <ul class="navbar-nav ml-md-auto">
+                    {% is_in_store_consultant_group as user_in_store_consultant_group %}
+                    {% is_in_area_group as user_in_area_group %}
+                    {% is_in_sc_direct_group as user_in_sc_direct_group %}
+                    {% if user_in_store_consultant_group or user_in_area_group or user_in_sc_direct_group %}
+                        <li>
+                            <a href="{% url 'comp_index' %}" class="navbar-nav-link">
+                                <i class="icon-warning mr-1"></i>
+                                <span>Comp</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'store-index' %}?page=1" class="navbar-nav-link">
+                                <i class="icon-store mr-1"></i>
+                                <span>SC</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% is_in_store_trainer_group as user_in_store_trainer_group %}
+                    {% is_in_st_manager_group as user_in_st_manager_group %}
+                    {% if user_in_store_trainer_group and user_in_st_manager_group %}
+                        <li>
+                            <a href="{% url 'st-index' %}?page=1" class="navbar-nav-link">
+                                <i class="icon-store2 mr-1"></i>
+                                <span>ST</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% is_in_rent_group as user_in_rent_group %}
+                    {% if user_in_rent_group %}
+                        <li>
+                            <a href="{% url 'rent_index' %}" class="navbar-nav-link">
+                                <i class="icon-file-check mr-1"></i>
+                                <span>Rent</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% is_in_event_group as user_in_event_group %}
+                    {% is_in_license_group as user_in_license_group %}
+                    {% is_in_legal_team_group as user_in_legal_team_group %}
+
+
+                    {% if user_in_event_group %}
+                        <li>
+                            <a href="{% url 'event_index' %}" class="navbar-nav-link">
+                                <i class="icon-calendar mr-1"></i>
+                                <span>DL</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if user_in_legal_team_group %}
+                        <!-- Show both License and Dispute for legal team group -->
+                        <li class="nav-item">
+                            <a href="{% url 'index' %}" class="navbar-nav-link">
+                                <i class="icon-add mr-1"></i>
+                                <span>Lic</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'leg-index' %}" class="navbar-nav-link">
+                                <i class="icon-add mr-1"></i>
+                                <span>Disp</span>
+                            </a>
+                        </li>
+                    {% elif user_in_license_group %}
+                        <!-- Show only License for license group -->
+                        <li class="nav-item">
+                            <a href="{% url 'index' %}" class="navbar-nav-link">
+                                <i class="icon-add mr-1"></i>
+                                <span>Lic</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% is_in_store_planner_group as user_in_store_planner_group %}
+                    {% is_in_manager_group as user_in_manager_group %}
+                    {% is_in_sp_director_group as user_in_sp_director_group %}
+                    {% if user_in_store_planner_group or user_in_manager_group or user_in_sp_director_group %}
+                        <li class="nav-item">
+                            <a href="{% url 'map' %}" class="navbar-nav-link">
+                                <i class="icon-location4 mr-1"></i>
+                                <span>Points</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'point_create' %}" class="navbar-nav-link">
+                                <i class="icon-plus22 mr-1"></i>
+                                <span>AP</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% is_in_planning_manager as user_in_planning_manager_group %}
+                    {% if user_in_planning_manager_group %}
+                        <li class="nav-item">
+                            <a href="{% url 'sc-index' %}" class="navbar-nav-link">
+                                <i class="icon-database-edit2 mr-1"></i>
+                                <span>Allocation</span>
+                            </a>
+                        </li>
+                        {#                    <li class="nav-item">#}
+                        {#                        <a href="{% url 'sc-add-index' %}" class="navbar-nav-link">#}
+                        {#                            <i class="icon-add mr-1"></i>#}
+                        {#                            <span>ASC</span>#}
+                        {#                        </a>#}
+                        {#                    </li>#}
+                    {% endif %}
+                    {% if user.is_superuser %}
+                        <li class="nav-item">
+                            <a href="/admin/" class="navbar-nav-link">
+                                <i class="icon-cog mr-1"></i>
+                                <span>Settings</span>
+                            </a>
+                        </li>
+
+                    {% endif %}
+                    {% is_in_sales_analyst as user_in_sales_analyst %}
+                    {% if user_in_sales_analyst %}
+                        <li class="nav-item">
+                            <a href="/lock-list/" class="navbar-nav-link">
+                                <i class="icon-lock mr-1"></i>
+                                <span>Lock</span>
+                            </a>
+                        </li>
+
+                    {% endif %}
                     <li class="nav-item">
-                        <a href="/admin/" class="navbar-nav-link">
-                            <i class="icon-cog mr-1"></i>
-                            <span>Settings</span>
+                        <a href="{% url 'password_change' %}" class="navbar-nav-link">
+                            <i class="icon-key mr-1"></i>
+                            <span>Change Password</span>
                         </a>
                     </li>
-
-                {% endif %}
-                {% is_in_sales_analyst as user_in_sales_analyst %}
-                {% if user_in_sales_analyst %}
                     <li class="nav-item">
-                        <a href="/lock-list/" class="navbar-nav-link">
-                            <i class="icon-lock mr-1"></i>
-                            <span>Lock</span>
+                        <a href="{% url 'logout' %}" class="navbar-nav-link">
+                            <i class="icon-switch2 mr-1"></i>
+                            <span>Sign out</span>
                         </a>
                     </li>
-
-                {% endif %}
-                <li class="nav-item">
-                    <a href="{% url 'password_change' %}" class="navbar-nav-link">
-                        <i class="icon-key mr-1"></i>
-                        <span>Change Password</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'logout' %}" class="navbar-nav-link">
-                        <i class="icon-switch2 mr-1"></i>
-                        <span>Sign out</span>
-                    </a>
-                </li>
-            </ul>
-        {% endif %}
+                </ul>
+            {% endif %}
+        </div>
+        {#    <div id="loading-spinner" style="display: none;">#}
+        {#        <div class="spinner"></div>#}
+        {#    </div>#}
     </div>
-    {#    <div id="loading-spinner" style="display: none;">#}
-    {#        <div class="spinner"></div>#}
-    {#    </div>#}
-</div>
+
+
 <script>
     // $(document).ready(function() {
     //     // messages timeout for 10 sec 
