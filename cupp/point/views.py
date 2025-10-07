@@ -175,7 +175,6 @@ class Detail(LoginRequiredMixin, g.DetailView):
 
 def sp_data(request, point):
     model = StorePlanning.objects.get(point=point)
-    print(model)
     return render(request, 'point/detail.html', {'model': model})
 
 

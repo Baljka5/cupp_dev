@@ -9,90 +9,154 @@
 {% block content %}
     <div class="content">
         <div class="row">
-            <div class="col-md-12">
-                <span><a href="/addnew" id="btn_save_and_new"
-                         class="btn bg-purple ml-1">Add New Record</a></span>
-                <div class="row">
-                    <div class="col-md-12 d-flex justify-content-end mb-3">
-                        <form method="get" action="." class="form-inline">
-                            <div class="input-group">
+            <div class="flex flex-col w-full px-1">
+                <div class="flex items-start justify-between !mt-[20px] mb-[40px]">
+                    <div>
+                        <a href="/addnew" id="btn_save_and_new" class="btn bg-purple-500">
+                            <i class="icon-plus22 me-2 "></i>Add New Record
+                        </a>
+                    </div>
+                    <div>
+                        <form method="get" action="." class="">
+                            <div class="flex gap-1">
                                 <input type="text" name="store_id" value="{{ store_id_query }}"
-                                       placeholder="Store ID..." class="form-control mr-2" style="margin-right: 2px;">
+                                        placeholder="Дэлгүүрийн дугаар..." class="form-control"
+                                        style="margin-right: 2px;">
                                 <input type="text" name="lic_id_nm" value="{{ lic_id_nm_query }}"
-                                       placeholder="License Type Name..." class="form-control mr-2"
-                                       style="margin-right: 2px;">
-                                <button type="submit" class="btn bg-purple ml-1" style="margin-right: 2px;">Filter
+                                        placeholder="Лицензийн төрөл..." class="form-control"
+                                        style="margin-right: 2px;">
+                                <button type="submit" class="btn bg-purple-500"><i class="icon-filter4 me-2 "></i>Filter
                                 </button>
                                 <a href="." class="btn btn-secondary">Clear</a>
                             </div>
                         </form>
                     </div>
                 </div>
-                <br>
+                
 
-                <div class="table-responsive">
-                    <table id="bootstrapdatatable" class="table table-striped table-bordered" width="100%">
-                        <thead>
-
-
-                        <th><input type="checkbox" id="checkall"/></th>
-                        <th>ID</th>
-                        <th>Store code</th>
-                        <th>Лицензийн төрөл</th>
-                        <th>Лицензийн төрлийн нэр</th>
-                        <th>Лицензтэй эсэх</th>
-                        <th>Лиценз авсан огноо</th>
-                        <th>Лиценз дуусах огноо</th>
-                        <th>Лиценз авсан ажилтан</th>
-                        <th>Лиценз олгосон газрын нэр ID</th>
-                        <th>Лиценз олгосон газар</th>
-                        <th>Лицензийн код</th>
-                        <th>Архи зарж эхлэх цаг</th>
-                        <th>Архи зарж дуусах цаг</th>
-                        <th>Камерын тоо</th>
-                        <th>Талбайн хэмжээ</th>
-                        <th>Edit</th>
-                        {% if user.is_authenticated %}
-                            {% is_in_event_group as user_in_event_group %}
-                            {% if user.is_superuser %}
-                                <th>Delete</th>
-                            {% elif user_in_event_group %}
-
-                            {% endif %}
-                        {% endif %}
-                        </thead>
-                        <tbody>
-                        {% for model in page_obj %}
+                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                        <thead class="text-xs !text-gray-700 bg-[#f3f5f9] !font-medium text-wrap">
                             <tr>
-                                <td><input type="checkbox" class="checkthis"/></td>
-                                <td>{{ model.id }}</td>
-                                <td>{{ model.store_id }}</td>
-                                <td>{{ model.lic_id }}</td>
-                                <td>{{ model.lic_id_nm }}</td>
-                                <td>{{ model.lic_yn }}</td>
-                                <td>{{ model.st_dt }}</td>
-                                <td>{{ model.ed_dt }}</td>
-                                <td>{{ model.lic_owner }}</td>
-                                <td>{{ model.lic_prov_ID }}</td>
-                                <td>{{ model.lic_prov_name }}</td>
-                                <td>{{ model.lic_no }}</td>
-                                <td>{{ model.alc_opentime }}</td>
-                                <td>{{ model.alc_closetime }}</td>
-                                <td>{{ model.camera_cnt }}</td>
-                                <td>{{ model.lic_sqrm }}</td>
-                                <td><a href="/lic-edit/{{ model.id }}" class="btn btn-primary">Edit</a></td>
-                                {% if user.is_authenticated %}
-                                    {% is_in_event_group as user_in_event_group %}
-                                    {% if user.is_superuser %}
-                                        <td><a href="{% url 'lic-delete' model.id %}" class="btn btn-danger">Delete</a>
-                                        </td>
-                                    {% elif user_in_event_group %}
-
-                                    {% endif %}
-                                {% endif %}
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Дэлгүүрийн нэр, дугаар
+                                </th>
+                                <!-- <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium min-w-[180px]">
+                                    Лицензийн <br>төрөл
+                                </th> -->
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Лицензийн төрөл,<br> төрлийн нэр
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Лицензтэй эсэх
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium min-w-[180px]">
+                                    Лиценз авсан огноо
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium min-w-[180px]">
+                                    Лиценз дуусах огноо
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Лиценз авсан ажилтан
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Лиценз олгосон газрын нэр ID
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Лиценз олгосон газар
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Лицензийн код
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Архи зарж эхлэх цаг
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Архи зарж дуусах цаг
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Камерын тоо
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Талбайн хэмжээ
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Үйлдэл
+                                </th>
                             </tr>
-                        {% endfor %}
+                        </thead>
+                        <tbody class="text-[13px]">
+                            {% for model in page_obj %}
+                                <tr class="bg-white !text-gray-500 border-b border-gray-200 hover:bg-gray-50 ">
+                                    <td class="px-6 py-[12px] h-[65px] text-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <div class="h-10 w-[70px] bg-[#642b8b] text-white rounded-full text-base flex items-center justify-center">CU {{ model.store_id|add:0 }}</div>
+                                            <div class="flex flex-col">
+                                                <!-- <span class="font-medium uppercase">{{ model.store_name }}</span> -->
+                                                <span>{{ model.store_id }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <!-- <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.lic_id }}
+                                    </td> -->
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.lic_id }} - {{ model.lic_id_nm }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.lic_yn }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.st_dt }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.ed_dt }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.lic_owner }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.lic_prov_ID }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.lic_prov_name }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.lic_no }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.alc_opentime }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.alc_closetime }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.camera_cnt }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.lic_sqrm }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        <div class="flex gap-3 items-center">
+                                            <a href="/lic-show/{{ model.id }}" class="!text-xs font-normal text-blue-600 hover:underline">
+                                                <i class="!text-xs icon-eye mr-1 text-gray-500 hover:text-green-500"></i>
+                                            </a><a href="/lic-edit/{{ model.id }}" class="!text-xs font-normal text-blue-600 hover:underline">
+                                                <i class="!text-xs icon-pencil3 mr-1 text-gray-500 hover:text-green-500"></i>
+                                            </a>
+                                            {% if user.is_authenticated %}
+                                                {% is_in_event_group as user_in_event_group %}
+                                                {% if user.is_superuser %}
+                                                        <a href="{% url 'lic-delete' model.id %}" class="!text-xs font-normal text-red-600 hover:underline ">
+                                                            <i class="!text-xs icon-trash-alt mr-1 text-gray-500  hover:text-red-500"></i>
+                                                        </a>
+                                            {% endif %}
+                                        {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
+
                     </table>
                 </div>
             </div>

@@ -138,8 +138,6 @@ def edit(request, id):
 def update(request, id):
     model = get_object_or_404(StoreConsultant, id=id)
     page_number = request.GET.get('page')
-    print("----------------------")
-    print(page_number)
     if page_number is not None:
         try:
             page_number = int(page_number)

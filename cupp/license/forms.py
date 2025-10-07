@@ -29,7 +29,6 @@ class MainTableForm(f.ModelForm):
         widgets = {'store_id': f.TextInput(attrs={'class': 'form-control'}),
                    'lic_id_nm': f.TextInput(attrs={'class': 'form-control'}),
                    'lic_owner': f.TextInput(attrs={'class': 'form-control'}),
-                   'lic_file': ClearableFileInput(),
                    'lic_prov_ID': f.TextInput(attrs={'class': 'form-control'}),
                    'lic_prov_name': f.TextInput(attrs={'class': 'form-control'}),
                    'lic_no': f.TextInput(attrs={'class': 'form-control'}),

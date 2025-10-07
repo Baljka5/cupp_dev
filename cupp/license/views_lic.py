@@ -13,6 +13,7 @@ def addnew(request):
     lic_id_to_name = {dimension.lic_id: dimension.lic_id_nm for dimension in DimensionTable.objects.all()}
     if request.method == "POST":
         form = MainTableForm(request.POST, request.FILES)
+        print(request.FILES)
         if form.is_valid():
             try:
                 form.instance.created_by = request.user if not form.instance.pk else form.instance.created_by
@@ -54,7 +55,7 @@ def index(request):
     if lic_id_nm_query:
         query &= Q(lic_id__lic_id_nm__icontains=lic_id_nm_query)
 
-    models = MainTable.objects.filter(query).distinct().order_by('id')
+    models = MainTable.objects.filter(query).distinct().order_by('-store_id')
 
     paginator = Paginator(models, 10)
     page_number = request.GET.get('page')
@@ -66,6 +67,11 @@ def index(request):
         'lic_id_nm_query': lic_id_nm_query
     })
 
+def lic_show(request, id):
+    model = MainTable.objects.get(id=id)
+    return render(request, 'license/lic_show.html', {
+        'model': model
+    })
 
 def edit(request, id):
     model = MainTable.objects.get(id=id)

@@ -157,6 +157,7 @@ urlpatterns = [
     path('register-license/', license_views.index, name='index'),
     path('addnew', license_views.addnew, name='addnew'),
     path('lic-edit/<int:id>', license_views.edit, name='lic-edit'),
+    path('lic-show/<int:id>', license_views.lic_show, name='lic-show'),
     path('lic-update/<int:id>', license_views.update, name='lic-update'),
     # path('lic-delete/<int:id>/<str:table>/', license_views.destroy, name='lic-delete'),
     path('lic-delete/<int:id>', license_views.destroy, name='lic-delete'),

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load event_tags %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block header %}
+{% endblock %}
+{% block content %}
+
+<div class="p-3 flex flex-col gap-5">
+    <div class="flex items-start justify-between !mt-[20px] mb-[40px]">
+        <div>
+            <div class="text-xl font-bold text-gray-700 mb-1">Лицензийн дэлгэрэнгүй мэдээлэл</div>
+        </div>
+        <div>
+           
+        </div>
+    </div>
+    <div class="w-full flex flex-wrap gap-y-5">
+        <div class="w-1/4">
+            <div class="font-bold">Дэлгүүрийн нэр, дугаар</div> 
+            {{ model.store_id|add:0 }}
+        </div>
+        <div class="w-1/4">
+            <div class="font-bold">Лицензийн төрөл</div> 
+            {{ model.lic_id }}
+        </div>
+        <div class="w-1/4">
+            <div class="font-bold">Лицензийн төрлийн нэр</div> 
+            {{ model.lic_id_nm }}
+        </div>
+        <div class="w-1/4">
+            <div class="font-bold">Лицензийн файл</div>
+            {% if not model.lic_file %}
+                <span class="text-red-500">Лицензийн файл оруулаагүй байна</span>
+            {% else %}
+                <a href="/media/{{ model.lic_file }}" target="_blank" download="{{ model.store_id|add:0 }}-license-file"><i class="!text-xs icon-download4 mr-1"></i>Татаж авах</a>
+            {% endif %}
+        </div>
+        <div class="w-1/4">
+            <div class="font-bold">Лиценз авсан огноо</div> 
+            {{ model.st_dt }}
+        </div>
+        <div class="w-1/4">
+            <div class="font-bold">Лиценз дуусах огноо</div> 
+            {{ model.ed_dt }}
+        </div>
+        <div class="w-1/4">
+            <div class="font-bold">Лиценз авсан ажилтан</div> 
+            {{ model.lic_owner }}
+        </div>
+        <div class="w-1/4">
+            <div class="font-bold">Лиценз олгосон газрын нэр ID</div> 
+            {{ model.lic_prov_ID }}
+        </div>
+        <div class="w-1/4">
+            <div class="font-bold">Лицензийн код</div> 
+            {{ model.lic_no }}
+        </div>
+        <div class="w-1/4">
+            <div class="font-bold">Архи зарж эхлэх цаг</div> 
+            {{ model.alc_opentime }}
+        </div>
+        <div class="w-1/4">
+            <div class="font-bold">Архи зарж дуусах цаг</div> 
+            {{ model.alc_closetime }}
+        </div>
+        <div class="w-1/4">
+            <div class="font-bold">Камерын тоо</div> 
+            {{ model.camera_cnt }}
+        </div>
+        <div class="w-1/4">
+            <div class="font-bold">Талбайн хэмжээ</div> 
+            {{ model.lic_sqrm }}
+        </div>
+        
+    </div>
+</div>
+
+{% endblock content %}
