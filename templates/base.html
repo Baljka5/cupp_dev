@@ -144,20 +144,20 @@
                         </a>
                 {% endif %}
                 <div class="hidden w-full md:block md:w-auto" id="navbar-default">
-                <ul class="mb-0 font-medium flex flex-col md:p-0 rounded-lg md:flex-row md:mt-0 !text-[#5d5d5d] !text-sm">
+                <ul class="mb-0 font-medium flex flex-col md:p-0 rounded-lg md:flex-row md:mt-0 text-gray-500 !text-sm">
                     {% is_in_store_consultant_group as user_in_store_consultant_group %}
                     {% is_in_area_group as user_in_area_group %}
                     {% is_in_sc_direct_group as user_in_sc_direct_group %}
                     {% if user_in_store_consultant_group or user_in_area_group or user_in_sc_direct_group %}
 
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="{% url 'comp_index' %}" class="block  py-2 px-3 rounded-sm text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page"> 
+                        <li class=" group py-1">
+                            <a href="{% url 'comp_index' %}" class="block py-2 px-3 rounded-sm text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page"> 
                                 <i class="icon-warning mr-1 !text-xs"></i>
                                  Comp
                                 </a>
                         </li>
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="{% url 'store-index' %}?page=1" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page"><i class="icon-store mr-1 !text-xs"></i> SC</a>
+                        <li class=" group py-1">
+                            <a href="{% url 'store-index' %}?page=1" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page"><i class="icon-store mr-1 !text-xs"></i> SC</a>
                         </li>
 
                     {% endif %}
@@ -165,15 +165,15 @@
                     {% is_in_store_trainer_group as user_in_store_trainer_group %}
                     {% is_in_st_manager_group as user_in_st_manager_group %}
                     {% if user_in_store_trainer_group and user_in_st_manager_group %}
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="{% url 'st-index' %}?page=1" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page"><i class="icon-store2 mr-1 !text-xs"></i> ST</a>
+                        <li class=" group py-1">
+                            <a href="{% url 'st-index' %}?page=1" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page"><i class="icon-store2 mr-1 !text-xs"></i> ST</a>
                         </li>
                     {% endif %}
 
                     {% is_in_rent_group as user_in_rent_group %}
                     {% if user_in_rent_group %}
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="{% url 'rent_index' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                        <li class=" group py-1">
+                            <a href="{% url 'rent_index' %}" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page">
                                 <i class="icon-file-check mr-1 !text-xs"></i> Rent
                             </a>
                         </li>
@@ -183,27 +183,27 @@
                     {% is_in_legal_team_group as user_in_legal_team_group %}
                     {% if user_in_event_group %}
 
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="{% url 'event_index' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                        <li class=" group py-1">
+                            <a href="{% url 'event_index' %}" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page">
                                 <i class="icon-calendar mr-1 !text-xs"></i> DL
                             </a>
                         </li>
                     {% endif %}
 
                     {% if user_in_legal_team_group %}
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="{% url 'index' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                        <li class=" group py-1">
+                            <a href="{% url 'index' %}" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page">
                                 <i class="icon-add mr-1 !text-xs"></i> Lic
                             </a>
                         </li>
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="{% url 'leg-index' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                        <li class=" group py-1">
+                            <a href="{% url 'leg-index' %}" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page">
                                 <i class="icon-add mr-1 !text-xs"></i> Disp
                             </a>
                         </li>
                     {% elif user_in_license_group %}
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="{% url 'index' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                        <li class=" group py-1">
+                            <a href="{% url 'index' %}" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page">
                                 <i class="icon-add mr-1 !text-xs"></i> Lic
                             </a>
                         </li>
@@ -213,13 +213,13 @@
                     {% is_in_manager_group as user_in_manager_group %}
                     {% is_in_sp_director_group as user_in_sp_director_group %}
                     {% if user_in_store_planner_group or user_in_manager_group or user_in_sp_director_group %}
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="{% url 'map' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                        <li class=" group py-1">
+                            <a href="{% url 'map' %}" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page">
                                 <i class="icon-location4 mr-1 !text-xs"></i> Points
                             </a>
                         </li>
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="{% url 'point_create' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                        <li class=" group py-1">
+                            <a href="{% url 'point_create' %}" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page">
                                 <i class="icon-plus22 mr-1 !text-xs"></i> AP
                             </a>
                         </li>
@@ -227,16 +227,16 @@
 
                     {% is_in_planning_manager as user_in_planning_manager_group %}
                     {% if user_in_planning_manager_group %}
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="{% url 'sc-index' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                        <li class=" group py-1">
+                            <a href="{% url 'sc-index' %}" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page">
                                 <i class="icon-database-edit2 mr-1 !text-xs"></i> Allocation
                             </a>
                         </li>
                     {% endif %}
 
                     {% if user.is_superuser %}
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="/admin/" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                        <li class=" group py-1">
+                            <a href="/admin/" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page">
                                 <i class="icon-cog mr-1 !text-xs"></i> Settings
                             </a>
                         </li>
@@ -244,15 +244,15 @@
 
                     {% is_in_sales_analyst as user_in_sales_analyst %}
                     {% if user_in_sales_analyst %}
-                        <li class="hover:bg-[#5e3188] group py-1">
-                            <a href="/lock-list/" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                        <li class=" group py-1">
+                            <a href="/lock-list/" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page">
                                 <i class="icon-lock mr-1 !text-xs"></i> Lock
                             </a>
                         </li>
                     {% endif %}
 
-                    <li class="hover:bg-[#5e3188] group py-1">
-                        <a href="{% url 'password_change' %}" class="block py-2 px-3 !text-[#5d5d5d] group-hover:text-white rounded-sm" aria-current="page">
+                    <li class=" group py-1">
+                        <a href="{% url 'password_change' %}" class="block py-2 px-3 text-gray-500 group-hover:text-purple-500 rounded-sm" aria-current="page">
                             <i class="icon-key mr-1 !text-xs"></i> Change Password
                         </a>
                     </li>
