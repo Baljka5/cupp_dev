@@ -1,16 +1,23 @@
 {% extends "base.html" %}
-
 {% block header %}
 {% endblock %}
 
 {% block content %}
-    <div class="content p-0">
+
+    <div class="content p-0 overflow-hidden max-h-[100vh]">
 
         <div id="map" class="h-100"></div>
         <form id="form_filter">
-            <div id="id_type_filter" class="bg-white p-2 shadow-sm font-size-sm d-none d-sm-block">
-                <a href="#" id="id_select_all">Select All</a> / <a href="#" id="id_unselect_all">Unselect All</a>
-                <hr class="mb-2 mt-2">
+            <div id="id_type_filter" class="bg-white py-2 shadow-sm text-xs">
+                <div class="d-flex justify-content-between align-items-center mt-2 mb-3 px-3">
+                    <div class="">
+                        <span class="font-weight-bold">Point type</span>
+                    </div>
+                    <div>
+                        <a href="#" id="id_unselect_all" class="font-medium text-red-600 hover:text-red-700">Unselect All</a>
+                        <a href="#" id="id_select_all" class="font-medium text-green-600 hover:text-green-700" style="display:none">Select All</a>
+                    </div>
+                </div>
                 {#                {% for type in types %}#}
                 {#                    <label class="d-block">#}
                 {#                        <input type="checkbox" value="{{ type.type_cd }}" id="id_{{ type.type_cd }}" name="type"#}
@@ -18,44 +25,64 @@
                 {#                               checked>#}
                 {#                        {{ type.type_name }}#}
                 {#                    </label>#}
-                {#                {% endfor %}#}
+                {#               w {% endfor %}#}
                 {% for k,v in types %}
                     {#                    {% if k != 'PP' %}#}
-                    <label class="d-flex align-items-center mb-2">
-                        <input type="checkbox" value="{{ k }}" id="id_{{ k }}" name="type"
-                               class="mr-1 type-checkbox"
-                               checked>
-                               <div  class="point-marker-img">
-                                   <img src="/static/images/ui/marker-{{ k }}.png" alt="marker-{{ k }}">
-                               </div>
-                               <!-- <span class="badge badge-pill badge-info point-badge">{{ k }}</span> -->
-                        {{ v }}
-                    </label>
+
+                    <div class="flex items-center justify-between  mb-2 cursor-pointer px-3 bt-2">
+                        
+                        <label for="id_{{ k }}" class="cursor-pointer flex items-center ms-0 mb-0 text-xs font-normal text-gray-900">
+                            <div  class="point-marker-img">
+                                <img src="/static/images/ui/marker-{{ k }}.png" alt="marker-{{ k }}">
+                            </div>
+                            {{ v }}
+                        </label>
+
+                        <input name="type" checked id="id_{{ k }}" type="checkbox" value="{{ k }}" class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-purple-500 focus:ring-2  type-checkbox" >
+                    </div>
                     {#                    {% endif %}#}
                 {% endfor %}
 
                 
-                <hr class="mb-2 mt-2">
-                <div class="d-flex flex-wrap">
+                <hr class="mb-2 mt-3">
+                <div class="pt-2 px-3 mb-2">
+                    <span class="font-weight-bold">Point grade</span>
+                </div>
+                <div class="flex flex-wrap items-center justify-between px-3 py-1 text-sm">
                     {% for k,v in grades %}
-                        <label class="d-flex align-items-center justify-content-center mr-1 mb-1">
-                            <input type="checkbox" value="{{ k }}" id="grade_{{ k }}" name="grade" class="mr-1 grade-tag-check type-checkbox d-none" checked >
-                            <label class="mb-0 btn btn-outline-success grade-tag-label" for="grade_{{ k }}">Grade {{ v }}</label>
+                        <label class="flex items-center justify-between  mb-0 ">
+                            <input type="checkbox" value="{{ k }}" id="grade_{{ k }}" name="grade" class="mr-1 grade-tag-check type-checkbox hidden" checked >
+                            <label class="mb-0  grade-tag-label cursor-pointer" for="grade_{{ k }}">Grade {{ v }}</label>
                         </label>
                     {% endfor %}
                 </div>
 
-                <hr class="mb-2 mt-2">
-                <label class="d-block">
+                <hr class="mb-2 mt-3 ">
+                <!-- <label class="d-block">
                     <input type="checkbox" value="radius" id="id_radius" class="mr-1 type-checkbox">
                     Show radius
-                </label>
+                </label> -->
+                <div class="pt-2 px-3 mb-2">
+                    <span class="font-weight-bold">Point radius</span>
+                </div>
+                <div class="flex items-center justify-between pe-4 mb-2 cursor-pointer py-2 px-3 hover:bg-gray-300">
+                        
+                    <label for="id_radius" class="w-full cursor-pointer flex items-center  mb-0 text-xs font-medium text-gray-900">
+                        <i class="icon-location4 mr-1 text-red-500"></i>
+                        Show radius 
+                    </label>
+
+                    <input name="type" id="id_radius" type="checkbox" value="radius" class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-purple-500 focus:ring-2  type-checkbox" >
+                </div>
             </div>
 
             <div id="second_filter" class="bg-white p-2 shadow-sm font-size-sm d-none d-md-block">
-                <label>
-                    <input type="checkbox" value="1" name="availability" class="mr-1 type-checkbox">
-                    Now available
+                <label class="flex items-center justify-start">
+                    <!-- <input type="checkbox" value="1" name="availability" class="mr-1 type-checkbox"> -->
+                    <input type="checkbox" value="1" name="availability" class="me-2 w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-purple-500 focus:ring-2 type-checkbox" >
+                    <span class="ms-2">
+                        Now available
+                    </span>
                 </label>
                 <hr class="mb-2 mt-1">
                 <label>
@@ -173,11 +200,15 @@
             });
 
             $('#id_select_all').click(function () {
+                $('#id_select_all').css('display',"none");
                 $('.type-checkbox[name="type"]').prop('checked', true);
+                $('#id_unselect_all').css('display',"block");
                 maploadList(map, true);
             });
             $('#id_unselect_all').click(function () {
+                $('#id_unselect_all').css('display',"none");
                 $('.type-checkbox[name="type"]').prop('checked', false);
+                $('#id_select_all').css('display',"block");
                 maploadList(map, true);
             });
 
