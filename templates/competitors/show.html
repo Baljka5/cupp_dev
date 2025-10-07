@@ -10,93 +10,134 @@
 {% block content %}
     <div class="content">
         <div class="row">
-            <div class="col-md-12">
-                <span><a href="/comp-create" id="btn_save_and_new"
-                         class="btn bg-purple ml-1">Add New Record</a></span>
-                <div class="row">
-                    <div class="col-md-12 d-flex justify-content-end mb-3">
-                        <form method="get" action="." class="form-inline">
-                            <div class="input-group">
+            <div class="flex flex-col w-full px-1">
+                <div class="flex items-start justify-between !mt-[20px] mb-[40px]">
+                    <div>
+                        <a href="/comp-create" id="btn_save_and_new" class="btn bg-purple-500">
+                            <i class="icon-plus22 me-2 "></i>Add New Record
+                        </a>
+                    </div>
+                    <div>
+                        <form method="get" action="." class="">
+                            <div class="flex gap-1">
                                 <input type="text" name="store_no" value="{{ store_no_query }}"
-                                       placeholder="Дэлгүүрийн дугаар..." class="form-control mr-2"
-                                       style="margin-right: 2px;">
+                                        placeholder="Дэлгүүрийн дугаар..." class="form-control"
+                                        style="margin-right: 2px;">
                                 <input type="text" name="activ_cat" value="{{ activ_cat_query }}"
-                                       placeholder="Өрсөлдөгчийн нэр..." class="form-control mr-2"
-                                       style="margin-right: 2px;">
-                                <button type="submit" class="btn bg-purple ml-1" style="margin-right: 2px;">Filter
+                                        placeholder="Өрсөлдөгчийн нэр..." class="form-control"
+                                        style="margin-right: 2px;">
+                                <button type="submit" class="btn bg-purple-500"><i class="icon-filter4 me-2 "></i>Filter
                                 </button>
                                 <a href="." class="btn btn-secondary">Clear</a>
                             </div>
                         </form>
                     </div>
                 </div>
-                <br>
 
-                <div class="table-responsive">
-                    <table id="bootstrapdatatable" class="table table-striped table-bordered" width="100%">
-                        <thead>
-                        <th><input type="checkbox" id="checkall"/></th>
-                        <th>
-                            <a href="?sort=id{% if request.GET.sort == 'id' and request.GET.order != 'desc' %}&order=desc{% else %}&order=asc{% endif %}{{ '&store_id='|add:store_no_query|add:'&comp_name='|add:activ_cat_query }}">
-                                Дугаар
-                                {% if request.GET.sort == 'id' and request.GET.order != 'desc' %}
-                                    <span>&darr;</span>
-                                    <!-- Indicates current order is ascending, so show descending icon -->
-                                {% else %}
-                                    <span>&uarr;</span> <!-- Default or when desc, show ascending icon -->
-                                {% endif %}
-                            </a>
-                        </th>
-                        <th>Дэлгүүрийн дугаар</th>
-                        <th>Урсгалд нөлөөлөх өрсөлдөгч байгаа эсэх</th>
-                        <th>Өрсөлдөгчийн төрөл</th>
-                        <th>Өрсөлдөгчийн нэр</th>
-                        <th>Өрсөлдөгч хэвийн ажиллаж байгаа эсэх</th>
-                        <th>Өрсөлдөгчийн цагийн хуваарийн төрөл</th>
-                        <th>Өрсөлдөгчийн цагийн хуваарь</th>
-                        <th>Өрсөлдөгчийн архи зардаг эсэх</th>
-                        <th>Өрсөлдөгчийн тамхи зардаг эсэх</th>
-                        <th>Өрсөлдөгчийн хүргэлттэй эсэх</th>
-                        <th>Edit</th>
-                        {% if user.is_authenticated %}
-                            {% is_in_store_consultant_group as user_in_store_consultant_group %}
-                            {% if user.is_superuser %}
-                                <th>Delete</th>
-                            {% elif user_in_store_consultant_group %}
-
-                            {% endif %}
-                        {% endif %}
-                        </thead>
-                        <tbody>
-                        {% for model in page_obj %}
+              
+<!-- TAILWIND TABLE-->
+                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                        <thead class="text-xs !text-gray-700 bg-[#f3f5f9] !font-medium text-wrap">
                             <tr>
-                                <td><input type="checkbox" class="checkthis"/></td>
-                                <td>{{ model.id }}</td>
-                                <td>{{ model.store_id }}</td>
-                                <td>{{ model.comp_yn }}</td>
-                                <td>{{ model.comp_type }}</td>
-                                <td>{{ model.comp_name }}</td>
-                                <td>{{ model.comp_status }}</td>
-                                <td>{{ model.comp_schedule_tp }}</td>
-                                <td>{{ model.comp_schedule_time }}</td>
-                                <td>{{ model.comp_alcohol }}</td>
-                                <td>{{ model.comp_tobacco }}</td>
-                                <td>{{ model.comp_delivery }}</td>
-                                <td><a href="/comp-edit/{{ model.id }}" class="btn btn-primary">Edit</a></td>
-                                {% if user.is_authenticated %}
-                                    {% is_in_store_consultant_group as user_in_store_consultant_group %}
-                                    {% if user.is_superuser %}
-                                        <td><a href="{% url 'comp-delete' model.id %}" class="btn btn-danger">Delete</a>
-                                        </td>
-                                    {% elif user_in_store_consultant_group %}
-
-                                    {% endif %}
-                                {% endif %}
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Дэлгүүрийн нэр, дугаар
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium min-w-[180px]">
+                                    Урсгалд нөлөөлөх өрсөлдөгч байгаа эсэх
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Өрсөлдөгчийн төрөл
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Өрсөлдөгчийн нэр
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium min-w-[180px]">
+                                    Өрсөлдөгч хэвийн ажиллаж байгаа эсэх
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium min-w-[180px]">
+                                    Өрсөлдөгчийн цагийн хуваарийн төрөл
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Өрсөлдөгчийн цагийн хуваарь
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Өрсөлдөгчийн архи зардаг эсэх
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Өрсөлдөгчийн тамхи зардаг эсэх
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Өрсөлдөгчийн хүргэлттэй эсэх
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Үйлдэл
+                                </th>
                             </tr>
-                        {% endfor %}
+                        </thead>
+                        <tbody class="text-[13px]">
+                            {% for model in page_obj %}
+                                <tr class="bg-white border-b border-gray-200 hover:bg-gray-50">
+                                    <td class="px-6 py-[12px] h-[65px] text-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <div class="h-10 w-[70px] bg-[#642b8b] text-white rounded-full text-base flex items-center justify-center">CU {{ model.store_id|add:0 }}</div>
+                                            <div class="flex flex-col">
+                                                <span class="font-medium uppercase">{{ model.store_name }}</span>
+                                                <span>{{ model.store_id }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.comp_yn }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.comp_type }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.comp_name }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.comp_status }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.comp_schedule_tp }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.comp_schedule_time }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.comp_alcohol }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.comp_tobacco }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.comp_delivery }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        <div class="flex items-center">
+                                            <a href="/comp-edit/{{ model.id }}" class="!text-xs font-normal text-blue-600 hover:underline">
+                                                <i class="!text-xs icon-pencil3 mr-1 text-gray-500 hover:text-green-500"></i>
+                                            </a>
+                                            {% if user.is_authenticated %}
+                                                {% is_in_store_consultant_group as user_in_store_consultant_group %}
+                                                    {% if user.is_superuser %}
+                                                        <a href="{% url 'comp-delete' model.id %}" class="!text-xs font-normal text-red-600 hover:underline ms-3">
+                                                            <i class="!text-xs icon-trash-alt mr-1 text-gray-500  hover:text-red-500"></i>
+                                                        </a>
+                                                    {% elif user_in_store_consultant_group %}
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            
                         </tbody>
                     </table>
                 </div>
+<!-- END OF TABLE-->
+                <!-- </div> -->
             </div>
         </div>
         <br>
@@ -117,7 +158,7 @@
 
                 {% for num in page_obj.paginator.page_range %}
                     {% if page_obj.number == num %}
-                        <li class="page-item active"><a class="btn bg-purple" href="?page={{ num }}">{{ num }}</a></li>
+                        <li class="page-item active"><a class="btn bg-purple-500" href="?page={{ num }}">{{ num }}</a></li>
                     {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                         <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
                     {% endif %}
