@@ -161,6 +161,7 @@ urlpatterns = [
     path('lic-update/<int:id>', license_views.update, name='lic-update'),
     # path('lic-delete/<int:id>/<str:table>/', license_views.destroy, name='lic-delete'),
     path('lic-delete/<int:id>', license_views.destroy, name='lic-delete'),
+    path('blow-whistle', license_views.whistle, name='blowwhistle'),
 
     path('map/', common_views.Map.as_view(), name='map'),
     path('my-settings/', common_views.MySettings.as_view(), name='my_settings'),

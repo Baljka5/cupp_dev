@@ -4,6 +4,7 @@
 {% block header %}
 {% endblock %}
 {% block content %}
+{% include 'common/bootstrap.html' %}
     <div class="content">
         <form method="post" autocomplete="off" enctype="multipart/form-data" id="type_form" class="post-form"
               action="/log-create">
@@ -11,10 +12,10 @@
 
             <div class="row">
 
-                <div class="container">
+                <div class="container flex flex-wrap">
 
-                    <div class="col-12">
-                        <h3>Enter Details</h3>
+                    <div class="my-3 w-full">
+                        <h3 class="text-lg font-medium">Enter Details</h3>
                     </div>
                     {% if messages %}
                         <ul>
@@ -61,10 +62,6 @@
                         <input id="id_store_name" class="form-control" name="store_name" readonly type="text">
                     </div>
                     <div class="form-group col-md-6">
-                        <label>Тайлбар: </label>
-                        {% render_field form.activ_desc class+="form-control" %}
-                    </div>
-                    <div class="form-group col-md-6">
                         <label>Ангилал: <span class="text-purple">*</span></label>
                         {% render_field form.activ_cat class+="form-control" %}
                     </div>
@@ -73,12 +70,16 @@
                         {% render_field form.consequences class+="form-control" %}
                     </div>
                     <div class="form-group col-md-6">
-                        <label>Хариу арга хэмжээний тухай: </label>
-                        {% render_field form.resp_action class+="form-control" %}
-                    </div>
-                    <div class="form-group col-md-6">
                         <label>Хариуцагч: <span class="text-purple">*</span></label>
                         {% render_field form.action_owner class+="form-control" %}
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Тайлбар: </label>
+                        {% render_field form.activ_desc class+="form-control" %}
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Хариу арга хэмжээний тухай: </label>
+                        {% render_field form.resp_action class+="form-control" %}
                     </div>
 
                     {#                    <div class="form-group col-md-6">#}
@@ -90,15 +91,15 @@
                     {#                        </select>#}
                     {#                        {% render_field form.consequences class+="form-control" %}#}
                     {#                    </div>#}
-                    <div class="mb-3">
-                        <a href="{% url 'event_index' %}" class="btn btn-link text-purple-300">
-                            Cancel
-                        </a>
+                    <div class="mb-3 flex">
                         {% if not object %}
                             <div class="mb-3">
                                 <button type="submit" class="btn btn-primary">Add</button>
                             </div>
                         {% endif %}
+                        <a href="{% url 'event_index' %}" class="btn btn-link text-purple-300">
+                            Cancel
+                        </a>
                     </div>
 
                 </div>

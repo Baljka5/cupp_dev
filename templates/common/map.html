@@ -1,12 +1,16 @@
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/bootstrap_limitless.min.css" rel="stylesheet" type="text/css">
+    <script src="/static/js/main/bootstrap.bundle.min.js"></script>
 {% extends "base.html" %}
 {% block header %}
 {% endblock %}
 
 {% block content %}
 
-    <div class="content p-0 overflow-hidden max-h-[100vh]">
 
-        <div id="map" class="h-100"></div>
+    <div class="p-0 overflow-hidden max-h-[100vh]">
+
+        <div id="map" class="h-screen top-[55px]"></div>
         <form id="form_filter">
             <div id="id_type_filter" class="bg-white py-2 shadow-sm text-xs">
                 <div class="d-flex justify-content-between align-items-center mt-2 mb-3 px-3">
@@ -18,16 +22,16 @@
                         <a href="#" id="id_select_all" class="font-medium text-green-600 hover:text-green-700" style="display:none">Select All</a>
                     </div>
                 </div>
-                {#                {% for type in types %}#}
-                {#                    <label class="d-block">#}
-                {#                        <input type="checkbox" value="{{ type.type_cd }}" id="id_{{ type.type_cd }}" name="type"#}
-                {#                               class="mr-1 type-checkbox"#}
-                {#                               checked>#}
-                {#                        {{ type.type_name }}#}
-                {#                    </label>#}
-                {#               w {% endfor %}#}
+                                <!-- {% for type in types %}
+                                    <label class="d-block">
+                                        <input type="checkbox" value="{{ type.type_cd }}" id="id_{{ type.type_cd }}" name="type"
+                                               class="mr-1 type-checkbox"
+                                               checked>
+                                        {{ type.type_name }}
+                                    </label>
+                               w {% endfor %} -->
                 {% for k,v in types %}
-                    {#                    {% if k != 'PP' %}#}
+                                        <!-- {% if k != 'PP' %} -->
 
                     <div class="flex items-center justify-between  mb-2 cursor-pointer px-3 bt-2">
                         
@@ -40,7 +44,7 @@
 
                         <input name="type" checked id="id_{{ k }}" type="checkbox" value="{{ k }}" class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-purple-500 focus:ring-2  type-checkbox" >
                     </div>
-                    {#                    {% endif %}#}
+                                        <!-- {% endif %} -->
                 {% endfor %}
 
                 
@@ -76,7 +80,7 @@
                 </div>
             </div>
 
-            <div id="second_filter" class="bg-white p-2 shadow-sm font-size-sm d-none d-md-block">
+            <div id="second_filter" class="bg-white p-2 shadow-sm font-size-sm hidden d-md-block">
                 <label class="flex items-center justify-start">
                     <!-- <input type="checkbox" value="1" name="availability" class="mr-1 type-checkbox"> -->
                     <input type="checkbox" value="1" name="availability" class="me-2 w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-purple-500 focus:ring-2 type-checkbox" >
@@ -115,7 +119,7 @@
             </div>
 
 
-            <div id="third_filter" class="bg-white p-2 shadow-sm font-size-sm d-none d-md-block">
+            <div id="third_filter" class="bg-white p-2 shadow-sm font-size-sm hidden d-md-block">
                 <label>
                     Lat/Lon:
                 </label>
@@ -126,32 +130,32 @@
                 </label>
                 <input type="text" id="search_store_id" name="storeid" placeholder="Search Store ID"
                        class="form-control form-control-sm"><br>
-                <div id="nearby_branches" class="bg-white p-2 shadow-sm font-size-sm d-none"></div>
+                <div id="nearby_branches" class="bg-white p-2 shadow-sm font-size-sm hidden"></div>
                 <br>
 
-                {#                <label class="d-block">#}
-                {#                    <input type="text" id="id_filter_size" name="size"#}
-                {#                           class="form-control ion-height-helper map-digit-filter" data-fouc>#}
-                {#                    <div class="mt-1">Size</div>#}
-                {#                </label>#}
-                {#                <hr class="mb-1 mt-2">#}
-                {#                <label class="d-block">#}
-                {#                    <input type="text" id="id_filter_base_rent_rate" name="base_rent_rate"#}
-                {#                           class="form-control ion-height-helper map-digit-filter"#}
-                {#                           data-fouc>#}
-                {#                    <div class="mt-1">Base rent rate</div>#}
-                {#                </label>#}
-                {#                <hr class="mb-1 mt-2">#}
-                {#                <label class="d-block">#}
-                {#                    <input type="text" id="id_filter_max_rent_rate" name="max_rent_rate"#}
-                {#                           class="form-control ion-height-helper map-digit-filter"#}
-                {#                           data-fouc>#}
-                {#                    <div class="mt-1">Maximum rent rate</div>#}
-                {#                </label>#}
+                                <!-- <label class="d-block">
+                                    <input type="text" id="id_filter_size" name="size"
+                                           class="form-control ion-height-helper map-digit-filter" data-fouc>
+                                    <div class="mt-1">Size</div>
+                                </label>
+                                <hr class="mb-1 mt-2">
+                                <label class="d-block">
+                                    <input type="text" id="id_filter_base_rent_rate" name="base_rent_rate"
+                                           class="form-control ion-height-helper map-digit-filter"
+                                           data-fouc>
+                                    <div class="mt-1">Base rent rate</div>
+                                </label>
+                                <hr class="mb-1 mt-2">
+                                <label class="d-block">
+                                    <input type="text" id="id_filter_max_rent_rate" name="max_rent_rate"
+                                           class="form-control ion-height-helper map-digit-filter"
+                                           data-fouc>
+                                    <div class="mt-1">Maximum rent rate</div>
+                                </label> -->
             </div>
         </form>
 
-        <div id="id_map_data" class="d-none">
+        <div id="id_map_data" class="hidden">
             {% for point in points %}
                 <ul data-lat="{{ point.lat }}"
                     data-lon="{{ point.lon }}"
@@ -183,7 +187,7 @@
         }
 
         #nearby_branches {
-            max-height: 500px;
+            max-height: 350px;
             overflow-y: auto;
             overflow-x: hidden;
             border: 1px solid #ddd;
@@ -356,7 +360,7 @@
                     </li>`;
                                     });
                                     nearbyHTML += '</ul>';
-                                    $('#nearby_branches').html(nearbyHTML).removeClass('d-none');
+                                    $('#nearby_branches').html(nearbyHTML).removeClass('hidden');
 
                                     // Click event for nearby branches
                                     $('.nearby-branch').click(function () {
@@ -392,7 +396,7 @@
                                         }, 3000);
                                     });
                                 } else {
-                                    $('#nearby_branches').addClass('d-none');
+                                    $('#nearby_branches').addClass('hidden');
                                 }
                             } else {
                                 alert("CU Store ID not found.");

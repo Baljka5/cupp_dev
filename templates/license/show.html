@@ -10,24 +10,24 @@
     <div class="content">
         <div class="row">
             <div class="flex flex-col w-full px-1">
-                <div class="flex items-start justify-between !mt-[20px] mb-[40px]">
+
+                <div class="flex items-start justify-between !mt-[20px] mb-[40px] text-sm">
                     <div>
-                        <a href="/addnew" id="btn_save_and_new" class="btn bg-purple-500">
+                        <a href="/addnew" id="btn_save_and_new" class="text-white p-2 bg-purple-500 rounded border border-purple-500 hover:bg-purple-600 hover:border-purple-700">
                             <i class="icon-plus22 me-2 "></i>Add New Record
                         </a>
                     </div>
                     <div>
                         <form method="get" action="." class="">
-                            <div class="flex gap-1">
+                            <div class="flex gap-2">
                                 <input type="text" name="store_id" value="{{ store_id_query }}"
-                                        placeholder="Дэлгүүрийн дугаар..." class="form-control"
+                                        placeholder="Дэлгүүрийн дугаар..." class="p-2 border border-gray-300 rounded"
                                         style="margin-right: 2px;">
                                 <input type="text" name="lic_id_nm" value="{{ lic_id_nm_query }}"
-                                        placeholder="Лицензийн төрөл..." class="form-control"
-                                        style="margin-right: 2px;">
-                                <button type="submit" class="btn bg-purple-500"><i class="icon-filter4 me-2 "></i>Filter
+                                        placeholder="Лицензийн төрөл..." class="p-2 border border-gray-300 rounded">
+                                <button type="submit" class="text-white px-4 py-2 bg-purple-500 rounded hover:bg-purple-600 hover:border-purple-700"><i class="icon-filter4 me-2 "></i>Filter
                                 </button>
-                                <a href="." class="btn btn-secondary">Clear</a>
+                                <a href="." class="text-gray-500 px-4 py-2 bg-gray-300 rounded hover:bg-gray-600 hover:border-gray-700 hover:text-white">Clear</a>
                             </div>
                         </form>
                     </div>
@@ -161,44 +161,7 @@
                 </div>
             </div>
         </div>
-        <br>
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page=1" aria-label="First">
-                            <span aria-hidden="true">&laquo;&laquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                {% endif %}
-
-                {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                        <li class="page-item active"><a class="btn bg-purple" href="?page={{ num }}">{{ num }}</a></li>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
-                            <span aria-hidden="true">&raquo;&raquo;</span>
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
+        {% include 'common/pagination.html' %}
 
 
     </div>{% endblock %}

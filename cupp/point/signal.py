@@ -20,7 +20,7 @@ def log_user_login(sender, request, user, **kwargs):
 @receiver(user_logged_out)
 def log_user_logout(sender, request, user, **kwargs):
     latest_log = PPAccessLog.objects.filter(
-        username=user.username,
+        username=user,
         logout_time__isnull=True
     ).order_by('-login_time').first()
     if latest_log:

@@ -2,33 +2,54 @@
 {% load widget_tweaks %}
 
 {% block content %}
-    <div class="content d-flex justify-content-center mt-3">
-        <form class="login-form" method="post" autocomplete="off">
+
+<div class="flex h-full bg-[#7a5da7] overflow-hidden">
+    <div class="flex justify-center justify-center items-center  w-1/2 ">
+        <form class="w-2/3 rounded-lg p-10 bg-white " style="box-shadow:0px 0px 5px #00000026;" method="post" autocomplete="off">
             {% include 'includes/messages.html' %}
             {% csrf_token %}
-            <div class="card mb-0 border-0">
-                <div class="card-body">
-                    <div class="form-group">
-                        <label>Хэрэглэгчийн нэр</label>
-                        {% render_field form.username class+="form-control" %}
+                <div class="flex flex-col">
+                    <div class="flex items-center justify-start mb-10 gap-4">
+                        <img src="/static/images/cu-logo.png" alt="xbook logo" class="h-8">
+                        <span class="text-xl font-medium text-gray-900">
+                            Store management system
+                        </span>
+                    </div>
+                    <div class="flex flex-col gap-2 mb-4">
+                        <span class="text-2xl font-semibold text-gray-900">Тавтай морил</span>
+                        <span class="text-sm text-gray-500">Та өөрийн хэрэглэгчийн нэр болон нууц үгээ оруулна уу</span>
+
+                    </div>
+                    <div class="flex flex-col gap-2 mb-4">
+                        <span class="font-medium text-gray-600">Хэрэглэгчийн нэр</span>
+                        {% render_field form.username class+="border border-gray-300 p-2 rounded !bg-gray-50 !text-gray-500 !focus-visible:outline !focus-visible:outline-red-500" %}
                     </div>
 
-                    <div class="form-group">
-                        <label>Нууц үг</label>
-                        {% render_field form.password class+="form-control" %}
+                    <div class="flex flex-col gap-2 mb-4">
+                        <span class="font-medium text-gray-600">Нууц үг</span>
+                        {% render_field form.password class+="border border-gray-300 p-2 rounded !bg-gray-50 text-gray-900" %}
                     </div>
-
-                    <div class="form-group">
-                        <button type="submit" class="btn bg-purple btn-block">
+                    <div class="flex justify-end mb-4">
+                        <a href="{% url 'password_reset' %}" class="text-purple-300 hover:underline">Нууц үгээ мартсан?</a>
+                    </div>
+                    <div class="flex flex-col gap-2 mb-4">
+                        <button type="submit" class="bg-purple-500 text-white p-2 rounded hover:bg-purple-900 transition">
                             Нэвтрэх
                         </button>
                     </div>
-
-                    <div class="text-center mb-0">
-                        <a href="{% url 'password_reset' %}" class="text-purple-300">Нууц үгээ мартсан?</a>
-                    </div>
+                    
+                    
                 </div>
-            </div>
         </form>
     </div>
+    <div class="flex flex-wrap justify-center justify-center items-center  w-1/2">
+        <!-- <div class="w-1/2 h-1/2 flex flex-wrap justify-center justify-center items-center overflow-hidden bg-[url(/static/images/asset-1.svg)] bg-no-repeat bg-center bg-[length:50%]">
+        </div>
+        <div class="w-1/2 h-1/2 flex flex-wrap justify-center justify-center items-center overflow-hidden bg-[url(/static/images/asset-2.svg)] bg-no-repeat bg-center bg-[length:50%]">
+        </div>  -->
+        <div class="w-full h-full flex flex-wrap justify-center justify-center items-center overflow-hidden bg-[url(/static/images/asset-6.svg)] bg-no-repeat bg-center bg-contain">
+
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -4,13 +4,14 @@
 {% block header %}
 {% endblock %}
 {% block content %}
+{% include 'common/bootstrap.html' %}
     <div class="content">
         <form method="post" autocomplete="off" enctype="multipart/form-data" id="type_form" class="post-form"
               action="/addnew">
             {% csrf_token %}
             <div class="row">
 
-                <div class="container">
+                <div class="container flex flex-wrap">
                     <div class="col-12">
 
                         <h3>Enter Details</h3>
@@ -111,15 +112,15 @@
                     </div>
 
 
-                    <div class="mb-3">
-                        <a href="{% url 'index' %}" class="btn btn-link text-purple-300">
-                            Cancel
-                        </a>
+                    <div class="mb-3 px-[10px] flex w-full">
                         {% if not object %}
                             <div class="mb-3">
                                 <button type="submit" class="btn btn-primary">Save</button>
                             </div>
                         {% endif %}
+                        <a href="{% url 'index' %}" class="btn btn-link text-purple-300">
+                            Cancel
+                        </a>
                     </div>
 
                 </div>

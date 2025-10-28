@@ -4,6 +4,7 @@
 {% block header %}
 {% endblock %}
 {% block content %}
+{% include 'common/bootstrap.html' %}
     <div class="container">
         <form method="POST" action="{% url 'sc-update' model.id %}?page={{page_number}}">
             {% csrf_token %}
@@ -13,8 +14,8 @@
             <div class="row">
 
                 <div class="row">
-                    <div class="col-12">
-                        <h3>General</h3>
+                    <div class="my-3 w-full px-2">
+                        <h3 class="text-lg font-medium">Update Details</h3>
                     </div>
                     <div class="form-group col-md-6">
                         <label>Дугаар: </label>
@@ -49,8 +50,8 @@
                         <input type="text" class="form-control" name="prc_grade" disabled id="id_prc_grade" 
                                value="{{ model.prc_grade }}"/>
                     </div>
-                    <div class="col-12">
-                        <h3>HR</h3>
+                    <div class="my-3 w-full px-2">
+                        <h3 class="text-lg font-medium">HR</h3>
                     </div>
                     <div class="form-group col-md-6">
                         <label>Менежерийн тоо: </label>
@@ -106,8 +107,8 @@
                         <input type="number" class="form-control" name="sm_phone" id="id_sm_phone"
                                value="{{ model.sm_phone }}"/>
                     </div>
-                    <div class="col-12">
-                        <h3>Service</h3>
+                    <div class="my-3 w-full px-2">
+                        <h3 class="text-lg font-medium">Service</h3>
                     </div>
                     <div class="form-group col-md-6">
                         <label>АТМ машин тоо: </label>
@@ -170,8 +171,8 @@
                             <option value="False" {% if model.ser_ticket == False %}selected{% endif %}>Үгүй</option>
                         </select>
                     </div>
-                    <div class="col-12">
-                        <h3>Assets</h3>
+                    <div class="my-3 w-full px-2">
+                        <h3 class="text-lg font-medium">Assets</h3>
                     </div>
                     <div class="form-group col-md-6">
                         <label>Хэвтээ хөлдөөгчны тоо /Орос эсвэл Mонгол/: </label>
@@ -226,10 +227,9 @@
                         <!-- <input type="text" class="form-control" name="lunch_case_L8" id="id_lunch_case_L8"
                                value="{{ model.lunch_case_L8 }}"/> -->
                     </div>
-                    <div class="col-12">
-                        <h3>License</h3>
+                    <div class="my-3 w-full px-2">
+                        <h3 class="text-lg font-medium">License</h3>
                     </div>
-
                     <div class="form-group col-md-6">
                         <label>Архины зөвшөөрөл: </label>
                         <input type="text" class="form-control" name="alc_reason" id="id_alc_reason" required
@@ -291,8 +291,8 @@
                     {#                               value="{{ model.near_gs }}"/>#}
                     {#                    </div>#}
 
-                    <div class="col-12">
-                        <h3>Environment</h3>
+                    <div class="my-3 w-full px-2">
+                        <h3 class="text-lg font-medium">Environment</h3>
                     </div>
                     <div class="form-group col-md-6">
                         <label>Хотоос гарах урсгалын салбар бол аль талд нь байрлалтай вэ?: <span
@@ -336,8 +336,8 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-12">
-                        <h3>Sub-Rent</h3>
+                    <div class="my-3 w-full px-2">
+                        <h3 class="text-lg font-medium">Sub-Rent</h3>
                     </div>
                     <div class="form-group col-md-6">
                         <label>Дамжуулдаг түрээсэлдэг төрөл: </label>
@@ -383,8 +383,8 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-12">
-                        <h3>Property</h3>
+                    <div class="my-3 w-full px-2">
+                        <h3 class="text-lg font-medium">Property</h3>
                     </div>
                     <div class="form-group col-md-6">
                         <label>00-н төрөл (Өөрийн, нийтийн): <span class="text-purple">*</span></label>
@@ -508,8 +508,8 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-12">
-                        <h3>Infrastructure</h3>
+                    <div class="my-3 w-full px-2">
+                        <h3 class="text-lg font-medium">Infrastructure</h3>
                     </div>
                     <div class="form-group col-md-6">
                         <label>Тусдаа хогийн цэгтэй эсэх: <span
@@ -536,8 +536,8 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-12">
-                        <h3>Channel</h3>
+                    <div class="my-3 w-full px-2">
+                        <h3 class="text-lg font-medium">Channel</h3>
                     </div>
                     <div class="form-group col-md-6">
                         <label>TV дэлгэцийн тоо: </label>
@@ -548,14 +548,14 @@
 
                 </div>
                 <br>
-                <div class="card-footer bg-transparent border-top-0 pt-0" style="margin: 20px">
-                    <div align="right">
-                        <a href="{% url 'store-index' %}" class="btn btn-link text-purple-300">
-                            Cancel
-                        </a>
+                <div class="card-footer bg-transparent border-top-0 p-0 pt-2 pb-5">
+                    <div class="flex">
                         <button type="submit" class="btn bg-purple ml-1">
                             Save
                         </button>
+                        <a href="{% url 'store-index' %}" class="btn btn-link text-purple-300">
+                            Cancel
+                        </a>
                     </div>
                 </div>
 

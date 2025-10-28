@@ -7,55 +7,43 @@
 {% endblock %}
 
 {% block content %}
-    <div class="content">
-        <div class="dropdown-section">
-            <div class="dropdown-container">
-                <label for="year-select">YEAR</label>
-                <select id="year-select" name="year">
-                    {% for year in next_three_years %}
-                        <option value="{{ year }}" {% if year == last_year %}selected{% endif %}>{{ year }}</option>
-                    {% endfor %}
-                </select>
+    <div class="pt-0 bg-gray-100">
+        <div class="flex items-center justify-between py-5 shadow-md flex-wrap bg-white">
+            <div class="flex">
+                <div class="dropdown-container flex item-center justify-between gap-3">
+                    <label for="year-select" class="py-2 text-gray-500 font-medium mb-0">YEAR</label>
+                    <select id="year-select" name="year"class="px-5 py-1 h-10 border border-gray-300 rounded">
+                        {% for year in next_three_years %}
+                            <option value="{{ year }}" {% if year == last_year %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="dropdown-container flex item-center justify-between gap-3">
+                    <label for="month-select"class="py-2 text-gray-500 font-medium mb-0">MONTH</label>
+                    <select id="month-select" name="month"class="px-5 py-1 h-10 border border-gray-300 rounded">
+                        {% for month in months %}
+                            <option value="{{ month.value }}"
+                                    {% if month.value == last_month %}selected{% endif %}>{{ month.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+    
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <input type="text" id="search-store-id" placeholder="Enter Store ID..." class="border border-gray-300 rounded px-4 !pt-[7px] !pb-[7px]">
+                    <button onclick="searchStore()" class="px-5 py-2 text-white bg-purple-500 rounded">Search</button>
+                    <div id="search-result"></div>
+                </div>
             </div>
-            <div class="dropdown-container">
-                <label for="month-select">MONTH</label>
-                <select id="month-select" name="month">
-                    {% for month in months %}
-                        <option value="{{ month.value }}"
-                                {% if month.value == last_month %}selected{% endif %}>{{ month.name }}</option>
-                    {% endfor %}
-                </select>
+
+             <div class="flex justify-end items-center pe-5">
+                <button id="clearSCAllocationBtn" class="px-5 py-3 !bg-[#FF5733] text-white cursor-not-allowed rounded font-medium text-sm opacity-60" onclick="clearSCAllocations()" disabled>
+                    SC Allocation Clear
+                </button>
             </div>
-
-<div class="search-wrapper">
-
-    <input type="text" id="search-store-id" placeholder="Enter Store ID...">
-    <button onclick="searchStore()">Search</button>
-    <div id="search-result"></div>
-</div>
-
         </div>
 
 
-<div class="clear-sc-allocation-container" style="position: absolute; top: 50px; right: 20px;">
-    <button id="clearSCAllocationBtn" onclick="clearSCAllocations()" disabled style="
-        padding: 10px 20px;
-        margin-top: 30%;
-        background-color: #FF5733;
-        color: white;
-        border: none;
-        cursor: not-allowed;
-        border-radius: 5px;
-        font-size: 14px;
-        font-weight: bold;
-        opacity: 0.6;
-    ">
-        SC Allocation Clear
-    </button>
-</div>
-
-
-        <div class="teams-container">
+        <div class="teams-container mx-5 pt-10">
             <div class="store-allocation-body" id="store-allocation" ondrop="drop(event)" ondragover="allowDrop(event)"
                  data-area-id="store-allocation">
                 <div class="store-allocation">
@@ -118,10 +106,10 @@
 
                 </div>
             </div>
-            <div class="store-allocation-body" id="store-allocation" ondrop="drop(event)" ondragover="allowDrop(event)"
+            <div class="store-allocation-body mt-5" id="store-allocation" ondrop="drop(event)" ondragover="allowDrop(event)"
                  data-area-id="store-allocation">
                 <div class="store-allocation">
-                    <h2>Unallocated Store Consultants:</h2>
+                    <h2 class=" mb-0">Unallocated Store Consultants:</h2>
                 </div>
             </div>
 
@@ -147,7 +135,7 @@
 
             </div>
             <div class="store-allocation-body" id="unallocated-store-allocation">
-                <h2>Unallocated Stores:</h2>
+                <h2 class="mb-0">Unallocated Stores:</h2>
                 <div id="unallocated-stores-container" class="store-not-allocated">
                     {% for store_id_and_names in store_id_and_name %}
                         <div class="store-id" data-store-name="{{ store_id_and_names.store_name }}">
@@ -310,7 +298,6 @@
         .teams-container {
             display: flex;
             flex-direction: column;
-            margin: 0 20px;
 
         }
 
@@ -318,17 +305,17 @@
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
+            gap:10px;
         }
 
         .team {
             transition: margin-top 0.3s ease;
             padding: 10px;
-            margin: 10px;
             flex: 1;
             position: relative;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 0 20px 0 rgb(0 0 0 / 15%);
             border-radius: 8px;
         }
 
@@ -348,6 +335,9 @@
         }
 
         .team-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 10px 0; /* Optional padding */
             background-color: #673ab7; /* Header background */
             color: white;
@@ -477,7 +467,7 @@
 
         .not-allocated-body {
             padding: 15px;
-            margin: 20px; /* Add spacing to separate it visually */
+            margin: 10px 0px 20px; /* Add spacing to separate it visually */
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for container */
             background-color: #f9f9f9; /* Neutral background */
@@ -539,32 +529,10 @@
         .dropdown-section {
             display: flex;
             justify-content: start;
-            margin-bottom: 20px;
-        {#margin: 0 20px;#}
         }
 
         .dropdown-container {
             margin: 0 20px;
-        }
-
-        .dropdown-container select {
-            display: block;
-            width: 100%;
-            padding: 5px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: #f8f8f8;
-        }
-
-        .dropdown-container label {
-            display: block;
-            text-align: center;
-            background-color: #673ab7;
-            color: white;
-            padding: 5px;
-
-            margin-bottom: 5px;
         }
 
         .team-details {
@@ -647,7 +615,7 @@
             background-color: #e2e2e2;
             border: 1px solid #ccc;
             border-radius: 5px;
-            margin-top: 20px;
+            margin-top: 10px;
                 overflow: visible; /* Ensure tooltips are not clipped */
     position: relative;
         }
@@ -688,61 +656,56 @@
 }
 
 
-        .popup-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 40px;
-            border-radius: 5px;
-            text-align: center;
-            width: 50%;
-            max-height: 80%;
-            overflow: auto;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-        }
+.popup-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 40px;
+    border-radius: 5px;
+    text-align: center;
+    width: 50%;
+    max-height: 80%;
+    overflow: auto;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
 
-        @media (max-width: 600px) {
-            .popup-content {
-                width: 90%;
-                padding: 20px;
-                max-height: 90%;
-            }
-        }
+@media (max-width: 600px) {
+    .popup-content {
+        width: 90%;
+        padding: 20px;
+        max-height: 90%;
+    }
+}
 
-        .sc-count {
-            display: inline-block;
-            background-color: #4CAF50; /* Green background */
-            color: white;
-            padding: 5px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 10px;
-            text-align: center;
-            min-width: 40px;
-            min-height: 24px;
-            line-height: 24px;
-        }
+.sc-count {
+    display: inline-block;
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 10px;
+    text-align: center;
+    min-width: 40px;
+    min-height: 24px;
+    line-height: 24px;
+}
 
-        .select2-selection__choice {
-            background-color: #673ab7 !important;
-            color: white !important;
-            border-color: #673ab7 !important;
-        }
-        .search-wrapper {
+.select2-selection__choice {
+    background-color: #673ab7 !important;
+    color: white !important;
+    border-color: #673ab7 !important;
+}
+.search-wrapper {
     display: flex;
     align-items: center;
     gap: 10px;
     flex-wrap: wrap; /* бага дэлгэц дээр хугарал үүсгэнэ */
 }
 
-.search-wrapper input[type="text"] {
-    padding: 5px;
-    border-radius: 4px;
-    min-width: 150px;
-}
 
 .search-wrapper button {
     padding: 6px 12px;

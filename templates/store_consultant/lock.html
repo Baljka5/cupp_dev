@@ -3,6 +3,7 @@
 {% load widget_tweaks %}
 
 {% block content %}
+{% include 'common/bootstrap.html' %}
     <div class="content" style="margin-top: 30px;">
         <form method="post" action="{% url 'lock-update' %}">
             {% csrf_token %}

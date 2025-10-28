@@ -4,13 +4,14 @@
 {% block header %}
 {% endblock %}
 {% block content %}
+{% include 'common/bootstrap.html' %}
     <div class="col-md-12">
         <form method="POST" class="post-form" action="{% url 'event_update' model.id %}">
             {% csrf_token %}
             {{ form.as_p }}
-            <div class="container">
-                <div class="col-12">
-                    <h3>Update Details</h3>
+            <div class="container flex flex-wrap">
+                <div class="my-3 w-full">
+                    <h3 class="text-lg font-medium">Update Details</h3>
                 </div>
                 <div class="form-group col-md-6">
                     <label>Дугаар: </label>
@@ -93,13 +94,11 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-6 flex px-[10px] mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">Save</button>
                     <a href="{% url 'event_index' %}" class="btn btn-link text-purple-300">
                         Cancel
                     </a>
-                </div>
-                <div class="form-group col-md-6">
-                    <button type="submit" class="btn btn-success btn-lg">Save</button>
                 </div>
             </div>
         </form>

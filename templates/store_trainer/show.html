@@ -9,131 +9,135 @@
 {% block content %}
     <div class="content">
         <div class="row">
-            <div class="col-md-12">
-                <div style="font-size: 20px;">
-                    {% if user.is_authenticated %}
-                        {% is_in_store_trainer_group as user_in_is_store_trainer_group %}
-                        {% is_in_st_manager_group as user_in_is_st_manager_group %}
-                        {% if user_in_is_st_manager_group %}
-                            <div style="font-size: 20px;">
-                                <strong>БҮГ</strong>-н менежер <strong>{{ user.first_name|default:"User" }}</strong>
-                            </div>
-                        {% elif user_in_is_store_trainer_group %}
-                            <div style="font-size: 20px;">
-                                <strong>БҮГ</strong>-н дэлгүүрийн сургагч
-                                <strong>{{ user.first_name|default:"User" }}</strong> таны нээсэн дэлгүүрийн
-                                жагсаалтууд.
-                            </div>
-                        {% endif %}
-                    {% endif %}
-                </div>
-                <div style="color: dimgray;">
-                    Дэлгүүрийн датаг та үнэн зөв бөглөж хөтлөн явна уу.
-                </div>
-                {#                <span><a href="/addnew" id="btn_save_and_new"#}
-                {#                         class="btn bg-purple ml-1">Add New Record</a></span>#}
-                <div class="row">
-                    <div class="col-md-12 d-flex justify-content-end mb-3">
-                        <form method="get" action="." class="form-inline">
-                            <div class="input-group">
+            <div class="flex flex-col w-full px-1">
+
+                <div class="flex items-start justify-between !mt-[20px] mb-[28px]">
+                    <div>
+                        <div class="flex flex-col">
+                            <nav class="flex items-center" aria-label="Breadcrumb">
+                                <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                                    <li class="inline-flex items-center">
+                                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                                        <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                                        </svg>
+                                        Нүүр
+                                    </a>
+                                    </li>
+                                    <li>
+                                    <div class="flex items-center">
+                                        <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                                        </svg>
+                                        <a href="#" class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">Store Trainer </a>
+                                    </div>
+                                    </li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                    <div>
+                        <form method="get" action="." class="">
+                            <div class="flex gap-2">
                                 <input type="text" name="store_id" value="{{ store_id_query }}"
-                                       placeholder="Store ID..." class="form-control mr-2" style="margin-right: 2px;">
-                                <button type="submit" class="btn bg-purple ml-1" style="margin-right: 2px;">Filter
+                                        placeholder="Дэлгүүрийн дугаар..." class="p-2 border border-gray-300 rounded"
+                                        style="margin-right: 2px;">
+                                <button type="submit" class="text-white px-4 py-2 bg-purple-500 rounded hover:bg-purple-600 hover:border-purple-700"><i class="icon-filter4 me-2 "></i>Filter
                                 </button>
-                                <a href="." class="btn btn-secondary">Clear</a>
+                                <a href="." class="text-gray-500 px-4 py-2 bg-gray-300 rounded hover:bg-gray-600 hover:border-gray-700 hover:text-white">Clear</a>
                             </div>
                         </form>
                     </div>
                 </div>
-                <br>
 
-                <div class="table-responsive">
-                    <table id="bootstrapdatatable" class="table table-striped table-bordered" width="100%">
-                        <thead>
-
-
-                        <th><input type="checkbox" id="checkall"/></th>
-                        <th>ID</th>
-                        <th>Дэлгүүрийн дугаар</th>
-                        <th>Дэлгүүрийн нэр</th>
-                        <th>Хэмжээ</th>
-                        <th>Лангууны тоо</th>
-                        <th>Дэлгүүр нээгдсэн огноо</th>
-                        <th>Өрөлт орсон огноо</th>
-                        <th>Сандалны тоо</th>
-                        <th>Ширээний тоо</th>
-                        <th>Сууж үйлчлүүлэх хэсэг хэмжээ</th>
-                        <th>View</th>
-                        <th>Edit</th>
-                        </thead>
-                        <tbody>
-                        {% for model in page_obj %}
-                            <tr>
-                                <td><input type="checkbox" class="checkthis"/></td>
-                                <td>{{ model.id }}</td>
-                                <td>{{ model.store_id }}</td>
-                                <td>{{ model.store_name }}</td>
-                                <td>{{ model.size }}</td>
-                                <td>{{ model.shelf }}</td>
-                                <td>{{ model.open_date }}</td>
-                                <td>{{ model.displayed_date }}</td>
-                                <td>{{ model.chair_size }}</td>
-                                <td>{{ model.desk_size }}</td>
-                                <td>{{ model.sitting_size }}</td>
-                                <td><a href="/st-view/{{ model.id }}" class="btn btn-danger"
-                                       style="background-color: #efc47f; color: black;">View</a>
-                                <td>
-                                    {% if model.is_locked_st %}
-                                        <button class="btn btn-secondary" disabled>Locked</button>
-                                    {% else %}
-                                        <a href="{% url 'st-edit' model.id %}?page={{ page_number }}" class="btn btn-primary">Edit</a>
-                                    {% endif %}
-                                </td>
+                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                        <thead class="text-xs !text-gray-700 bg-[#f3f5f9] !font-medium">
+                            <tr class="h-[56px]">
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Дэлгүүрийн дугаар ба нэр
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium text-wrap">
+                                    Хэмжээ
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Лангууны тоо
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Дэлгүүр нээгдсэн огноо
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Өрөлт орсон огноо
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Сандалны тоо
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Ширээний тоо
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Сууж үйлчлүүлэх хэсэг хэмжээ
+                                </th>
+                                <th scope="col" class="px-6 py-[12px] align-top text-pretty  !font-medium">
+                                    Үйлдэл
+                                </th>
                             </tr>
-                        {% endfor %}
+                        </thead>
+                        <tbody class="text-[13px]">
+                            {% for model in page_obj %}
+                                <tr class="bg-white border-b border-gray-200 hover:bg-gray-50">
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        <div class="flex items-center gap-2">
+                                            <div class="h-10 w-[70px] bg-[#642b8b] text-white rounded-full text-base flex items-center justify-center">CU {{ model.store_id|add:0 }}</div>
+                                            <div class="flex flex-col">
+                                                <span class="font-medium uppercase">{{ model.store_name }}</span>
+                                                <span>{{ model.store_id }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.size }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.shelf }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.open_date }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.displayed_date }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.chair_size }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        {{ model.desk_size }}
+                                    </td>
+                                    <td class="px-6 py-[12px] h-[65px]">{{ model.sitting_size }}</td>
+                                    <td class="px-6 py-[12px] h-[65px]">
+                                        <div class="flex items-center gap-3">
+                                            <a href="/st-view/{{ model.id }}" class="!text-xs font-normal text-blue-600 hover:underline">
+                                                <i class="!text-md icon-eye mr-1 text-gray-500 hover:text-green-500"></i>
+
+                                            </a>
+                                            {% if model.is_locked_st %}
+                                                <i class="!text-xs icon-lock mr-1 text-red-500 hover:cursor-not-allowed"></i>
+                                            {% else %}
+                                                <a href="{% url 'st-edit' model.id %}?page={{ page_number }}" class="!text-xs font-normal text-green-600 hover:underline">
+                                                    <i class="!text-xs icon-pencil3 mr-1 text-gray-500  hover:text-green-500"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <br>
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page=1" aria-label="First">
-                            <span aria-hidden="true">&laquo;&laquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                {% endif %}
-
-                {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                        <li class="page-item active"><a class="btn bg-purple" href="?page={{ num }}">{{ num }}</a></li>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
-                            <span aria-hidden="true">&raquo;&raquo;</span>
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
+        {% include 'common/pagination.html' %}
 
 
     </div>{% endblock %}

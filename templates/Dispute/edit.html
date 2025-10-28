@@ -4,13 +4,14 @@
 {% block header %}
 {% endblock %}
 {% block content %}
+{% include 'common/bootstrap.html' %}
     <div class="col-md-12">
         <form method="POST" class="post-form" action="{% url 'leg-update' model.id %}">
             {% csrf_token %}
             {{ form.as_p }}
-            <div class="container">
-                <div class="col-12">
-                    <h3>Update Details</h3>
+            <div class="container flex flex-wrap">
+                <div class="my-3 w-full">
+                    <h3 class="text-lg font-medium">Update Details</h3>
                 </div>
                 <div class="form-group col-md-6">
                     <label>Дугаар: </label>
@@ -135,13 +136,12 @@
                     <input type="url" class="form-control" name="supp_link" id="id_supp_link"
                            value="{{ model.supp_link }}">
                 </div>
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-6 flex ">
+                    <button type="submit" class="btn btn-success btn-lg">Update</button>
                     <a href="{% url 'index' %}" class="btn btn-link text-purple-300">
                         Cancel
                     </a>
-                </div>
-                <div class="form-group col-md-6">
-                    <button type="submit" class="btn btn-success btn-lg">Update</button>
+                    
                 </div>
             </div>
         </form>

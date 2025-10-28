@@ -4,6 +4,7 @@
 {% block header %}
 {% endblock %}
 {% block content %}
+{% include 'common/bootstrap.html' %}
     <div class="content">
         <form method="post" autocomplete="off" enctype="multipart/form-data" id="type_form" class="post-form"
               action="/leg-add/">
@@ -11,8 +12,8 @@
 
             <div class="row">
 
-                <div class="container">
-                    <div class="col-12">
+                <div class="container flex flex-wrap">
+                    <div class="col-12 w-full">
 
                         <h3>Enter Details</h3>
 {#                        {% if messages %}#}
@@ -46,10 +47,7 @@
                         <label>Дэлгүүрийн нэр: <span class="text-purple">*</span></label>
                         <input id="id_store_name" class="form-control" name="store_name" readonly type="text">
                     </div>
-                    <div class="form-group col-md-6">
-                        <label>Болсон хэргийн талаар дэлгэрэнгүй мэдээлэл: <span class="text-purple">*</span></label>
-                        {% render_field form.disp_desc class+="form-control" %}
-                    </div>
+                   
                     <div class="form-group col-md-6">
                         <label>Хэргийн төрөл: <span class="text-purple">*</span></label>
                         {% render_field form.disp_cat class+="form-control" %}
@@ -87,17 +85,21 @@
                         <label>Холбогдох баримт бичгийн холбоос:</label>
                         {% render_field form.supp_link class+="form-control" %}
                     </div>
+                     <div class="form-group col-md-6">
+                        <label>Болсон хэргийн талаар дэлгэрэнгүй мэдээлэл: <span class="text-purple">*</span></label>
+                        {% render_field form.disp_desc class+="form-control" %}
+                    </div>
 
 
-                    <div class="mb-3">
-                        <a href="{% url 'leg-index' %}" class="btn btn-link text-purple-300">
-                            Cancel
-                        </a>
+                    <div class="mb-3 flex px-[10px] mt-4">
                         {% if not object %}
                             <div class="mb-3">
                                 <button type="submit" class="btn btn-primary">Save</button>
                             </div>
                         {% endif %}
+                        <a href="{% url 'leg-index' %}" class="btn btn-link text-purple-300">
+                            Cancel
+                        </a>
                     </div>
 
                 </div>

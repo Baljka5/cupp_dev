@@ -4,6 +4,7 @@
 {% block header %}
 {% endblock %}
 {% block content %}
+{% include 'common/bootstrap.html' %}
     <div style="padding-top:10px; text-align: center; color: grey">
         Session 10 минут болоод хаагдаж байгаа тул та өгөгдсөн тус хугацаанд амжиж хадгална уу!
     </div>
@@ -18,8 +19,8 @@
                 <div class="container">
 
 
-                    <div class="col-12">
-                        <h3>Enter Details</h3>
+                    <div class="my-3 w-full">
+                        <h3 class="text-lg font-medium">Enter Details</h3>
                     </div>
                     {% if messages %}
                         <ul>
@@ -297,15 +298,15 @@
                     {#                        </select>#}
                     {#                        {% render_field form.consequences class+="form-control" %}#}
                     {#                    </div>#}
-                    <div class="mb-3">
-                        <a href="{% url 'event_index' %}" class="btn btn-link text-purple-300">
-                            Cancel
-                        </a>
+                    <div class="mb-3 flex mt-2">
                         {% if not object %}
                             <div class="mb-3">
                                 <button type="submit" class="btn btn-primary">Add</button>
                             </div>
                         {% endif %}
+                        <a href="{% url 'event_index' %}" class="btn btn-link text-purple-300">
+                            Cancel
+                        </a>
                     </div>
 
                 </div>

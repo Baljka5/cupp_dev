@@ -4,6 +4,7 @@
 {% block header %}
 {% endblock %}
 {% block content %}
+{% include 'common/bootstrap.html' %}
     <div class="content">
         <form method="post" autocomplete="off" enctype="multipart/form-data" id="type_form" class="post-form"
               action="/comp-create/">
@@ -11,8 +12,8 @@
 
             <div class="row">
                 <div class="container">
-                    <div class="col-12">
-                        <h3>Enter Details</h3>
+                    <div class="my-3">
+                        <h3 class="text-lg font-medium">Enter Details</h3>
                     </div>
                     {% if messages %}
                         <ul>
@@ -118,15 +119,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <a href="{% url 'comp_index' %}" class="btn btn-link text-purple-300">
-                            Cancel
-                        </a>
+                    <div class="flex">
                         {% if not object %}
                             <div class="mb-3">
                                 <button type="submit" class="btn btn-primary">Add</button>
                             </div>
                         {% endif %}
+                        <a href="{% url 'comp_index' %}" class="btn btn-link text-purple-300">
+                            Cancel
+                        </a>
                     </div>
                 </div>
             </div>
