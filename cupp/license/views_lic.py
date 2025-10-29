@@ -94,6 +94,10 @@ def destroy(request, id):
     model.delete()
     return redirect("/register-license")
 
+def whistle(request):
+    # model = MainTable.objects.get(id=id)
+    # model.delete()
+    return render(request, 'license/blow-whistle.html', {})
 
 class LicenseView(g.TemplateView):
     template_name = 'base.html'
