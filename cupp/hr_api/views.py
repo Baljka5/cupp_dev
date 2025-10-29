@@ -1,306 +1,621 @@
-from rest_framework import serializers
-from cupp.point.models import StorePlanning, City, District
-from cupp.store_trainer.models import StoreTrainer
-from cupp.store_consultant.models import StoreConsultant, Consultants, Area, SC_Store_AllocationTemp, AllocationTemp
-from cupp.veritech_api.models import General, Experience
-from cupp.hr_api.models import PersonalInfoRaw, EmpPersonalInfoRaw
-from datetime import date
+import requests
 import json
-import re
+from numpy import record
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from sentry_sdk.serializer import serialize
+import traceback
+
+from cupp.point.models import StorePlanning, City, District
+from cupp.veritech_api.models import General, Experience
+from cupp.store_trainer.models import StoreTrainer
+from cupp.store_consultant.models import (
+    StoreConsultant, SC_Store_AllocationTemp, Consultants, AllocationTemp, Area
+)
+from .serializers import (
+    StorePlanningSerializer, StoreTrainerSerializer, StoreConsultantSerializer,
+    SCAllocationSerializer, CitySerializer, DistrictSerializer, VeritechGeneralSerializer, PersonalInfoRawSerializer,
+    PersonalInfoRaw, EmpPersonalInfoRawSerializer, EmpPersonalInfoRaw
+)
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.authentication import SessionAuthentication
+from .authentication import APIKeyAuthentication, VeritechOnlyAPIKeyAuthentication
 
 
-class StorePlanningSerializer(serializers.ModelSerializer):
-    address = serializers.SerializerMethodField()
+class StoreListCombinedInfoView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
 
-    class Meta:
-        model = StorePlanning
-        fields = [
-            'grade', 'address_det', 'cluster', 'addr1_prov', 'addr2_dist', 'addr3_khr',
-            'address', 'near_school', 'address_simple', 'lat', 'lon'
-        ]
+    def get(self, request):
+        data = []
 
-    def get_address(self, obj):
-        """
-        Урд талын тоо болон . тэмдэгт арилгана (жишээ: '14. Сүхбаатарын гудамж' → 'Сүхбаатарын гудамж')
-        """
-        if not obj.address:
-            return None
-        return re.sub(r'^\s*\d+\.?\s*', '', obj.address.strip())
+        store_ids = StoreConsultant.objects.values_list('store_id', flat=True).distinct()
 
+        for store_id in store_ids:
+            entry = {}
 
-class StoreTrainerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StoreTrainer
-        fields = [
-            'st_name', 'displayed_date', 'planned_date'
-        ]
+            # 1. StorePlanning
+            planning = StorePlanning.objects.filter(store_id=store_id).first()
+            entry['store_planning'] = StorePlanningSerializer(planning).data if planning else None
 
+            # 2. StoreTrainer
+            trainer = StoreTrainer.objects.filter(store_id=store_id).first()
+            entry['store_trainer'] = StoreTrainerSerializer(trainer).data if trainer else None
 
-class StoreConsultantSerializer(serializers.ModelSerializer):
-    cls_dt = serializers.SerializerMethodField()
+            # 3. StoreConsultant
+            consultant = StoreConsultant.objects.filter(store_id=store_id).first()
+            entry['store_consultant'] = StoreConsultantSerializer(consultant).data if consultant else None
 
-    class Meta:
-        model = StoreConsultant
-        fields = [
-            'store_id', 'store_name', 'team_mgr', 'sc_name', 'sm_num', 'am_num',
-            'tt_type', 'wday_hours', 'wend_hours', 'alc_reason', 'ciga_reason', 'sm_name', 'sm_phone', 'created_date',
-            'out_city_flow', 'in_out_flow', 'near_bus_station', 'bus_station_range',
-            'university_range', 'high_school_range', 'use_yn', 'store_type', 'store_email', 'ost_dt', 'cls_dt'
-        ]
+            # 4. SC_Store_Allocation
+            sc_allocations = SC_Store_AllocationTemp.objects.filter(store__store_id=store_id)
+            entry['sc_store_allocations'] = SCAllocationSerializer(sc_allocations, many=True).data
 
-    def get_cls_dt(self, obj):
-        val = obj.cls_dt
-        if not val:
-            return None
+            data.append(entry)
 
-        val_str = str(val).strip()
-        if val_str.startswith("9999"):
-            return 0
-
-        return val
+        return Response(data, status=status.HTTP_200_OK)
 
 
-class SCAllocationSerializer(serializers.ModelSerializer):
-    store_name = serializers.CharField()
-    sc_name = serializers.CharField()
-    store_no = serializers.CharField()
-    sc_email = serializers.SerializerMethodField()
-    sc_code = serializers.SerializerMethodField()  # ← нэмсэн хэсэг
+class StoreCombinedInfoView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
 
-    year = serializers.SerializerMethodField()
-    month = serializers.SerializerMethodField()
-    area_team_no = serializers.SerializerMethodField()
-    area_manager_name = serializers.SerializerMethodField()
-    area_manager_surname = serializers.SerializerMethodField()
-    area_manager_email = serializers.SerializerMethodField()
+    def get(self, request, store_id):
+        data = {}
 
-    class Meta:
-        model = SC_Store_AllocationTemp
-        fields = [
-            'id',
-            'store_name',
-            'sc_name',
-            'sc_code',  # ← шинэ талбар
-            'store_no',
-            'year',
-            'month',
-            'sc_email',
-            'area_team_no',
-            'area_manager_name',
-            'area_manager_surname',
-            'area_manager_email',
-        ]
+        # 1. StorePlanning
+        planning = StorePlanning.objects.filter(store_id=store_id).first()
+        data['store_planning'] = StorePlanningSerializer(planning).data if planning else None
 
-    def get_allocation(self, obj):
-        if not hasattr(self, '_allocation_cache'):
-            self._allocation_cache = {}
-        key = obj.consultant_id
-        if key not in self._allocation_cache:
-            self._allocation_cache[key] = AllocationTemp.objects.filter(
-                consultant_id=key
-            ).select_related('area').first()
-        return self._allocation_cache[key]
+        # 2. StoreTrainer
+        trainer = StoreTrainer.objects.filter(store_id=store_id).first()
+        data['store_trainer'] = StoreTrainerSerializer(trainer).data if trainer else None
 
-    def get_year(self, obj):
-        allocation = self.get_allocation(obj)
-        return allocation.year if allocation else None
+        # 3. StoreConsultant
+        consultant = StoreConsultant.objects.filter(store_id=store_id).first()
+        data['store_consultant'] = StoreConsultantSerializer(consultant).data if consultant else None
 
-    def get_month(self, obj):
-        allocation = self.get_allocation(obj)
-        return allocation.month if allocation else None
+        # 4. SC_Store_Allocation
+        sc_allocations = SC_Store_AllocationTemp.objects.filter(store__store_id=store_id)
+        data['sc_store_allocations'] = SCAllocationSerializer(sc_allocations, many=True).data
 
-    def get_sc_email(self, obj):
-        return obj.consultant.sc_email if obj.consultant else None
+        # 5. Consultants (from allocations)
+        consultant_ids = sc_allocations.values_list('consultant_id', flat=True).distinct()
+        consultants = Consultants.objects.filter(id__in=consultant_ids)
+        # data['consultants'] = ConsultantSerializer(consultants, many=True).data
 
-    def get_sc_code(self, obj):
-        original_code = obj.consultant.sc_code if obj.consultant else None
-        allocation = self.get_allocation(obj)
+        # 6. Allocation (from consultant_id)
+        allocations = AllocationTemp.objects.filter(consultant_id__in=consultant_ids)
+        # data['allocations'] = [
+        #     {
+        #         "id": alloc.id,
+        #         "storeID": alloc.storeID,
+        #         "store_name": alloc.store_name,
+        #         "store_cons": alloc.store_cons,
+        #         "team_no": alloc.team_no,
+        #         "year": alloc.year,
+        #         "month": alloc.month,
+        #         "area_id": alloc.area_id
+        #     }
+        #     for alloc in allocations
+        # ]
 
-        if not (allocation and allocation.area and original_code):
-            return original_code  # fallback to default if any missing
+        # 7. Area (from allocation.area_id)
+        area_ids = allocations.values_list('area_id', flat=True).distinct()
+        areas = Area.objects.filter(id__in=area_ids)
+        # data['areas'] = AreaSerializer(areas, many=True).data
 
-        # area_team_no → "TEAM 2" → 2
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class StoreAddressInfoView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def get(self, request):
+        cities = City.objects.all()
+        districts = District.objects.select_related('city').all()
+
+        data = {
+            "cities": CitySerializer(cities, many=True).data,
+            "districts": DistrictSerializer(districts, many=True).data
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class VeritechGeneralView(APIView):
+    authentication_classes = [VeritechOnlyAPIKeyAuthentication]  # ← шинэ класс
+    permission_classes = []
+
+    def get(self, request):
+        records = General.objects.all()
+
+        exp_qs_all = Experience.objects.all()
+        exp_qs_current = Experience.objects.filter(enddate__isnull=True)
+
+        exp_map = {}
+        exp_full_map = {}
+
+        for exp in exp_qs_current:
+            key = str(exp.employeeid)
+            exp_map.setdefault(key, []).append((exp.departmentname, exp.positionname))
+
+        for exp in exp_qs_all:
+            key = str(exp.employeeid)
+            exp_full_map.setdefault(key, []).append({
+                "startdate": exp.startdate,
+                "enddate": exp.enddate,
+                "departmentname": exp.departmentname
+            })
+
+        serializer = VeritechGeneralSerializer(
+            records,
+            many=True,
+            context={
+                "experience_map": exp_map,
+                "experience_full_map": exp_full_map
+            }
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SaveRawJsonView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def post(self, request):
         try:
-            team_number = allocation.area.team_no.strip().split()[-1]
-        except Exception:
-            team_number = ""
+            original_data = request.data.copy()
 
-        # sc_code → "SC5" → 5
+            incoming_data = {
+                "data": json.dumps(original_data),
+                "employee_id": original_data.get("employee_id", ""),
+                "responseData": None
+            }
+
+            serializer = PersonalInfoRawSerializer(data=incoming_data)
+            if serializer.is_valid():
+                instance = serializer.save()
+
+                headers = {
+                    "x-api-key": request.META.get("HTTP_X_API_KEY", "")
+                }
+
+                # 1-р API
+                first_api_url = "https://pp.cumongol.mn/api/list-data/"
+                try:
+                    first_response = requests.get(first_api_url, headers=headers, timeout=50, verify=False)
+                    first_json = first_response.json() if 'application/json' in first_response.headers.get(
+                        'Content-Type', '') else {"raw": first_response.text}
+                except Exception as ex:
+                    first_json = {"error": f"Request to pp.cumongol.mn failed: {str(ex)}"}
+
+                # Хэрвээ list хэлбэртэй байвал эхний dict-г сонгоно
+                if isinstance(first_json, list):
+                    if len(first_json) > 0 and isinstance(first_json[0], dict):
+                        payload_to_candidate = first_json[0]
+                    else:
+                        payload_to_candidate = {"error": "Invalid list structure from first API"}
+                else:
+                    payload_to_candidate = first_json
+
+                # 2-р API
+                second_api_url = "http://10.10.90.90/candidate/"
+                second_response = None
+                try:
+                    second_response = requests.post(second_api_url, json=payload_to_candidate, headers=headers,
+                                                    timeout=50)
+                    second_json = second_response.json() if 'application/json' in second_response.headers.get(
+                        'Content-Type', '') else {"raw": second_response.text}
+                except Exception as ex:
+                    second_json = {"error": f"Request to internal API failed: {str(ex)}"}
+
+                # Final data structure
+                try:
+                    current_data = json.loads(instance.data)
+                except Exception:
+                    current_data = {
+                        "original": original_data,
+                    }
+
+                # Save back to DB
+                instance.data = json.dumps(current_data)
+                instance.responseData = json.dumps(second_json)
+                instance.status = "SUCCESS" if second_response and second_response.status_code == 200 else "ERROR"
+                instance.save()
+
+                return Response({
+                    "message": "Data saved and forwarded successfully",
+                    "data": current_data,
+                    "responseData": second_json
+                }, status=status.HTTP_201_CREATED)
+
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class PersonalInfoListView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def get(self, request):
         try:
-            sc_number = original_code.strip().lstrip("SC")
-        except Exception:
-            sc_number = ""
+            records = PersonalInfoRaw.objects.filter(status="Pending").order_by('-created_at')[:50]
+            serializer = PersonalInfoRawSerializer(records, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-        # Construct new format
-        if team_number.isdigit() and sc_number.isdigit():
-            return f"SC{team_number}-{sc_number}"
-        else:
-            return original_code
-
-    def get_area_team_no(self, obj):
-        allocation = self.get_allocation(obj)
-        return allocation.area.team_no if allocation and allocation.area else None
-
-    def get_area_manager_name(self, obj):
-        allocation = self.get_allocation(obj)
-        return allocation.area.team_man_name if allocation and allocation.area else None
-
-    def get_area_manager_surname(self, obj):
-        allocation = self.get_allocation(obj)
-        return allocation.area.team_man_surname if allocation and allocation.area else None
-
-    def get_area_manager_email(self, obj):
-        allocation = self.get_allocation(obj)
-        return allocation.area.team_man_email if allocation and allocation.area else None
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class CitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = City
-        fields = ['id', 'city_code', 'city_name']
+class EmpPersonalInfoListView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def get(self, request):
+        try:
+            records = EmpPersonalInfoRaw.objects.filter(status="Pending").order_by('-created_at')[:50]
+            serializer = EmpPersonalInfoRawSerializer(records, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class DistrictSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = District
-        fields = ['id', 'district_name', 'city']
+class ListDataView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def post(self, request):
+        payload = request.data
+        return Response({
+            "status": "SUCCESS",
+            "employee_id": payload.get("employee_id", ""),
+            "error_message": ""
+        }, status=200)
 
 
-class VeritechGeneralSerializer(serializers.ModelSerializer):
-    department_name = serializers.SerializerMethodField()
-    position_name = serializers.SerializerMethodField()
-    store = serializers.SerializerMethodField()
-    type = serializers.SerializerMethodField()
-    status = serializers.SerializerMethodField()
-    age = serializers.SerializerMethodField()
-    total_years_worked = serializers.SerializerMethodField()
-    joined_date = serializers.SerializerMethodField()
-    cu_years_worked = serializers.SerializerMethodField()
+class ForwardPersonalInfoView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
 
-    class Meta:
-        model = General
-        fields = [
-            'employeeid', 'employeecode', 'urag', 'firstname', 'lastname',
-            'gender', 'stateregnumber', 'dateofbirth', 'postaddress', 'employeephone',
-            'department_name', 'position_name', 'store',
-            'type', 'status', 'age',
-            'total_years_worked', 'joined_date', 'cu_years_worked'
-        ]
+    def post(self, request, pk):
+        try:
+            instance = PersonalInfoRaw.objects.get(id=pk)
 
-    def get_experience_list(self, obj):
-        experience_map_all = self.context.get("experience_full_map", {})
-        return experience_map_all.get(str(obj.employeeid), [])
+            payload = request.data
 
-    def get_department_name(self, obj):
-        experience = self.context.get("experience_map", {}).get(str(obj.employeeid), [])
-        return experience[0][0] if experience else None
+            url = "https://pp.cumongol.mn/api/list-info/"
+            headers = {
+                "x-api-key": self.request.META.get("HTTP_X_API_KEY", "")
+            }
 
-    def get_position_name(self, obj):
-        experience = self.context.get("experience_map", {}).get(str(obj.employeeid), [])
-        return experience[0][1] if experience else None
+            response = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
 
-    def get_store(self, obj):
-        dept_name = self.get_department_name(obj)
-        if dept_name and dept_name.startswith("CU"):
-            return dept_name
-        return ""
+            # Parse response (not stored in responseData)
+            if response.headers.get('Content-Type', '').startswith('application/json'):
+                response_json = response.json()
+            else:
+                response_json = {"raw": response.text}
 
-    def get_type(self, obj):
-        return obj.statusname
+            # Save only request payload to responseData
+            instance.responseData = json.dumps(payload)
+            instance.status = "SUCCESS" if response.status_code == 200 else "ERROR"
+            instance.save()
 
-    def get_status(self, obj):
-        return obj.currentstatusname
+            # Parse saved `data`
+            try:
+                stored_data = json.loads(instance.data)
+            except Exception:
+                stored_data = {"error": "Invalid stored data"}
 
-    def get_age(self, obj):
-        if obj.dateofbirth:
-            today = date.today()
-            return today.year - obj.dateofbirth.year - (
-                    (today.month, today.day) < (obj.dateofbirth.month, obj.dateofbirth.day)
+            return Response({
+                "data": stored_data,
+                "responseData": payload
+            }, status=status.HTTP_200_OK)
+
+        except PersonalInfoRaw.DoesNotExist:
+            return Response({"error": "Record not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class FetchAndUpdateFromExternalView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def post(self, request):
+        try:
+            headers = {
+                "x-api-key": request.META.get("HTTP_X_API_KEY", "")
+            }
+
+            list_data_url = "https://pp.cumongol.mn/api/list-data/"
+
+            try:
+                response = requests.get(list_data_url, headers=headers, timeout=30, verify=False)
+                print("✅ Response status code:", response.status_code)
+                print("✅ Response headers:", response.headers)
+                print("✅ Raw response text:", response.text)
+
+                content_type = response.headers.get("Content-Type", "")
+                if content_type.startswith("application/json"):
+                    response_data = response.json()
+                else:
+                    print("⚠️ Unexpected Content-Type:", content_type)
+                    return Response({"error": f"Unexpected Content-Type: {content_type}"}, status=500)
+
+            except Exception as e:
+                return Response({"error": f"Failed to fetch from list-data API: {str(e)}"}, status=500)
+
+            # ⛔ If response is empty list
+            if not isinstance(response_data, list) or len(response_data) == 0:
+                return Response({
+                    "message": "Response received but no data found",
+                    "data_preview": response_data
+                }, status=200)
+
+            result = []
+
+            # 2. Iterate and update each entry
+            for item in response_data:
+                employee_id = item.get("employee_id", "")
+                if not employee_id:
+                    result.append({
+                        "status": "SKIPPED",
+                        "reason": "Missing employee_id",
+                        "item": item
+                    })
+                    continue
+
+                try:
+                    instance = PersonalInfoRaw.objects.filter(employee_id=employee_id).latest('created_at')
+                except PersonalInfoRaw.DoesNotExist:
+                    result.append({
+                        "employee_id": employee_id,
+                        "status": "SKIPPED",
+                        "reason": "No existing record found"
+                    })
+                    continue
+
+                # 3. Forward to candidate API
+                candidate_url = "http://10.10.90.90/candidate/"
+                try:
+                    post_response = requests.post(candidate_url, json=item, headers=headers, timeout=30)
+                    content_type_post = post_response.headers.get('Content-Type', '')
+                    if content_type_post.startswith("application/json"):
+                        post_json = post_response.json()
+                    else:
+                        post_json = {"raw": post_response.text}
+                except Exception as e:
+                    post_json = {"error": f"POST to candidate failed: {str(e)}"}
+                    instance.status = "ERROR"
+                else:
+                    instance.status = "SUCCESS" if post_response.status_code == 200 else "ERROR"
+
+                # 4. Update DB instance
+                instance.responseData = json.dumps(post_json)
+                instance.save()
+
+                result.append({
+                    "updated_id": instance.id,
+                    "employee_id": employee_id,
+                    "status": instance.status
+                })
+
+            return Response({
+                "message": "Processed all matched records",
+                "results": result
+            }, status=200)
+
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=500)
+
+
+class SaveOnlyRawJsonView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def post(self, request):
+        try:
+            original_data = request.data.copy()
+            unique_id = original_data.get("unique_id", "")
+
+            if not unique_id:
+                return Response({
+                    "error": "unique_id is required"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            instance = PersonalInfoRaw.objects.filter(unique_id=unique_id).order_by('-created_at').first()
+
+            if instance:
+                if instance.status == "Success":
+                    return Response({
+                        "message": "Already saved",
+                        "unique_id": instance.unique_id,
+                        "status": instance.status
+                    }, status=status.HTTP_200_OK)
+
+                elif instance.status == "Failed":
+                    instance.data = json.dumps(original_data)
+                    instance.employee_id = original_data.get("employee_id", "")
+                    instance.responseData = None
+                    instance.status = "Pending"
+                    instance.save()
+
+                    return Response({
+                        "message": "Existing record updated to Pending",
+                        "unique_id": instance.unique_id
+                    }, status=status.HTTP_200_OK)
+
+                elif instance.status == "Pending":
+                    return Response({
+                        "message": "Pending. Please try again later.",
+                        "unique_id": instance.unique_id
+                    }, status=status.HTTP_429_TOO_MANY_REQUESTS)  # Optional: or 200
+
+            instance = PersonalInfoRaw.objects.create(
+                unique_id=unique_id,
+                data=json.dumps(original_data),
+                employee_id=original_data.get("employee_id", ""),
+                responseData=None,
+                status="Pending"
             )
-        return None
 
-    def get_total_years_worked(self, obj):
-        total_days = 0
-        today = date.today()
-        for exp in self.get_experience_list(obj):
-            start = exp.get("startdate")
-            end = exp.get("enddate") or today
-            if start:
-                total_days += (end - start).days
+            return Response({
+                "message": "New data saved successfully",
+                "unique_id": instance.unique_id
+            }, status=status.HTTP_201_CREATED)
 
-        return round(total_days / 365, 2) if total_days else 0
-
-    def get_joined_date(self, obj):
-        experience_list = self.get_experience_list(obj)
-        if experience_list:
-            start_dates = [exp['startdate'] for exp in experience_list if exp.get('startdate')]
-            if start_dates:
-                return min(start_dates)
-        return None
-
-    # def get_joined_date(self, obj):
-    #     experience_list = self.get_experience_list(obj)
-    #     start_dates = [exp['startdate'] for exp in experience_list if exp.get('startdate')]
-    #     return min(start_dates) if start_dates else None
-
-    def get_left_date(self, obj):
-        experience_list = self.get_experience_list(obj)
-        end_dates = [exp['enddate'] for exp in experience_list if exp.get('enddate')]
-        return max(end_dates) if end_dates else None
-
-    def get_cu_years_worked(self, obj):
-        cu_days = 0
-        today = date.today()
-        for exp in self.get_experience_list(obj):
-            dept = exp.get("departmentname", "")
-            if dept.startswith("CU"):
-                start = exp.get("startdate")
-                end = exp.get("enddate") or today
-                if start:
-                    cu_days += (end - start).days
-
-        return round(cu_days / 365, 2) if cu_days else 0
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class PersonalInfoRawSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PersonalInfoRaw
-        fields = ['id', 'data', 'status', 'employee_id', 'responseData', 'created_at']
+class EmpSaveOnlyRawJsonView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
 
-    def to_representation(self, instance):
-        import json
-        result = super().to_representation(instance)
-
+    def post(self, request):
         try:
-            result['data'] = json.loads(result['data'])
-        except Exception:
-            result['data'] = {"error": "Invalid JSON"}
+            original_data = request.data.copy()
+            unique_id = original_data.get("unique_id", "")
 
+            if not unique_id:
+                return Response({
+                    "error": "unique_id is required"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            instance = PersonalInfoRaw.objects.filter(unique_id=unique_id).order_by('-created_at').first()
+
+            if instance:
+                if instance.status == "Success":
+                    return Response({
+                        "message": "Already saved",
+                        "unique_id": instance.unique_id,
+                        "status": instance.status
+                    }, status=status.HTTP_200_OK)
+
+                elif instance.status == "Failed":
+                    instance.data = json.dumps(original_data)
+                    instance.employee_id = original_data.get("employee_id", "")
+                    instance.responseData = None
+                    instance.status = "Pending"
+                    instance.save()
+
+                    return Response({
+                        "message": "Existing record updated to Pending",
+                        "unique_id": instance.unique_id
+                    }, status=status.HTTP_200_OK)
+
+                elif instance.status == "Pending":
+                    return Response({
+                        "message": "Pending. Please try again later.",
+                        "unique_id": instance.unique_id
+                    }, status=status.HTTP_429_TOO_MANY_REQUESTS)  # Optional: or 200
+
+            instance = EmpPersonalInfoRaw.objects.create(
+                unique_id=unique_id,
+                data=json.dumps(original_data),
+                employee_id=original_data.get("employee_id", ""),
+                responseData=None,
+                status="Pending"
+            )
+
+            return Response({
+                "message": "New data saved successfully",
+                "unique_id": instance.unique_id
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class PersonalInfoMergedView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
+
+    def get(self, request, unique_id):
         try:
-            result['responseData'] = json.loads(result['responseData']) if result['responseData'] else {}
-        except Exception:
-            result['responseData'] = {"error": "Invalid JSON"}
+            instance = PersonalInfoRaw.objects.filter(unique_id=unique_id).latest('created_at')
 
-        return result
+            try:
+                data_json = json.loads(instance.data)
+            except Exception:
+                data_json = {"error": "Invalid data JSON"}
+
+            try:
+                response_json = json.loads(instance.responseData) if instance.responseData else {}
+            except Exception:
+                response_json = {"error": "Invalid responseData JSON"}
+
+            # Combine both
+            merged = {
+                "data": data_json,
+                "responseData": response_json
+            }
+
+            return Response(merged, status=200)
+
+        except PersonalInfoRaw.DoesNotExist:
+            return Response({"error": "Record not found"}, status=404)
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }, status=500)
 
 
-class EmpPersonalInfoRawSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EmpPersonalInfoRaw
-        fields = ['id', 'data', 'status', 'employee_id', 'responseData', 'created_at']
+class EmpPersonalInfoMergedView(APIView):
+    authentication_classes = [APIKeyAuthentication]
+    permission_classes = []
 
-    def to_representation(self, instance):
-        import json
-        result = super().to_representation(instance)
-
+    def get(self, request, unique_id):
         try:
-            result['data'] = json.loads(result['data'])
-        except Exception:
-            result['data'] = {"error": "Invalid JSON"}
+            instance = EmpPersonalInfoRaw.objects.filter(unique_id=unique_id).latest('created_at')
+            try:
+                data_json = json.loads(instance.data)
+            except Exception:
+                data_json = {"error": "Invalid data JSON"}
 
-        try:
-            result['responseData'] = json.loads(result['responseData']) if result['responseData'] else {}
-        except Exception:
-            result['responseData'] = {"error": "Invalid JSON"}
+            try:
+                response_json = json.loads(instance.responseData) if instance.responseData else {}
+            except Exception:
+                response_json = {"error": "Invalid responseData JSON"}
 
-        return result
+            return Response({
+                "data": data_json,
+                "responseData": response_json,
+                "status": instance.status,
+                "employee_id": instance.employee_id,
+                "created_at": instance.created_at
+            }, status=200)
+
+        except EmpPersonalInfoRaw.DoesNotExist:
+            return Response({"error": "Record not found"}, status=404)
+        except Exception as e:
+            return Response({"error": str(e), "traceback": traceback.format_exc()}, status=500)
