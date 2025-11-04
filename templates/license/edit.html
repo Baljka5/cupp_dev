@@ -36,7 +36,11 @@
                 </div>
                 <div class="form-group col-md-6">
                         <label>Лицензийн файл: <span class="text-purple">*</span></label>
-                        <input type="file" name="lic_file" accept="image/*,application/pdf" class="form-control file-input" id="lic_file" value="{{ model.lic_file }}">
+                        {% if model.lic_file and model.lic_file.url %}
+                            <a class="form-control !text-blue-500 hover:underline" href="/media/{{ model.lic_file }}" target="_blank" download="{{ model.store_id|add:0 }}-license-file"><i class="!text-xs icon-download4 mr-1"></i>Татаж авах</a>
+                        {% else %}
+                            <input type="file" name="lic_file" accept="image/*,application/pdf" class="form-control file-input" id="lic_file" value="">
+                        {% endif %}
                     </div>
                 <div class="form-group col-md-6">
                     <label>Лицензийн төрлийн нэр:</label>
