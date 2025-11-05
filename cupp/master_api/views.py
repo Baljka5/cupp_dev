@@ -1,3 +1,5 @@
+# cupp/master_api/views.py
+
 import re
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -47,13 +49,16 @@ class StoreMasterAPI(APIView):
             if not store_plannings.exists() or not store_trainer:
                 continue
 
+            area_manager = None
+            primary_planning = store_plannings.first()
+
             branch_type = "Direct" if store_consultant.store_type == 0 else "Franchise"
             wday_hours = store_consultant.wday_hours or "00:00-23:59"
 
             if '-' in wday_hours:
-                open_time, close_time = wday_hours.split('-')
+                open_time, close_time = wday_hours.split('-', 1)
             else:
-                open_time, close_time = None, None  # Handle missing or incorrect format gracefully
+                open_time, close_time = None, None
 
             is_24h_open = store_consultant.tt_type == "24H" if store_consultant else False
 
@@ -63,7 +68,6 @@ class StoreMasterAPI(APIView):
             if "@cumongol.mn" in sc_name:
                 sc_name_part = sc_name.split("@")[0]
                 branch_employee_name = " ".join(word.capitalize() for word in sc_name_part.split("."))
-
                 sc = Consultants.objects.filter(sc_email=sc_name).first()
                 if sc:
                     sc_surname = sc.sc_surname
@@ -74,14 +78,19 @@ class StoreMasterAPI(APIView):
             if "@cumongol.mn" in area_name:
                 area_name_part = area_name.split("@")[0]
                 area_branch_employee_name = " ".join(word.capitalize() for word in area_name_part.split("."))
-
                 area_manager = Area.objects.filter(team_man_email=area_name).first()
                 if area_manager:
                     branch_area_surname = area_manager.team_man_surname
 
-            store_id_stripped = store_consultant.store_id.lstrip('0') if store_consultant.store_id else None
-            store_email_prefix = "cu" if store_consultant.store_type == 0 else "cuf"
-            store_email = f"{store_email_prefix}{store_id_stripped}@cumongol.mn"
+            # === Store email: шууд StoreConsultant.store_email дээр хадгална ===
+            if not store_consultant.store_email:
+                stripped = (store_consultant.store_id or "").lstrip("0") or store_consultant.store_id
+                prefix = "cu" if (store_consultant.store_type or 0) == 0 else "cuf"
+                if stripped:
+                    generated_email = f"{prefix}{stripped}@cumongol.mn"
+                    store_consultant.store_email = generated_email
+                    store_consultant.save(update_fields=["store_email"])
+            store_email = store_consultant.store_email
 
             employees_data = [{
                 'position': "Дэлгүүрийн менежер",
@@ -91,10 +100,10 @@ class StoreMasterAPI(APIView):
 
             lat = None
             lon = None
-            for store_planning in store_plannings:
-                if store_planning.lat and store_planning.lon:
-                    lat = store_planning.lat
-                    lon = store_planning.lon
+            for sp in store_plannings:
+                if sp.lat and sp.lon:
+                    lat = sp.lat
+                    lon = sp.lon
                     break
 
             area_manager_phone = None
@@ -103,15 +112,14 @@ class StoreMasterAPI(APIView):
 
             sc_phone = None
             if store_consultant.sc_name:
-                sc = Consultants.objects.filter(
-                    sc_email=store_consultant.sc_name).first()
+                sc = Consultants.objects.filter(sc_email=store_consultant.sc_name).first()
                 if sc:
                     sc_phone = sc.sc_phone
 
             data.append({
                 'branchType': branch_type,
                 'branchNo': store_consultant.store_id,
-                'branchAddress': store_planning.address_det if store_planning else None,
+                'branchAddress': primary_planning.address_det if primary_planning else None,
                 'branchName': store_consultant.store_name,
                 'branchOpeningDate': store_trainer.open_date if store_trainer else None,
                 'branchInChargeEmail': store_consultant.sc_name,
@@ -125,8 +133,8 @@ class StoreMasterAPI(APIView):
                 'branchEmployees': employees_data,
                 'openTime': open_time,
                 'closeTime': close_time,
-                'roZone': store_planning.cluster if store_planning else '',
-                'storeEmail': store_email,
+                'roZone': primary_planning.cluster if primary_planning else '',
+                'storeEmail': store_email,  # DB дээр хадгалсан утгыг буцааж байна
                 'is24Open': is_24h_open,
                 'isClose': bool(store_consultant.close_date),
                 'closeDate': store_consultant.close_date,
