@@ -93,3 +93,36 @@ class DimensionTableLicenseProvider(models.Model):
         verbose_name = 'Dimenstion Table License Provider'
 
 # lic_id_nm = m.ForeignKey(dimension_table.lic_id_nm, on_delete=m.CASCADE, related_name='License name')
+
+
+class WhistleBlow(models.Model):
+    # Хамгаалалттай мэдээлэл биш, сонголт эсвэл текст талбар
+    harm_type = models.CharField(max_length=100)  
+    damage_causer = models.CharField(max_length=200, blank=True, null=True)  
+
+    # Зураг хадгалах field
+    # damage_photo = models.FileField(upload_to='damage_photos/', blank=True, null=True)  
+    damage_photo = models.FileField('License PDF file', upload_to=upload_file, blank=True, null=True)
+
+    # Хувийн мэдээлэл
+    blower_firstName = models.CharField(max_length=50)
+    blower_lastName = models.CharField(max_length=50)
+    blower_company = models.CharField(max_length=100, blank=True, null=True)
+    blower_position = models.CharField(max_length=100, blank=True, null=True)
+    blower_phone = models.CharField(max_length=20, blank=True, null=True)
+    blower_email = models.EmailField(blank=True, null=True)
+    blower_secret = models.BooleanField(default=False)  # нууц байж болох эсэх
+
+    # Мессежер, username
+    blower_messenger = models.CharField(max_length=50, blank=True, null=True)
+    blower_messenger_name = models.CharField(max_length=100, blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Whistle Blow'
+        verbose_name_plural = 'Whistle Blows'
+
+    def __str__(self):
+        return f"{self.blower_firstName} {self.blower_lastName} - {self.harm_type}"

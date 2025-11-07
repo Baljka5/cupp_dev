@@ -195,13 +195,22 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '.store', 'media')
 
 # Email
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'in-v3.mailjet.com'
-EMAIL_HOST_USER = '66a58ce90bc8df4a33c3defe85883ddf'
-EMAIL_HOST_PASSWORD = '10fd3e3b0238163040a8cc0aab7d9baa'
-EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST = 'in-v3.mailjet.com'
+# EMAIL_HOST_USER = '66a58ce90bc8df4a33c3defe85883ddf'
+# EMAIL_HOST_PASSWORD = '10fd3e3b0238163040a8cc0aab7d9baa'
+# EMAIL_PORT = 587
 
-DEFAULT_FROM_EMAIL = 'CUPP <info@bitline.mn>'
+# DEFAULT_FROM_EMAIL = 'CUPP <info@bitline.mn>'
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.office365.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "noreply@cumongol.mn"       # өөрийн M365 имэйл хаяг
+EMAIL_HOST_PASSWORD = "Gol71747"  # M365-н нууц үг эсвэл app password
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Format
 

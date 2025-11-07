@@ -112,7 +112,7 @@ class StoreConsultantForm(f.ModelForm):
                   'up_frz_ice', 'ser_storabox', 'out_city_flow',
                   'ser_Umoney', 'ser_pow_bank', 'ser_lottery', 'ser_delivery', 'ser_print', 'ser_ticket', 'alc_reason',
                   'ciga_reason', 'reason_not_24', 'close_date', 'close_reason', 'near_gs', 'sm_name', 'sm_phone',
-                  'prc_grade', 'tv_screen', 'toilet_tp', 'walkin_chiller', 'lunch_case_L8', 'war_yn', 'toilet_seat',
+                  'tv_screen', 'toilet_tp', 'walkin_chiller', 'lunch_case_L8', 'war_yn', 'toilet_seat',
                   'squat_toilet_yn', 'desk_qty', 'chair_qty', 'building_purpose', 'customer_base', 'shelf',
                   'shelf_list', 'entrace_qty',
                   'cu_bar', 'cu_bar_door', 'doorstep_yn', 'doorstep_qty', 'out_banner_qty', 'entrace_connection',
