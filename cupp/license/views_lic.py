@@ -7,6 +7,7 @@ from django.conf import settings
 from .forms import MainTableForm
 from .models import MainTable, DimensionTable
 from .models import WhistleBlow
+from django.template.loader import render_to_string
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -115,11 +116,12 @@ def whistle_submit(request):
         data = json.loads(request.body.decode('utf-8'))
     except json.JSONDecodeError as e:
         return JsonResponse({'error': 'Invalid JSON', 'detail': str(e)}, status=400)
-
+    print(data)
     # JSON-аас утгуудыг авах
     wh_d = {}
     wh_d['harm_type'] = data.get('harm_type')
     wh_d['damage_causer'] = data.get('damage_causer')
+    wh_d['damage_desc'] = data.get('damage_desc')
     wh_d['damage_photo'] = data.get('damage_photo')  # FILE upload биш бол file path-ийг text-р хадгалж болно
     wh_d['blower_firstName'] = data.get('blower_firstName')
     wh_d['blower_lastName'] = data.get('blower_lastName')
@@ -133,21 +135,22 @@ def whistle_submit(request):
 
 
     # Model-д хадгалах
-    # whistle = WhistleBlow.objects.create(
-    #     harm_type=harm_type,
-    #     damage_causer=damage_causer,
-    #     damage_photo=damage_photo,  # хэрвээ file upload биш бол text
-    #     blower_firstName=blower_firstName,
-    #     blower_lastName=blower_lastName,
-    #     blower_company=blower_company,
-    #     blower_position=blower_position,
-    #     blower_phone=blower_phone,
-    #     blower_email=blower_email,
-    #     blower_secret=blower_secret,
-    #     blower_messenger=blower_messenger,
-    #     blower_messenger_name=blower_messenger_name
-    # )
-    send_whistle_mail(wh_d)
+    whistle = WhistleBlow.objects.create(
+        harm_type = wh_d['harm_type'],
+        damage_causer = wh_d['damage_causer'],
+        damage_desc = wh_d['damage_desc'],
+        damage_photo = wh_d['damage_photo'],
+        blower_firstName = wh_d['blower_firstName'],
+        blower_lastName = wh_d['blower_lastName'],
+        blower_company = wh_d['blower_company'],
+        blower_position = wh_d['blower_position'],
+        blower_phone = wh_d['blower_phone'],
+        blower_email = wh_d['blower_email'],
+        blower_secret = wh_d['blower_secret'],
+        blower_messenger = wh_d['blower_messenger'],
+        blower_messenger_name = wh_d['blower_messenger_name']
+    )
+    # send_whistle_mail(wh_d)
     return JsonResponse({'success': True, 'id': wh_d})
 
 def send_whistle_mail(request):
@@ -155,29 +158,47 @@ def send_whistle_mail(request):
 
     # print(request)
     to_emails = ["enkhsaikhan.e@cumongol.mn"]
-    cc_emails = ["baljinnyam.ye@cumongol.mn"]
+    cc_emails = ["enkhsaikhan.e@cumongol.mn"]
     try:
-        msg = MIMEMultipart()
+        # 1️⃣ HTML template-д ашиглах өгөгдлөө бэлдэх
+        context = {
+            "harm_type": request.get("harm_type"),
+            "damage_causer": request.get("damage_causer"),
+            "damage_desc": request.get("damage_desc"),
+            "blower_firstName": request.get("blower_firstName"),
+            "blower_lastName": request.get("blower_lastName"),
+            "blower_photo": request.get("blower_photo"),
+            "blower_company": request.get("blower_company"),
+            "blower_position": request.get("blower_position"),
+            "blower_phone": request.get("blower_phone"),
+            "blower_email": request.get("blower_email"),
+            "blower_secret": request.get("blower_secret"),
+            "blower_messenger": request.get("blower_messenger"),
+            "blower_messenger_name": request.get("blower_messenger_name"),
+        }
+
+        # Template-ээ render хийх
+        html_content = render_to_string("license/blow_email_template.html", context)
+
+        # Имэйл мессеж үүсгэх
+        msg = MIMEMultipart("alternative")
         msg["From"] = settings.DEFAULT_FROM_EMAIL
         msg["To"] = ", ".join(to_emails)
         msg["Cc"] = ", ".join(cc_emails)
         msg["Subject"] = settings.DEFAULT_FROM_EMAIL + " - Whistle Blower Notification"
-        smtp_server = settings.EMAIL_HOST
-        smtp_port = settings.EMAIL_PORT
-        smtp_username = settings.EMAIL_HOST_USER
-        smtp_password = settings.EMAIL_HOST_PASSWORD
-        sender_email = settings.DEFAULT_FROM_EMAIL
-        # msg.attach(MIMEText(request, "plain"))
-        msg.attach(MIMEText(json.dumps(request, ensure_ascii=False, indent=2), "plain"))
+
+        # HTML хувилбарыг хавсаргах
+        msg.attach(MIMEText(html_content, "html"))
 
         all_recipients = to_emails + cc_emails
 
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
+        # SMTP серверээр илгээх
+        with smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT) as server:
             server.starttls()
-            server.login(smtp_username, smtp_password)
-            server.sendmail(sender_email, all_recipients, msg.as_string())
+            server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+            server.sendmail(settings.DEFAULT_FROM_EMAIL, all_recipients, msg.as_string())
 
-        print("Email sent successfully.")
+        print("HTML имэйл амжилттай илгээгдлээ.")
     except Exception as e:
         print(f"Failed to send email: {e}")
     return JsonResponse({'success': True, 'id': request})

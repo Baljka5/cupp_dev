@@ -99,6 +99,7 @@ class WhistleBlow(models.Model):
     # Хамгаалалттай мэдээлэл биш, сонголт эсвэл текст талбар
     harm_type = models.CharField(max_length=100)  
     damage_causer = models.CharField(max_length=200, blank=True, null=True)  
+    damage_desc = models.CharField(max_length=200, blank=True, null=True)  
 
     # Зураг хадгалах field
     # damage_photo = models.FileField(upload_to='damage_photos/', blank=True, null=True)  
@@ -114,7 +115,7 @@ class WhistleBlow(models.Model):
     blower_secret = models.BooleanField(default=False)  # нууц байж болох эсэх
 
     # Мессежер, username
-    blower_messenger = models.CharField(max_length=50, blank=True, null=True)
+    blower_messenger = models.BooleanField(default=False)
     blower_messenger_name = models.CharField(max_length=100, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

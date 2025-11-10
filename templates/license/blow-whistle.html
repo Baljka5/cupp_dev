@@ -11,18 +11,95 @@
     <script src="/static/js/main/jquery.min.js"></script>
     </head>
     <body>
+        <div class="bg-white relative z-50">
+            <nav class="!px-1 !py-[10px] flex justify-between items-center  space-y-12 w-3/5 mx-auto py-10">
+                <a class="text-3xl font-bold leading-none !mb-0" href="#">
+                    <img src="/static/images/cu-logo.png" alt="xbook logo" class="!h-[50px]">
+                </a>
+                <div class="lg:hidden">
+                    <button class="navbar-burger flex items-center text-white p-3">
+                        <svg class="block h-4 w-4 fill-current" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <title>Mobile menu</title>
+                            <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <!-- <a class="hidden lg:inline-block lg:ml-auto lg:mr-3 py-2 px-6 bg-gray-50 hover:bg-gray-100 text-sm text-gray-900 font-bold  rounded-xl transition duration-200 !mt-0" href="#">Sign In</a>
+                <a class="hidden lg:inline-block py-2 px-6 bg-blue-500 hover:bg-blue-600 text-sm text-white font-bold rounded-xl transition duration-200 !mt-0" href="{% url 'logout' %}">Sign up</a> -->
+                <ul class="hidden lg:flex lg:justify-end gap-5 !mt-0">
+                    <li class="text-[#60697b] font-bold text-sm"><a class="" href="https://investor.cumongol.mn/" target="_blank">Хөрөнгө оруулагчид</a></li>
+                    <li class="text-[#60697b] font-bold text-sm"><a class="" href="https://cumongol.mn/bidnii-tuhai">Бидний тухай</a></li>
+                    <li class="text-[#60697b] font-bold text-sm"><a class="" href="https://cumongol.mn/hr">Хүний нөөц</a></li>
+                    <li class="text-[#60697b] font-bold text-sm"><a class="" href="https://cumongol.mn/location">Дэлгүүрийн Байршил </a></li>
+                </ul>
+            </nav>
+            <div class="bg-[#642B8B] hidden lg:block justify-between items-center">
+                <ul class="hidden lg:flex lg:justify-start gap-6 !mt-0 w-3/5  mx-auto py-3">
+                    <li class="text-white font-semibold text-base"><a class="" href="https://cumongol.mn/" target="_blank">Нүүр хуудас</a></li>
+                    <li class="text-white font-semibold text-base"><a class="" href="https://cumongol.mn/unench-hereglegch">Үнэнч хэрэглэгч</a></li>
+                    <li class="text-white font-semibold text-base"><a class="" href="https://cumongol.mn/#">Нэрийн бүтээгдэхүүн</a></li>
+                    <li class="text-white font-semibold text-base"><a class="" href="https://vendor.cumongol.mn/Account/Login">Харилцагч </a></li>
+                    <li class="text-white font-semibold text-base"><a class="" target="_blank" href="https://onelink.to/b92j3z">Ажилд орох </a></li>
+                </ul>
+            </div>
+            <div class="navbar-menu relative z-50 hidden">
+                <div class="navbar-backdrop fixed inset-0 bg-gray-800 opacity-25"></div>
+                <nav class="fixed top-0 left-0 bottom-0 flex flex-col w-5/6 max-w-sm py-5 px-5 bg-white border-r overflow-y-auto">
+                    <div class="flex items-center mb-8">
+                        <a class="mr-auto text-3xl font-bold leading-none" href="#">
+                            <img src="/static/images/cu-logo.png" alt="xbook logo" class="h-8">
+                        </a>
+                        <button class="navbar-close">
+                            <svg class="h-6 w-6 text-gray-400 cursor-pointer hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div>
+                        <ul>
+                            <li class="mb-1">
+                                <a class="block p-4 text-sm font-semibold text-gray-400 hover:bg-blue-50 hover:text-blue-600 rounded" href="#">Home</a>
+                            </li>
+                            <li class="mb-1">
+                                <a class="block p-4 text-sm font-semibold text-gray-400 hover:bg-blue-50 hover:text-blue-600 rounded" href="#">About Us</a>
+                            </li>
+                            <li class="mb-1">
+                                <a class="block p-4 text-sm font-semibold text-gray-400 hover:bg-blue-50 hover:text-blue-600 rounded" href="#">Services</a>
+                            </li>
+                            <li class="mb-1">
+                                <a class="block p-4 text-sm font-semibold text-gray-400 hover:bg-blue-50 hover:text-blue-600 rounded" href="#">Pricing</a>
+                            </li>
+                            <li class="mb-1">
+                                <a class="block p-4 text-sm font-semibold text-gray-400 hover:bg-blue-50 hover:text-blue-600 rounded" href="#">Contact</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-auto">
+                        <!-- <div class="pt-6">
+                            <a class="block px-4 py-3 mb-3 leading-loose text-xs text-center font-semibold leading-none bg-gray-50 hover:bg-gray-100 rounded-xl" href="#">Sign in</a>
+                            <a class="block px-4 py-3 mb-2 leading-loose text-xs text-center text-white font-semibold bg-blue-600 hover:bg-blue-700  rounded-xl" href="{% url 'logout' %}">Sign Up</a>
+                        </div> -->
+                        <p class="my-4 text-xs text-center text-gray-400">
+                            <span>PP Management © {% now 'Y' %}</span>
+                        </p>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+
         <div class="bg-gray-100">
             <!-- <form class="w-3/5 mx-auto py-10" method="POST" action="/blow-whistle/submit" enctype="multipart/form-data"> -->
                 {% csrf_token %}
             <div class="space-y-12 w-3/5 mx-auto py-10">
                 <div class="border-b border-gray-900/10 pb-12">
-                    <h2 class="text-lg font-semibold text-gray-900">Шүгэл үлээх мэдээлэл</h2>
+                    <h2 class="text-lg font-semibold text-gray-900">Premium Nexus-ийн Шүгэл үлээх систем</h2>
                     <p class="mt-1 text-sm/6 text-gray-600">Компаний ёс зүйн дүрэм болон шүгэл үлээх мэдээлэл </p>
                 
                     <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 
                         <div class="sm:col-span-3">
-                            <label for="harm-type" class="block text-sm/6 font-medium text-gray-900">Төрөл</label>
+                            <label for="harm-type" class="block text-sm/6 font-medium text-gray-900"><br>Зөрчлийн төрөл</label>
                             <div class="mt-2 grid grid-cols-1">
                                 <select id="harm-type" name="harm-type" autocomplete="harm-type" class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
                                 <option>Төрөл 1</option>
@@ -36,29 +113,37 @@
                         </div>
 
                         <div class="sm:col-span-3">
-                            <label for="damage-causer" class="block text-sm/6 font-medium text-gray-900">Хохирол учруулж болзошгүй хүний нэр</label>
+                            <label for="damage-causer" class="block text-sm/6 font-medium text-gray-900">Компанийн ашиг сонирхлыг хохироосон, эсхүл хохироож болзошгүй эс үйлдэхүй, үйлдэл хийсэн этгээдийн нэр, албан тушаал</label>
                             <div class="mt-2">
                                 <div class="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
                                     <input id="damage-causer" type="text" name="damage-causer" placeholder="Хохирол учруулж болзошгүй хүний нэр" class="block min-w-0 grow bg-white py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6" />
                                 </div>
                             </div>
                         </div>
-                
                         <div class="col-span-full">
-                            <label for="damage-photo" class="block text-sm/6 font-medium text-gray-900">Хохирол учруулж буй талаар нотлох баримт, зураг, бичлэг</label>
+                            <label for="damage-desc" class="block text-sm/6 font-medium text-gray-900">Компаний ашиг сонирхлыг хохироосон, эсхүл хохироож болзошгүй нөхцөл байдал, үйлдлийн тухай тайлбар</label>
+                            <div class="mt-2">
+                                <div class="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+                                    <textarea id="damage-desc" type="text" name="damage-desc" placeholder="Хохиролын тайлбар" class="block min-w-0 grow bg-white py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6" rows="4"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                 
+                        <div class="col-span-full">
+                            <label for="damage-photo" class="block text-sm/6 font-medium text-gray-900">Холбогдох нотлох баримт (дүрс бичлэг, зураг, бичлэг, дуу бичлэг, харилцсан цахим шуудан, чат, захианы зураг г.м.)</label>
                             <div class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10  bg-white">
                                 <div class="text-center">
                                     <svg viewBox="0 0 24 24" fill="currentColor" data-slot="icon" aria-hidden="true" class="mx-auto size-12 text-gray-300">
                                         <path d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clip-rule="evenodd" fill-rule="evenodd" />
                                     </svg>
-                                    <div class="mt-4 flex text-sm/6 text-gray-600">
-                                        <label for="damage-photo" class="relative cursor-pointer rounded-md bg-transparent font-semibold text-indigo-600 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 hover:text-indigo-500">
-                                        <span>Upload a file</span>
+                                    <div class="mt-4 flex text-sm/6 text-gray-600 text-center items-center justify-center">
+                                        <label for="damage-photo" class="relative cursor-pointer rounded-md bg-transparent font-semibold text-indigo-600 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 hover:text-indigo-500 ">
+                                        <span>Файл хуулах</span>
                                         <input id="damage-photo" type="file" name="damage-photo" class="sr-only" />
                                         </label>
-                                        <p class="pl-1">or drag and drop</p>
+                                        <!-- <p class="pl-1">or drag and drop</p> -->
                                     </div>
-                                    <p class="text-xs/5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+                                    <p class="text-xs/5 text-gray-600">PNG, JPG, GIF 10MB хүртэл</p>
                                 </div>
                             </div>
                         </div>
@@ -67,7 +152,7 @@
 
                 <div class="border-b border-gray-900/10 pb-12">
                 <h2 class="text-lg font-semibold text-gray-900">Шүгэл үлээгчийн мэдээлэл</h2>
-                <p class="mt-1 text-sm/6 text-gray-600">Use a permanent address where you can receive mail.</p>
+                <p class="mt-1 text-sm/6 text-gray-600">Доорх мэдээлэл нь мэдээлэл дамжуулж буй хүний мэдээлэл бөгөөд хүсвэл нууц байхаар сонголтыг сонгож болно.</p>
 
                 <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                     <div class="sm:col-span-3">
@@ -116,7 +201,7 @@
                     </div>
 
                     <div class="sm:col-span-3 flex justify-between items-center">
-                    <label  class="block text-sm/6 font-medium text-gray-900">Нууц</label>
+                    <label  class="block text-sm/6 font-medium text-gray-900">Шүгэл үлээгчийн мэдээллийг нууцлах эсэх</label>
                     <div class="flex ms-10 justify-end">
                         <div class="flex items-center rounded-mdx pl-3 gap-x-10">
                          <div class="flex items-center justify-center gap-x-2">
@@ -137,7 +222,7 @@
                     <div class="sm:col-span-3 flex invisible">
                     </div>
                     <div class="sm:col-span-3 flex justify-between items-center">
-                    <label  class="block text-sm/6 font-medium text-gray-900">Төлөөлөгчөөр дамжуулах</label>
+                    <label  class="block text-sm/6 font-medium text-gray-900">Та өөрийн төлөөлөчөөр дамжуулан мэдээлэл өгөх эсэх</label>
                     <div class="flex ms-10 justify-end">
                         <div class="flex items-center rounded-mdx pl-3 gap-x-10">
                          <div class="flex items-center justify-center gap-x-2">
@@ -159,7 +244,7 @@
                     <div class="sm:col-span-3 flex invisible">
                     </div>
                     <div class="sm:col-span-3">
-                    <label for="blower-messenger-name" class="block text-sm/6 font-medium text-gray-900">Тийм бол төлөөлөгчийн нэр</label>
+                    <label for="blower-messenger-name" class="block text-sm/6 font-medium text-gray-900">Тийм бол төлөөлөгчийн нэр, холбоо барих мэдээлэл</label>
                     <div class="mt-2">
                         <input id="blower-messenger-name" type="text" name="blower-messenger-name" autocomplete="family-name" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
                     </div>
@@ -170,8 +255,13 @@
                 </div>
                 </div>
 
-                <div class="mt-6 flex items-center justify-end gap-x-6">
-                    <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" onclick="saveWhistle()">Send</button>
+                <div class="flex gap-3 !mt-3 flex-row-reverse">
+                    <div class="flex items-center justify-end">
+                        <a href="https://cumongol.mn" class="rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" >Болих</a>
+                    </div>
+                    <div class="flex items-center justify-end ">
+                        <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" onclick="saveWhistle()">Илгээх</button>
+                    </div>
                 </div>
             </div>
             
@@ -202,6 +292,7 @@
     function saveWhistle() {
             let harm_type = document.getElementById("harm-type").value;
             let damage_causer = document.getElementById("damage-causer").value;
+            let damage_desc = document.getElementById("damage-desc").value;
             let damage_photo = document.getElementById("damage-photo").value;
             let blower_firstName = document.getElementById("blower-firstName").value;
             let blower_lastName = document.getElementById("blower-lastName").value;
@@ -222,6 +313,7 @@
                 body: JSON.stringify({
                     harm_type : harm_type,
                     damage_causer : damage_causer,
+                    damage_desc : damage_desc,
                     damage_photo : damage_photo,
                     blower_firstName : blower_firstName,
                     blower_lastName : blower_lastName,
