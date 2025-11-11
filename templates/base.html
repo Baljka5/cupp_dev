@@ -193,7 +193,7 @@
                     {% if user_in_event_group %}
 
                         <li class=" group py-1">
-                            <a href="{% url 'event_index' %}" class="block py-[12px] px-[10px] text-gray-500 group-hover:text-purple-500 rounded-sm
+                            <a href="{% url 'event_index' %}?page=1" class="block py-[12px] px-[10px] text-gray-500 group-hover:text-purple-500 rounded-sm
                             {% if request.path == '/log-index/' %}text-purple-500 font-bold{% endif %}" aria-current="page">
                                 <i class="icon-calendar mr-1 !text-xs"></i> DL
                             </a>

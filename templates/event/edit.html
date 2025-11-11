@@ -6,7 +6,7 @@
 {% block content %}
 {% include 'common/bootstrap.html' %}
     <div class="col-md-12">
-        <form method="POST" class="post-form" action="{% url 'event_update' model.id %}">
+        <form method="POST" class="post-form" action="{% url 'event_update' model.id %}?page={{page_number}}">
             {% csrf_token %}
             {{ form.as_p }}
             <div class="container flex flex-wrap">

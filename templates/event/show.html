@@ -103,7 +103,7 @@
                                     </td>
                                     <td class="px-6 py-[12px] h-[65px]">
                                         <div class="flex items-center">
-                                            <a href="/log-edit/{{ model.id }}" class="!text-xs font-normal text-blue-600 hover:underline">
+                                            <a href="/log-edit/{{ model.id }}?page={{page_number}}" class="!text-xs font-normal text-blue-600 hover:underline">
                                                 <i class="!text-xs icon-pencil3 mr-1 text-gray-500 hover:text-green-500"></i>
                                             </a>
                                             {% if user.is_authenticated %}

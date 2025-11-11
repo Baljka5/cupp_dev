@@ -101,7 +101,7 @@ def index(request):
 
     return render(request, "event/show.html",
                   {'page_obj': page_obj, 'store_no_query': store_no_query, 'activ_cat_query': activ_cat_query,
-                   'sort': sort, 'order': order})
+                   'sort': sort, 'order': order,'page_number': page_number})
 
 
 # def index(request):
@@ -110,23 +110,32 @@ def index(request):
 
 
 def edit(request, id):
+    page_number = request.GET.get('page')
     model = StoreDailyLog.objects.get(id=id)
     categories = ActionCategory.objects.all()
     owners = ActionOwner.objects.all()
     store_id_to_name = {event.store_id: event.store_name for event in StoreTrainer.objects.all()}
     return render(request, 'event/edit.html',
-                  {'model': model, 'categories': categories, 'owners': owners, 'store_id_to_name': store_id_to_name})
+                  {'model': model, 'categories': categories, 'owners': owners, 'store_id_to_name': store_id_to_name,'page_number': page_number})
 
 
 def update(request, id):
     model = StoreDailyLog.objects.get(id=id)
+    page_number = request.GET.get('page')
+    if page_number is not None:
+        try:
+            page_number = int(page_number)
+        except ValueError:
+            page_number = 1  # алдаатай тохиолдолд default
+    else:
+        page_number = 1  # параметр байхгүй үед default
     form = StoreDailyLogForm(request.POST, instance=model)
     if request.method == 'POST':
         if form.is_valid():
             form.instance.modified_by = request.user
             form.save()
             messages.success(request, 'Update successful.')
-            return redirect('/log-index/')
+            return redirect(f"/log-index/?page={page_number}")
         else:
             messages.error(request, 'Error updating the form. Please check your data.')
     return render(request, 'event/edit.html', {'form': form, 'model': model})
